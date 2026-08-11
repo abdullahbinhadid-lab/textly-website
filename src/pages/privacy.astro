@@ -1,0 +1,160 @@
+---
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+
+const lastUpdated = 'August 2026';
+---
+
+<BaseLayout
+  title="Privacy Policy — Textly"
+  description="Textly privacy policy. We don't collect your text data. All tools run client-side in your browser."
+  canonical="/privacy"
+  contactVariant="compact"
+  contactTitle="Questions about our privacy policy?"
+  contactDescription="We're happy to clarify anything. Reach out and we'll get back to you."
+  contactButtonText="Contact Us"
+>
+  <div class="container-page py-12">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
+      <!-- Sidebar -->
+      <aside class="hidden lg:block lg:col-span-1">
+        <div class="sticky top-24 space-y-1">
+          <div class="mb-4">
+            <span class="badge-brand">Legal</span>
+          </div>
+          <h2 class="text-h4 font-bold mb-4">Privacy Policy</h2>
+          <p class="text-tiny text-txt-muted mb-4">Last updated: {lastUpdated}</p>
+          <nav class="space-y-1">
+            <a href="#overview" class="sidebar-link">Overview</a>
+            <a href="#not-collected" class="sidebar-link">Data We Don't Collect</a>
+            <a href="#collected" class="sidebar-link">Data We Do Collect</a>
+            <a href="#cookies" class="sidebar-link">Cookies</a>
+            <a href="#web-speech" class="sidebar-link">Web Speech API</a>
+            <a href="#third-party" class="sidebar-link">Third-Party Services</a>
+            <a href="#rights" class="sidebar-link">Your Rights</a>
+            <a href="#changes" class="sidebar-link">Changes to This Policy</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <div class="lg:col-span-3 space-y-6">
+        <div class="lg:hidden">
+          <span class="badge-brand mb-3">Legal</span>
+          <h1 class="text-h2 font-bold tracking-tight xs:text-h3">Privacy Policy</h1>
+          <p class="mt-2 text-small text-txt-muted">Last updated: {lastUpdated}</p>
+        </div>
+
+        <div class="card-feature p-6" id="overview">
+          <h2 class="text-h3 font-bold mb-3">Overview</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            Textly is committed to your privacy. This policy explains what information we collect (very little) and
+            how we use it. The short version: <strong>your text never leaves your browser</strong>. All tool processing
+            is 100% client-side using JavaScript.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="not-collected">
+          <h2 class="text-h3 font-bold mb-3">Data We Don't Collect</h2>
+          <ul class="space-y-3 text-body text-txt-muted">
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300 text-tiny">✓</span> We do NOT collect, store, or transmit any text you enter into our tools.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300 text-tiny">✓</span> We do NOT have user accounts or authentication.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300 text-tiny">✓</span> We do NOT use tracking cookies for analytics.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300 text-tiny">✓</span> We do NOT sell or share your data with third parties.</li>
+          </ul>
+        </div>
+
+        <div class="card-feature p-6" id="collected">
+          <h2 class="text-h3 font-bold mb-3">Data We Do Collect</h2>
+          <p class="text-body text-txt-muted leading-relaxed mb-4">
+            As a static website, we collect minimal data necessary for operation:
+          </p>
+          <ul class="space-y-3 text-body text-txt-muted">
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> <strong>Local Storage:</strong> Your theme preference (dark/light) is stored in your browser's localStorage. This never leaves your device.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> <strong>Server Logs:</strong> Our hosting provider (Cloudflare) may automatically log standard request data (IP address, timestamp, user agent) for security and uptime purposes.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> <strong>Advertising:</strong> Google AdSense may use cookies to serve relevant ads. See <a href="https://policies.google.com/technologies/ads" class="text-brand-600 underline dark:text-brand-300">Google's Ad Privacy Policy</a> for details.</li>
+          </ul>
+        </div>
+
+        <div class="card-feature p-6" id="cookies">
+          <h2 class="text-h3 font-bold mb-3">Cookies</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            Textly uses minimal cookies:
+          </p>
+          <ul class="space-y-3 text-body text-txt-muted mt-3">
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300 text-tiny">•</span> <code class="text-brand-600 dark:text-brand-300">textly-theme</code> — Stores your dark/light mode preference. First-party, localStorage.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300 text-tiny">•</span> Google AdSense cookies — Used by our ad provider. You can opt out via <a href="https://www.google.com/settings/ads" class="text-brand-600 underline dark:text-brand-300">Google Ads Settings</a>. See our <a href="/cookie-policy" class="text-brand-600 underline dark:text-brand-300">Cookie Policy</a> for full details.</li>
+          </ul>
+        </div>
+
+        <div class="card-feature p-6" id="web-speech">
+          <h2 class="text-h3 font-bold mb-3">Web Speech API</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            Our Text to Speech and Speech to Text tools use the browser's native Web Speech API. Depending on your
+            browser, speech recognition or synthesis may be processed locally or sent to a browser-managed service
+            (e.g., Chrome sends speech recognition to Google servers). This is controlled by your browser, not by
+            Textly. We do not intercept or store this data.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="third-party">
+          <h2 class="text-h3 font-bold mb-3">Third-Party Services</h2>
+          <ul class="space-y-3 text-body text-txt-muted">
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> <strong>Google AdSense:</strong> Display advertising.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> <strong>Cloudflare:</strong> Website hosting and CDN.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> <strong>Google Fonts:</strong> Font delivery (Inter, JetBrains Mono).</li>
+          </ul>
+        </div>
+
+        <div class="card-feature p-6" id="rights">
+          <h2 class="text-h3 font-bold mb-3">Your Rights</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            Since we don't collect personal data, there's no data to access, delete, or export. Your theme preference
+            can be cleared by clearing your browser's localStorage. If you have questions about this policy, contact
+            us at <a href="mailto:info@toolly.site" class="text-brand-600 underline dark:text-brand-300">info@toolly.site</a>.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="changes">
+          <h2 class="text-h3 font-bold mb-3">Changes to This Policy</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            We may update this privacy policy from time to time. Changes will be posted on this page with an updated
+            date. We recommend reviewing this page periodically.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <a href="/cookie-policy" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Cookie Policy</h3>
+          <p class="text-tiny text-txt-muted">How we use cookies and how to manage them</p>
+        </div>
+      </a>
+      <a href="/terms" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Terms of Service</h3>
+          <p class="text-tiny text-txt-muted">Rules and guidelines for using Textly</p>
+        </div>
+      </a>
+      <a href="/tools" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Browse All Tools</h3>
+          <p class="text-tiny text-txt-muted">Explore 33 free, privacy-first text tools</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,537 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="text-to-speech">
+  <!-- Tool Container -->
+  <div class="tts-tool space-y-4 sm:space-y-5">
+    <!-- Main Glass Card -->
+    <div class="card-glass relative overflow-hidden p-4 sm:p-6">
+      <!-- Decorative gradient orbs -->
+      <div class="pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-brand-500/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl"></div>
+
+      <div class="relative z-10 space-y-4">
+        <!-- Text Input Area -->
+        <div>
+          <div class="mb-2 flex items-center justify-between">
+            <label for="tts-text" class="text-small font-semibold text-txt-light dark:text-txt-dark">
+              <span class="inline-flex items-center gap-1.5">
+                <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"/><path d="M9 20h6"/><path d="M12 5v15"/></svg>
+                Your Text
+              </span>
+            </label>
+            <div class="flex items-center gap-2 text-tiny text-txt-muted">
+              <span id="tts-char-count" class="badge-neutral">0 chars</span>
+              <span id="tts-word-count" class="badge-neutral">0 words</span>
+            </div>
+          </div>
+          <textarea
+            id="tts-text"
+            class="tool-textarea min-h-[140px] w-full resize-y rounded-xl border border-border-light bg-white/50 px-3 py-3 text-small leading-relaxed backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-border-dark dark:bg-white/5"
+            placeholder="Type or paste the text you want to hear spoken aloud..."
+            aria-label="Text to convert to speech"
+            aria-describedby="tts-hint"
+          ></textarea>
+          <p id="tts-hint" class="mt-1.5 text-tiny text-txt-muted">
+            Press <kbd class="rounded bg-surface-light-alt px-1.5 py-0.5 text-tiny font-mono dark:bg-surface-dark-alt">Space</kbd> to play/pause · <kbd class="rounded bg-surface-light-alt px-1.5 py-0.5 text-tiny font-mono dark:bg-surface-dark-alt">Esc</kbd> to stop
+          </p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="tts-empty-state" class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-light bg-surface-light-alt/30 py-8 text-center dark:border-border-dark dark:bg-surface-dark-alt/30">
+          <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5 6 9H2v6h4l5 4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          </div>
+          <p class="text-small font-semibold text-txt-light dark:text-txt-dark">Enter text to start</p>
+          <p class="mt-1 text-tiny text-txt-muted">Type or paste text above, then press Play</p>
+        </div>
+
+        <!-- Controls Section (hidden until text is entered) -->
+        <div id="tts-controls-section" class="hidden space-y-4">
+          <!-- Voice Selection -->
+          <div class="space-y-2">
+            <label for="tts-voice" class="text-small font-semibold text-txt-light dark:text-txt-dark">
+              <span class="inline-flex items-center gap-1.5">
+                <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+                Voice Selection
+              </span>
+            </label>
+            <div class="relative">
+              <select id="tts-voice" class="tool-select w-full appearance-none pr-10 text-small" aria-label="Select voice">
+                <option value="">Loading voices...</option>
+              </select>
+              <svg class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-txt-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <!-- Voice Search Filter -->
+            <div class="relative">
+              <input
+                type="text"
+                id="tts-voice-search"
+                class="w-full rounded-lg border border-border-light bg-white/50 px-3 py-2 pl-9 text-tiny text-txt-light backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-border-dark dark:bg-white/5 dark:text-txt-dark"
+                placeholder="Search voices by name or language..."
+                aria-label="Search voices"
+              />
+              <svg class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-txt-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+          </div>
+
+          <!-- Sliders Grid -->
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <!-- Rate Slider -->
+            <div class="rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm dark:border-border-dark dark:bg-white/5">
+              <div class="mb-1.5 flex items-center justify-between">
+                <label for="tts-rate" class="text-tiny font-semibold text-txt-muted">Speed</label>
+                <span id="tts-rate-value" class="text-tiny font-bold text-brand-500">1.0x</span>
+              </div>
+              <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" class="tts-slider w-full" aria-label="Speech rate" />
+              <div class="mt-1 flex justify-between text-tiny text-txt-muted">
+                <span>0.5x</span><span>2.0x</span>
+              </div>
+            </div>
+            <!-- Pitch Slider -->
+            <div class="rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm dark:border-border-dark dark:bg-white/5">
+              <div class="mb-1.5 flex items-center justify-between">
+                <label for="tts-pitch" class="text-tiny font-semibold text-txt-muted">Pitch</label>
+                <span id="tts-pitch-value" class="text-tiny font-bold text-brand-500">1.0</span>
+              </div>
+              <input type="range" id="tts-pitch" min="0" max="2" step="0.1" value="1" class="tts-slider w-full" aria-label="Voice pitch" />
+              <div class="mt-1 flex justify-between text-tiny text-txt-muted">
+                <span>Low</span><span>High</span>
+              </div>
+            </div>
+            <!-- Volume Slider -->
+            <div class="rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm dark:border-border-dark dark:bg-white/5">
+              <div class="mb-1.5 flex items-center justify-between">
+                <label for="tts-volume" class="text-tiny font-semibold text-txt-muted">Volume</label>
+                <span id="tts-volume-value" class="text-tiny font-bold text-brand-500">100%</span>
+              </div>
+              <input type="range" id="tts-volume" min="0" max="1" step="0.05" value="1" class="tts-slider w-full" aria-label="Output volume" />
+              <div class="mt-1 flex justify-between text-tiny text-txt-muted">
+                <span>Mute</span><span>Max</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Speaking Time Estimate -->
+          <div class="flex items-center gap-3 rounded-xl border border-brand-200 bg-brand-50/50 px-4 py-2.5 dark:border-brand-800 dark:bg-brand-900/20">
+            <svg class="h-4 w-4 shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span class="text-small text-txt-muted">Estimated speaking time:</span>
+            <span id="tts-time-estimate" class="text-small font-bold text-brand-600 dark:text-brand-300">0s</span>
+            <span class="ml-auto text-tiny text-txt-muted" id="tts-sentence-count">0 sentences</span>
+          </div>
+
+          <!-- Playback Controls -->
+          <div class="flex items-center gap-2 sm:gap-3">
+            <button id="tts-play-btn" class="btn-primary flex-1 px-4 py-3 text-small sm:flex-none sm:px-6" aria-label="Play speech">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              <span>Play</span>
+            </button>
+            <button id="tts-pause-btn" class="btn-secondary px-4 py-3 text-small" disabled aria-label="Pause speech">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <span class="hidden sm:inline">Pause</span>
+            </button>
+            <button id="tts-stop-btn" class="btn-secondary px-4 py-3 text-small" disabled aria-label="Stop speech">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+              <span class="hidden sm:inline">Stop</span>
+            </button>
+          </div>
+
+          <!-- Status Bar -->
+          <div id="tts-status" class="hidden items-center gap-2 rounded-xl border border-border-light bg-surface-light-alt/50 px-4 py-2.5 text-small dark:border-border-dark dark:bg-surface-dark-alt/50">
+            <div id="tts-status-icon" class="flex h-5 w-5 items-center justify-center">
+              <div class="h-3 w-3 animate-pulse rounded-full bg-brand-500"></div>
+            </div>
+            <span id="tts-status-text" class="text-txt-muted">Speaking...</span>
+          </div>
+
+          <!-- Word Highlight Display -->
+          <div id="tts-highlight-container" class="hidden rounded-xl border border-border-light bg-surface-light-alt/30 p-4 dark:border-border-dark dark:bg-surface-dark-alt/30">
+            <p class="mb-2 text-tiny font-semibold text-txt-muted">Now speaking:</p>
+            <p id="tts-highlight-text" class="text-small leading-relaxed text-txt-muted max-h-24 overflow-y-auto scrollbar-thin"></p>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="tts-error" class="hidden items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-small text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+          <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+          <span id="tts-error-text">An error occurred.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Quick Access Cards -->
+    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-500 transition-transform group-hover:scale-110 dark:bg-brand-900/30 dark:text-brand-300">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+        </div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">50+ Languages</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 text-accent-500 transition-transform group-hover:scale-110 dark:bg-accent-900/30 dark:text-accent-300">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          </div>
+        </div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Multi-Voice</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 transition-transform group-hover:scale-110 dark:bg-cyan-900/30 dark:text-cyan-300">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="m12 14 4 4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+          </div>
+        </div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Speed Control</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600 transition-transform group-hover:scale-110 dark:bg-green-900/30 dark:text-green-300">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+        </div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Word Highlight</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-500 transition-transform group-hover:scale-110 dark:bg-brand-900/30 dark:text-brand-300">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/></svg>
+          </div>
+        </div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Shortcuts</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 text-accent-500 transition-transform group-hover:scale-110 dark:bg-accent-900/30 dark:text-accent-300">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+        </div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">100% Private</p>
+      </div>
+    </div>
+  </div>
+
+  <ToolSections slug="text-to-speech" />
+</ToolLayout>
+
+<style>
+  .tts-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-border);
+    outline: none;
+    cursor: pointer;
+  }
+  .tts-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-brand);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+    transition: transform 0.15s ease;
+  }
+  .tts-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+  .tts-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-brand);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+  }
+  .tts-highlight-word {
+    background: rgba(124, 58, 237, 0.2);
+    border-radius: 4px;
+    padding: 1px 3px;
+    font-weight: 600;
+    color: var(--color-brand);
+  }
+  kbd {
+    border: 1px solid var(--color-border);
+  }
+  @media (max-width: 358px) {
+    .tts-tool .grid-cols-2 { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var textArea = document.getElementById('tts-text');
+    var emptyState = document.getElementById('tts-empty-state');
+    var controlsSection = document.getElementById('tts-controls-section');
+    var voiceSelect = document.getElementById('tts-voice');
+    var voiceSearch = document.getElementById('tts-voice-search');
+    var rateSlider = document.getElementById('tts-rate');
+    var pitchSlider = document.getElementById('tts-pitch');
+    var volumeSlider = document.getElementById('tts-volume');
+    var rateValue = document.getElementById('tts-rate-value');
+    var pitchValue = document.getElementById('tts-pitch-value');
+    var volumeValue = document.getElementById('tts-volume-value');
+    var playBtn = document.getElementById('tts-play-btn');
+    var pauseBtn = document.getElementById('tts-pause-btn');
+    var stopBtn = document.getElementById('tts-stop-btn');
+    var charCount = document.getElementById('tts-char-count');
+    var wordCount = document.getElementById('tts-word-count');
+    var timeEstimate = document.getElementById('tts-time-estimate');
+    var sentenceCount = document.getElementById('tts-sentence-count');
+    var statusEl = document.getElementById('tts-status');
+    var statusText = document.getElementById('tts-status-text');
+    var highlightContainer = document.getElementById('tts-highlight-container');
+    var highlightText = document.getElementById('tts-highlight-text');
+    var errorEl = document.getElementById('tts-error');
+    var errorText = document.getElementById('tts-error-text');
+
+    var synth = window.speechSynthesis;
+    var voices = [];
+    var filteredVoices = [];
+    var utterance = null;
+    var isPlaying = false;
+    var isPaused = false;
+    var currentWordIndex = 0;
+    var words = [];
+
+    function showElement(el) { el.classList.remove('hidden'); el.style.display = 'flex'; }
+    function hideElement(el) { el.classList.add('hidden'); el.style.display = 'none'; }
+
+    function showError(msg) {
+      errorText.textContent = msg;
+      showElement(errorEl);
+      setTimeout(function() { hideElement(errorEl); }, 5000);
+    }
+
+    function loadVoices() {
+      voices = synth.getVoices();
+      if (voices.length === 0) return;
+      filteredVoices = voices;
+      populateVoices(voices);
+    }
+
+    function populateVoices(list) {
+      voiceSelect.innerHTML = '';
+      if (list.length === 0) {
+        voiceSelect.innerHTML = '<option value="">No voices found</option>';
+        return;
+      }
+      list.forEach(function(v, i) {
+        var opt = document.createElement('option');
+        opt.value = v.name;
+        opt.textContent = v.name + ' (' + v.lang + ')';
+        voiceSelect.appendChild(opt);
+      });
+    }
+
+    if (synth) {
+      loadVoices();
+      if (synth.onvoiceschanged !== undefined) {
+        synth.onvoiceschanged = loadVoices;
+      }
+    }
+
+    function updateCounts() {
+      var text = textArea.value;
+      var chars = text.length;
+      var wCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+      var sCount = text.trim() ? (text.match(/[.!?]+/g) || []).length || 1 : 0;
+      charCount.textContent = chars + ' chars';
+      wordCount.textContent = wCount + ' words';
+      sentenceCount.textContent = sCount + ' sentences';
+
+      var rate = parseFloat(rateSlider.value);
+      var wpm = 180 * rate;
+      var seconds = wCount > 0 ? Math.ceil((wCount / wpm) * 60) : 0;
+      if (seconds < 60) {
+        timeEstimate.textContent = seconds + 's';
+      } else {
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        timeEstimate.textContent = m + 'm ' + s + 's';
+      }
+
+      if (text.trim().length > 0) {
+        hideElement(emptyState);
+        showElement(controlsSection);
+      } else {
+        showElement(emptyState);
+        hideElement(controlsSection);
+      }
+    }
+
+    function updateHighlight() {
+      if (currentWordIndex < 0 || currentWordIndex >= words.length) return;
+      var html = '';
+      for (var i = 0; i < words.length; i++) {
+        if (i === currentWordIndex) {
+          html += '<span class="tts-highlight-word">' + words[i] + '</span>';
+        } else {
+          html += words[i];
+        }
+        if (i < words.length - 1) html += ' ';
+      }
+      highlightText.innerHTML = html;
+    }
+
+    function play() {
+      var text = textArea.value.trim();
+      if (!text) {
+        showError('Please enter some text first.');
+        return;
+      }
+      if (!synth) {
+        showError('Speech synthesis is not supported in your browser.');
+        return;
+      }
+      synth.cancel();
+      isPaused = false;
+
+      utterance = new SpeechSynthesisUtterance(text);
+      var selectedVoice = voices.find(function(v) { return v.name === voiceSelect.value; });
+      if (selectedVoice) utterance.voice = selectedVoice;
+      utterance.rate = parseFloat(rateSlider.value);
+      utterance.pitch = parseFloat(pitchSlider.value);
+      utterance.volume = parseFloat(volumeSlider.value);
+
+      words = text.split(/\s+/);
+      currentWordIndex = -1;
+
+      utterance.onstart = function() {
+        isPlaying = true;
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+        stopBtn.disabled = false;
+        showElement(statusEl);
+        statusText.textContent = 'Speaking...';
+        showElement(highlightContainer);
+      };
+
+      utterance.onboundary = function(e) {
+        if (e.name === 'word') {
+          var word = text.substr(e.charIndex, e.charLength).replace(/\s/g, '');
+          for (var i = 0; i < words.length; i++) {
+            if (words[i].replace(/[^\w]/g, '') === word && i >= currentWordIndex) {
+              currentWordIndex = i;
+              break;
+            }
+          }
+          updateHighlight();
+        }
+      };
+
+      utterance.onend = function() {
+        isPlaying = false;
+        isPaused = false;
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+        hideElement(statusEl);
+        hideElement(highlightContainer);
+        playBtn.querySelector('span').textContent = 'Play';
+      };
+
+      utterance.onerror = function(e) {
+        isPlaying = false;
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+        hideElement(statusEl);
+        hideElement(highlightContainer);
+        if (e.error !== 'interrupted' && e.error !== 'canceled') {
+          showError('Speech error: ' + (e.error || 'unknown'));
+        }
+      };
+
+      synth.speak(utterance);
+      playBtn.querySelector('span').textContent = 'Playing';
+    }
+
+    function pause() {
+      if (synth.speaking && !synth.paused) {
+        synth.pause();
+        isPaused = true;
+        pauseBtn.querySelector('span') && (pauseBtn.querySelector('span').textContent = 'Resume');
+        statusText.textContent = 'Paused';
+      } else if (synth.paused) {
+        synth.resume();
+        isPaused = false;
+        pauseBtn.querySelector('span') && (pauseBtn.querySelector('span').textContent = 'Pause');
+        statusText.textContent = 'Speaking...';
+      }
+    }
+
+    function stop() {
+      if (synth) {
+        synth.cancel();
+        isPlaying = false;
+        isPaused = false;
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+        hideElement(statusEl);
+        hideElement(highlightContainer);
+        playBtn.querySelector('span').textContent = 'Play';
+      }
+    }
+
+    textArea.addEventListener('input', updateCounts);
+    playBtn.addEventListener('click', play);
+    pauseBtn.addEventListener('click', pause);
+    stopBtn.addEventListener('click', stop);
+
+    rateSlider.addEventListener('input', function() {
+      rateValue.textContent = parseFloat(this.value).toFixed(1) + 'x';
+      updateCounts();
+    });
+    pitchSlider.addEventListener('input', function() {
+      pitchValue.textContent = parseFloat(this.value).toFixed(1);
+    });
+    volumeSlider.addEventListener('input', function() {
+      var v = parseFloat(this.value);
+      volumeValue.textContent = Math.round(v * 100) + '%';
+    });
+
+    voiceSearch.addEventListener('input', function() {
+      var q = this.value.toLowerCase();
+      filteredVoices = voices.filter(function(v) {
+        return v.name.toLowerCase().indexOf(q) !== -1 || v.lang.toLowerCase().indexOf(q) !== -1;
+      });
+      populateVoices(filteredVoices);
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.target === textArea || e.target === voiceSearch) {
+        if (e.key === 'Escape') { e.preventDefault(); textArea.blur(); }
+        return;
+      }
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        if (isPlaying && !isPaused) { pause(); }
+        else if (isPaused) { pause(); }
+        else { play(); }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        stop();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        var r = parseFloat(rateSlider.value);
+        if (r < 2) { rateSlider.value = (r + 0.1).toFixed(1); rateSlider.dispatchEvent(new Event('input')); }
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        var r2 = parseFloat(rateSlider.value);
+        if (r2 > 0.5) { rateSlider.value = (r2 - 0.1).toFixed(1); rateSlider.dispatchEvent(new Event('input')); }
+      }
+    });
+
+    updateCounts();
+  })();
+</script>

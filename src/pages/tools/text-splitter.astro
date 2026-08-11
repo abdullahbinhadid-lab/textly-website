@@ -1,0 +1,495 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="text-splitter">
+  <div class="ts-tool">
+    <!-- Input Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4 relative overflow-hidden">
+      <div class="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-amber-500/10 blur-3xl"></div>
+      <div class="relative z-10">
+        <div class="flex items-center justify-between mb-3">
+          <label for="ts-input" class="text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M20 4 8.12 15.88"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.47 14.48 20 20"/><path stroke-linecap="round" stroke-linejoin="round" d="M8.12 8.12 12 12"/></svg>
+            Input Text
+          </label>
+          <div class="flex items-center gap-2">
+            <span id="ts-char-count" class="text-tiny text-txt-muted font-mono">0 chars</span>
+            <button id="ts-clear-btn" class="btn-ghost px-3 py-1.5 text-tiny rounded-lg" title="Clear text">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Clear
+            </button>
+          </div>
+        </div>
+        <textarea id="ts-input" class="tool-textarea min-h-[140px] w-full" placeholder="Type or paste text to split here..." aria-label="Input text to split" autocomplete="off" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <!-- Split Mode Buttons -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+          Split Mode
+        </h3>
+        <span class="text-tiny text-txt-muted hidden sm:inline">12 modes</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5" id="ts-buttons">
+        <button class="ts-btn active" data-mode="newline" title="Split by newlines">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 18h16M4 12h8"/></svg>
+          <span class="ts-btn-label">By Newline</span>
+        </button>
+        <button class="ts-btn" data-mode="comma" title="Split by commas">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5h14M5 12h14M5 19h6"/></svg>
+          <span class="ts-btn-label">By Comma</span>
+        </button>
+        <button class="ts-btn" data-mode="space" title="Split by spaces">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16"/></svg>
+          <span class="ts-btn-label">By Space</span>
+        </button>
+        <button class="ts-btn" data-mode="tab" title="Split by tabs">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h6M15 12h6"/></svg>
+          <span class="ts-btn-label">By Tab</span>
+        </button>
+        <button class="ts-btn" data-mode="semicolon" title="Split by semicolons">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="1"/><circle cx="12" cy="15" r="1"/></svg>
+          <span class="ts-btn-label">By Semicolon</span>
+        </button>
+        <button class="ts-btn" data-mode="pipe" title="Split by pipe character">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v18M15 3v18"/></svg>
+          <span class="ts-btn-label">By Pipe |</span>
+        </button>
+        <button class="ts-btn" data-mode="chars" title="Split into individual characters">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h4v4H4zM14 7h4v4h-4zM4 17h4v-4H4zM14 17h4v-4h-4z"/></svg>
+          <span class="ts-btn-label">By Character</span>
+        </button>
+        <button class="ts-btn" data-mode="words" title="Split into words">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h6M4 12h12M4 18h8"/></svg>
+          <span class="ts-btn-label">Into Words</span>
+        </button>
+        <button class="ts-btn" data-mode="sentences" title="Split into sentences">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h10M4 17h6"/></svg>
+          <span class="ts-btn-label">Into Sentences</span>
+        </button>
+        <button class="ts-btn" data-mode="chunks" title="Split into fixed-size chunks">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="ts-btn-label">Fixed Chunks</span>
+        </button>
+        <button class="ts-btn" data-mode="pairs" title="Split into pairs">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="8" height="6" rx="1"/><rect x="13" y="5" width="8" height="6" rx="1"/><rect x="3" y="13" width="8" height="6" rx="1"/><rect x="13" y="13" width="8" height="6" rx="1"/></svg>
+          <span class="ts-btn-label">Into Pairs</span>
+        </button>
+        <button class="ts-btn" data-mode="custom" title="Split by custom delimiter">
+          <svg class="ts-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path stroke-linecap="round" stroke-linejoin="round" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span class="ts-btn-label">Custom Delimiter</span>
+        </button>
+      </div>
+      <!-- Custom delimiter + chunk size inputs -->
+      <div id="ts-custom-wrap" class="mt-3 hidden">
+        <label class="text-tiny font-semibold text-txt-muted mb-1 block">Custom delimiter:</label>
+        <input id="ts-custom-delim" type="text" class="tool-textarea w-full py-2 px-3 text-small" placeholder="Enter custom delimiter..." value=":" />
+      </div>
+      <div id="ts-chunk-wrap" class="mt-3 hidden">
+        <label class="text-tiny font-semibold text-txt-muted mb-1 block">Chunk size (characters):</label>
+        <input id="ts-chunk-size" type="number" min="1" max="10000" value="80" class="tool-textarea w-full py-2 px-3 text-small" />
+      </div>
+    </div>
+
+    <!-- Options Panel -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <h3 class="text-body font-semibold mb-3 flex items-center gap-2">
+        <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+        Options
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="ts-opt-trim" checked class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Trim each item</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="ts-opt-empty" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Include empty items</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="ts-opt-number" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Number items</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="ts-opt-dedup" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Remove duplicates</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="ts-opt-sort" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Sort alphabetically</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="ts-opt-json" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Output as JSON array</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Split Result
+        </h3>
+        <div class="flex items-center gap-2">
+          <span id="ts-status" class="text-tiny text-txt-muted"></span>
+          <button id="ts-copy-btn" class="btn-primary px-4 py-2 text-small rounded-xl" disabled title="Copy result (Ctrl+Shift+C)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+      <div id="ts-empty" class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-light-alt text-brand-400 dark:bg-surface-dark-alt dark:text-brand-500">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M20 4 8.12 15.88"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.47 14.48 20 20"/><path stroke-linecap="round" stroke-linejoin="round" d="M8.12 8.12 12 12"/></svg>
+        </div>
+        <p class="text-small text-txt-muted">Enter text above and select a split mode to see the result</p>
+      </div>
+      <div id="ts-result-wrap" class="hidden">
+        <div id="ts-result" class="tool-textarea min-h-[160px] max-h-[400px] overflow-y-auto w-full bg-surface-light-alt/50 dark:bg-surface-dark-alt/50 font-mono text-small leading-relaxed whitespace-pre-wrap break-words cursor-text" role="textbox" aria-label="Split text result" tabindex="0"></div>
+        <div class="mt-3 flex items-center justify-between text-tiny text-txt-muted">
+          <span id="ts-result-count"></span>
+          <span id="ts-active-mode" class="badge-brand"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <h3 class="text-body font-semibold mb-3 flex items-center gap-2">
+        <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 16v-5M12 16V7M17 16v-3"/></svg>
+        Split Stats
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Total Parts</div>
+          <div id="ts-stat-parts" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Avg Length</div>
+          <div id="ts-stat-avg" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Shortest</div>
+          <div id="ts-stat-min" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Longest</div>
+          <div id="ts-stat-max" class="text-body font-bold text-brand-600 dark:text-brand-300">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts help -->
+    <div class="card-glass p-4 mb-4">
+      <details>
+        <summary class="cursor-pointer text-small font-semibold text-txt-muted flex items-center gap-2 list-none">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+          Keyboard Shortcuts
+          <svg class="h-4 w-4 transition-transform ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-tiny text-txt-muted">
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Copy result</span><kbd class="kbd">Ctrl+Shift+C</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Clear text</span><kbd class="kbd">Ctrl+Shift+K</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Focus input</span><kbd class="kbd">Ctrl+I</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Toggle JSON output</span><kbd class="kbd">Ctrl+J</kbd></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <ToolSections slug="text-splitter" />
+</ToolLayout>
+
+<style>
+  .ts-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 8px; border-radius: 12px; border: 1px solid var(--color-border);
+    background: var(--color-surface); cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); min-height: 64px;
+    position: relative; overflow: hidden;
+  }
+  .ts-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--color-brand-gradient); opacity: 0;
+    transition: opacity 0.25s ease; z-index: 0;
+  }
+  .ts-btn > * { position: relative; z-index: 1; }
+  .ts-btn:hover {
+    border-color: var(--color-brand); transform: translateY(-2px);
+    box-shadow: 0 4px 16px -4px rgba(124, 58, 237, 0.2);
+  }
+  .ts-btn:active { transform: translateY(0) scale(0.98); }
+  .ts-btn.active::before { opacity: 1; }
+  .ts-btn.active { color: #fff; border-color: transparent; }
+  .ts-btn.active .ts-btn-icon, .ts-btn.active .ts-btn-label { color: #fff; stroke: #fff; }
+  .ts-btn-icon { width: 20px; height: 20px; color: var(--color-brand); }
+  .ts-btn-label { font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); text-align: center; line-height: 1.2; }
+  .ts-btn:hover .ts-btn-label { color: var(--color-text); }
+  .dark .ts-btn { background: var(--color-surface); }
+  .dark .ts-btn-icon { color: var(--color-brand); }
+  .kbd {
+    display: inline-flex; align-items: center; padding: 2px 8px;
+    border-radius: 6px; border: 1px solid var(--color-border);
+    background: var(--color-surface-alt); font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem; font-weight: 600; color: var(--color-text);
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::marker { content: ''; }
+  @media (max-width: 358px) {
+    .ts-btn { padding: 10px 6px; min-height: 56px; }
+    .ts-btn-icon { width: 18px; height: 18px; }
+    .ts-btn-label { font-size: 0.6875rem; }
+  }
+</style>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('ts-input');
+  var charCount = document.getElementById('ts-char-count');
+  var clearBtn = document.getElementById('ts-clear-btn');
+  var copyBtn = document.getElementById('ts-copy-btn');
+  var emptyState = document.getElementById('ts-empty');
+  var resultWrap = document.getElementById('ts-result-wrap');
+  var resultEl = document.getElementById('ts-result');
+  var resultCount = document.getElementById('ts-result-count');
+  var activeModeEl = document.getElementById('ts-active-mode');
+  var statusEl = document.getElementById('ts-status');
+  var buttons = document.querySelectorAll('.ts-btn');
+  var customWrap = document.getElementById('ts-custom-wrap');
+  var customDelim = document.getElementById('ts-custom-delim');
+  var chunkWrap = document.getElementById('ts-chunk-wrap');
+  var chunkSize = document.getElementById('ts-chunk-size');
+  var optTrim = document.getElementById('ts-opt-trim');
+  var optEmpty = document.getElementById('ts-opt-empty');
+  var optNumber = document.getElementById('ts-opt-number');
+  var optDedup = document.getElementById('ts-opt-dedup');
+  var optSort = document.getElementById('ts-opt-sort');
+  var optJson = document.getElementById('ts-opt-json');
+  var statParts = document.getElementById('ts-stat-parts');
+  var statAvg = document.getElementById('ts-stat-avg');
+  var statMin = document.getElementById('ts-stat-min');
+  var statMax = document.getElementById('ts-stat-max');
+  var currentResult = '';
+  var activeBtn = document.querySelector('.ts-btn.active');
+  var activeMode = 'newline';
+
+  var modeLabels = {
+    newline: 'By Newline', comma: 'By Comma', space: 'By Space', tab: 'By Tab',
+    semicolon: 'By Semicolon', pipe: 'By Pipe', chars: 'By Character',
+    words: 'Into Words', sentences: 'Into Sentences', chunks: 'Fixed Chunks',
+    pairs: 'Into Pairs', custom: 'Custom Delimiter'
+  };
+
+  function splitText(text, mode) {
+    var parts = [];
+    switch (mode) {
+      case 'newline':
+        parts = text.split('\n');
+        break;
+      case 'comma':
+        parts = text.split(',');
+        break;
+      case 'space':
+        parts = text.split(' ');
+        break;
+      case 'tab':
+        parts = text.split('\t');
+        break;
+      case 'semicolon':
+        parts = text.split(';');
+        break;
+      case 'pipe':
+        parts = text.split('|');
+        break;
+      case 'chars':
+        parts = text.split('');
+        break;
+      case 'words':
+        parts = text.trim().split(/\s+/).filter(function (w) { return w.length > 0; });
+        break;
+      case 'sentences':
+        parts = text.split(/(?<=[.!?])\s+/).filter(function (s) { return s.trim().length > 0; });
+        break;
+      case 'chunks':
+        var size = Math.max(1, parseInt(chunkSize.value) || 80);
+        for (var i = 0; i < text.length; i += size) {
+          parts.push(text.substring(i, i + size));
+        }
+        break;
+      case 'pairs':
+        var words = text.trim().split(/\s+/).filter(function (w) { return w.length > 0; });
+        for (var j = 0; j < words.length; j += 2) {
+          parts.push(words.slice(j, j + 2).join(' '));
+        }
+        break;
+      case 'custom':
+        var delim = customDelim.value || ':';
+        if (delim === '\\n') delim = '\n';
+        if (delim === '\\t') delim = '\t';
+        parts = text.split(delim);
+        break;
+      default:
+        parts = [text];
+    }
+    return parts;
+  }
+
+  function process() {
+    var text = input.value;
+    if (!text.trim()) {
+      clearResult();
+      return;
+    }
+
+    var parts = splitText(text, activeMode);
+
+    if (optTrim.checked) {
+      parts = parts.map(function (p) { return p.trim(); });
+    }
+    if (!optEmpty.checked) {
+      parts = parts.filter(function (p) { return p.length > 0; });
+    }
+    if (optDedup.checked) {
+      var seen = {};
+      parts = parts.filter(function (p) {
+        if (seen[p]) return false;
+        seen[p] = true;
+        return true;
+      });
+    }
+    if (optSort.checked) {
+      parts.sort(function (a, b) { return a.localeCompare(b); });
+    }
+    if (optNumber.checked) {
+      parts = parts.map(function (p, i) { return (i + 1) + '. ' + p; });
+    }
+
+    var result;
+    if (optJson.checked) {
+      result = JSON.stringify(parts, null, 2);
+    } else {
+      result = parts.join('\n');
+    }
+
+    currentResult = result;
+    resultEl.textContent = result;
+    emptyState.classList.add('hidden');
+    resultWrap.classList.remove('hidden');
+    resultWrap.classList.add('animate-slide-up');
+    resultCount.textContent = parts.length + ' parts, ' + result.length + ' chars';
+    activeModeEl.textContent = modeLabels[activeMode] || '';
+    copyBtn.disabled = false;
+    statusEl.textContent = '✓ Split';
+    statusEl.classList.add('text-green-600', 'dark:text-green-400');
+
+    var lengths = parts.map(function (p) { return p.length; });
+    var total = lengths.reduce(function (a, b) { return a + b; }, 0);
+    var avg = parts.length > 0 ? Math.round(total / parts.length) : 0;
+    var min = parts.length > 0 ? Math.min.apply(null, lengths) : 0;
+    var max = parts.length > 0 ? Math.max.apply(null, lengths) : 0;
+    statParts.textContent = parts.length;
+    statAvg.textContent = avg;
+    statMin.textContent = min;
+    statMax.textContent = max;
+
+    setTimeout(function () { resultWrap.classList.remove('animate-slide-up'); }, 500);
+  }
+
+  function clearResult() {
+    currentResult = '';
+    resultEl.textContent = '';
+    emptyState.classList.remove('hidden');
+    resultWrap.classList.add('hidden');
+    copyBtn.disabled = true;
+    statusEl.textContent = '';
+    activeModeEl.textContent = '';
+    statParts.textContent = '0';
+    statAvg.textContent = '0';
+    statMin.textContent = '0';
+    statMax.textContent = '0';
+  }
+
+  function updateCharCount() {
+    charCount.textContent = input.value.length + ' chars';
+  }
+
+  function updateModeUI(mode) {
+    customWrap.classList.toggle('hidden', mode !== 'custom');
+    chunkWrap.classList.toggle('hidden', mode !== 'chunks');
+  }
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (activeBtn) activeBtn.classList.remove('active');
+      btn.classList.add('active');
+      activeBtn = btn;
+      activeMode = btn.getAttribute('data-mode');
+      updateModeUI(activeMode);
+      process();
+    });
+  });
+
+  customDelim.addEventListener('input', function () {
+    if (activeMode === 'custom') process();
+  });
+  chunkSize.addEventListener('input', function () {
+    if (activeMode === 'chunks') process();
+  });
+
+  [optTrim, optEmpty, optNumber, optDedup, optSort, optJson].forEach(function (opt) {
+    opt.addEventListener('change', process);
+  });
+
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    updateCharCount();
+    clearResult();
+    input.focus();
+  });
+
+  copyBtn.addEventListener('click', function () {
+    if (!currentResult) return;
+    navigator.clipboard.writeText(currentResult).then(function () {
+      var orig = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Copied!</span>';
+      copyBtn.classList.add('!bg-green-500');
+      setTimeout(function () {
+        copyBtn.innerHTML = orig;
+        copyBtn.classList.remove('!bg-green-500');
+      }, 2000);
+    });
+  });
+
+  input.addEventListener('input', function () {
+    updateCharCount();
+    process();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+      e.preventDefault();
+      if (!copyBtn.disabled) copyBtn.click();
+    } else if (e.ctrlKey && e.shiftKey && e.key === 'K') {
+      e.preventDefault();
+      clearBtn.click();
+    } else if (e.ctrlKey && e.key === 'i') {
+      e.preventDefault();
+      input.focus();
+    } else if (e.ctrlKey && e.key === 'j') {
+      e.preventDefault();
+      optJson.checked = !optJson.checked;
+      optJson.dispatchEvent(new Event('change'));
+    }
+  });
+
+  updateCharCount();
+  updateModeUI(activeMode);
+})();
+</script>

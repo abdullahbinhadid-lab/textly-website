@@ -1,0 +1,427 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="remove-line-breaks">
+  <div class="rlb-tool">
+    <!-- Input Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <label for="rlb-input" class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 21H7"/><path stroke-linecap="round" stroke-linejoin="round" d="m5 11 9 9"/></svg>
+          Your Text
+        </label>
+        <div class="flex items-center gap-2">
+          <span id="rlb-char-count" class="text-tiny text-txt-muted font-mono">0 chars</span>
+          <button id="rlb-clear-btn" class="btn-ghost px-3 py-1.5 text-tiny rounded-lg" title="Clear text (Ctrl+Shift+K)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <textarea id="rlb-input" class="tool-textarea min-h-[140px] w-full" placeholder="Type or paste your text here..." aria-label="Input text to remove line breaks" autocomplete="off" spellcheck="false"></textarea>
+    </div>
+
+    <!-- Options Grid -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <h3 class="text-body font-semibold flex items-center gap-2 mb-4">
+        <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+        Cleaning Options
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="rlb-label">Line Break Replacement</label>
+          <select id="rlb-replace" class="rlb-select">
+            <option value="space">Replace with space</option>
+            <option value="none">Remove entirely (join)</option>
+            <option value="custom">Custom replacement...</option>
+          </select>
+        </div>
+        <div>
+          <label class="rlb-label">Paragraph Handling</label>
+          <select id="rlb-paragraph" class="rlb-select">
+            <option value="none">Treat all as one block</option>
+            <option value="double">Preserve paragraph breaks (double newlines)</option>
+            <option value="marker">Preserve paragraphs marked by empty lines</option>
+          </select>
+        </div>
+        <div>
+          <label class="rlb-label">Wrap Width</label>
+          <select id="rlb-wrap" class="rlb-select">
+            <option value="0">No wrapping</option>
+            <option value="40">40 chars</option>
+            <option value="60">60 chars</option>
+            <option value="80">80 chars</option>
+            <option value="100">100 chars</option>
+            <option value="120">120 chars</option>
+          </select>
+        </div>
+        <div id="rlb-custom-replace-wrap" class="hidden">
+          <label class="rlb-label">Custom Replacement</label>
+          <input id="rlb-custom-replace" type="text" class="rlb-input" value=", " placeholder="e.g. , " />
+        </div>
+      </div>
+
+      <!-- Toggle Options -->
+      <div class="mt-4 flex flex-wrap gap-3">
+        <label class="rlb-toggle">
+          <input type="checkbox" id="rlb-collapse-spaces" checked />
+          <span class="rlb-toggle-track"><span class="rlb-toggle-thumb"></span></span>
+          <span class="rlb-toggle-label">Collapse multiple spaces</span>
+        </label>
+        <label class="rlb-toggle">
+          <input type="checkbox" id="rlb-trim-lines" checked />
+          <span class="rlb-toggle-track"><span class="rlb-toggle-thumb"></span></span>
+          <span class="rlb-toggle-label">Trim each line before joining</span>
+        </label>
+        <label class="rlb-toggle">
+          <input type="checkbox" id="rlb-trim-output" />
+          <span class="rlb-toggle-track"><span class="rlb-toggle-thumb"></span></span>
+          <span class="rlb-toggle-label">Trim final output</span>
+        </label>
+        <label class="rlb-toggle">
+          <input type="checkbox" id="rlb-remove-tabs" />
+          <span class="rlb-toggle-track"><span class="rlb-toggle-thumb"></span></span>
+          <span class="rlb-toggle-label">Replace tabs with spaces</span>
+        </label>
+        <label class="rlb-toggle">
+          <input type="checkbox" id="rlb-smart-join" />
+          <span class="rlb-toggle-track"><span class="rlb-toggle-thumb"></span></span>
+          <span class="rlb-toggle-label">Smart join (no space before punctuation)</span>
+        </label>
+        <label class="rlb-toggle">
+          <input type="checkbox" id="rlb-live" checked />
+          <span class="rlb-toggle-track"><span class="rlb-toggle-thumb"></span></span>
+          <span class="rlb-toggle-label">Live preview</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-2.5">
+          <button id="rlb-run-btn" class="btn-primary px-5 py-2.5 text-small rounded-xl flex items-center gap-2">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Clean Text
+          </button>
+          <button id="rlb-download-btn" class="btn-ghost px-4 py-2.5 text-small rounded-xl flex items-center gap-2" disabled>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Download
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="rlb-status" class="text-tiny text-txt-muted"></span>
+          <button id="rlb-copy-btn" class="btn-primary px-4 py-2 text-small rounded-xl" disabled title="Copy result (Ctrl+Shift+C)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div id="rlb-stats" class="hidden mb-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="card-glass p-4 text-center">
+        <div class="text-h3 font-bold text-brand-500" id="rlb-stat-before">0</div>
+        <div class="text-tiny text-txt-muted mt-1">Chars Before</div>
+      </div>
+      <div class="card-glass p-4 text-center">
+        <div class="text-h3 font-bold text-brand-500" id="rlb-stat-after">0</div>
+        <div class="text-tiny text-txt-muted mt-1">Chars After</div>
+      </div>
+      <div class="card-glass p-4 text-center">
+        <div class="text-h3 font-bold text-red-500" id="rlb-stat-breaks">0</div>
+        <div class="text-tiny text-txt-muted mt-1">Line Breaks Removed</div>
+      </div>
+      <div class="card-glass p-4 text-center">
+        <div class="text-h3 font-bold text-green-500" id="rlb-stat-saved">0%</div>
+        <div class="text-tiny text-txt-muted mt-1">Space Saved</div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Result
+        </h3>
+        <span id="rlb-line-count" class="text-tiny text-txt-muted font-mono"></span>
+      </div>
+      <div id="rlb-empty" class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-light-alt text-brand-400 dark:bg-surface-dark-alt dark:text-brand-500">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 21H7"/><path stroke-linecap="round" stroke-linejoin="round" d="m5 11 9 9"/></svg>
+        </div>
+        <p class="text-small text-txt-muted">Enter text above and click "Clean Text" to see the result</p>
+      </div>
+      <div id="rlb-result-wrap" class="hidden">
+        <div id="rlb-result" class="tool-textarea min-h-[140px] w-full bg-surface-light-alt/50 dark:bg-surface-dark-alt/50 font-mono text-small leading-relaxed whitespace-pre-wrap break-words cursor-text" role="textbox" aria-label="Cleaned text result" tabindex="0"></div>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts -->
+    <div class="card-glass p-4 mb-4">
+      <details>
+        <summary class="cursor-pointer text-small font-semibold text-txt-muted flex items-center gap-2 list-none">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+          Keyboard Shortcuts
+          <svg class="h-4 w-4 transition-transform ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-tiny text-txt-muted">
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Clean text</span><kbd class="kbd">Ctrl+Enter</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Copy result</span><kbd class="kbd">Ctrl+Shift+C</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Clear text</span><kbd class="kbd">Ctrl+Shift+K</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Focus input</span><kbd class="kbd">Ctrl+I</kbd></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <ToolSections slug="remove-line-breaks" />
+</ToolLayout>
+
+<style>
+  .rlb-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .rlb-select, .rlb-input { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-size: 0.875rem; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+  .rlb-select:focus, .rlb-input:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }
+  .rlb-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .rlb-toggle input { display: none; }
+  .rlb-toggle-track { width: 36px; height: 20px; border-radius: 10px; background: var(--color-border); transition: background 0.25s; position: relative; flex-shrink: 0; }
+  .rlb-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .rlb-toggle input:checked + .rlb-toggle-track { background: var(--color-brand); }
+  .rlb-toggle input:checked + .rlb-toggle-track .rlb-toggle-thumb { transform: translateX(16px); }
+  .rlb-toggle-label { font-size: 0.8125rem; font-weight: 500; color: var(--color-text-muted); }
+  .kbd { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface-alt); font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; font-weight: 600; color: var(--color-text); }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::marker { content: ''; }
+</style>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('rlb-input');
+  var charCount = document.getElementById('rlb-char-count');
+  var clearBtn = document.getElementById('rlb-clear-btn');
+  var copyBtn = document.getElementById('rlb-copy-btn');
+  var runBtn = document.getElementById('rlb-run-btn');
+  var downloadBtn = document.getElementById('rlb-download-btn');
+  var emptyState = document.getElementById('rlb-empty');
+  var resultWrap = document.getElementById('rlb-result-wrap');
+  var resultEl = document.getElementById('rlb-result');
+  var lineCountEl = document.getElementById('rlb-line-count');
+  var statusEl = document.getElementById('rlb-status');
+  var statsBar = document.getElementById('rlb-stats');
+  var statBefore = document.getElementById('rlb-stat-before');
+  var statAfter = document.getElementById('rlb-stat-after');
+  var statBreaks = document.getElementById('rlb-stat-breaks');
+  var statSaved = document.getElementById('rlb-stat-saved');
+  var replaceSel = document.getElementById('rlb-replace');
+  var paragraphSel = document.getElementById('rlb-paragraph');
+  var wrapSel = document.getElementById('rlb-wrap');
+  var customReplaceWrap = document.getElementById('rlb-custom-replace-wrap');
+  var customReplaceInput = document.getElementById('rlb-custom-replace');
+  var collapseSpaces = document.getElementById('rlb-collapse-spaces');
+  var trimLines = document.getElementById('rlb-trim-lines');
+  var trimOutput = document.getElementById('rlb-trim-output');
+  var removeTabs = document.getElementById('rlb-remove-tabs');
+  var smartJoin = document.getElementById('rlb-smart-join');
+  var liveMode = document.getElementById('rlb-live');
+  var currentResult = '';
+
+  function getReplacement() {
+    var v = replaceSel.value;
+    if (v === 'space') return ' ';
+    if (v === 'none') return '';
+    if (v === 'custom') return customReplaceInput.value;
+    return ' ';
+  }
+
+  function process() {
+    var text = input.value;
+    if (!text.trim()) return { result: '', before: 0, after: 0, breaks: 0 };
+    var rep = getReplacement();
+    var paraMode = paragraphSel.value;
+    var wrapW = parseInt(wrapSel.value, 10) || 0;
+    var collapse = collapseSpaces.checked;
+    var trimEach = trimLines.checked;
+    var trimFinal = trimOutput.checked;
+    var tabs = removeTabs.checked;
+    var smart = smartJoin.checked;
+
+    var before = text.length;
+    var breaksRemoved = (text.match(/\n/g) || []).length;
+
+    var lines = text.split('\n');
+    var processedLines = lines.map(function(l) {
+      var s = l;
+      if (tabs) s = s.replace(/\t/g, ' ');
+      if (trimEach) s = s.trim();
+      return s;
+    });
+
+    var paragraphs;
+    if (paraMode === 'double' || paraMode === 'marker') {
+      paragraphs = [];
+      var current = [];
+      for (var i = 0; i < processedLines.length; i++) {
+        if (processedLines[i].trim() === '') {
+          if (current.length > 0) { paragraphs.push(current); current = []; }
+        } else {
+          current.push(processedLines[i]);
+        }
+      }
+      if (current.length > 0) paragraphs.push(current);
+    } else {
+      paragraphs = [processedLines];
+    }
+
+    var resultParts = paragraphs.map(function(para) {
+      var joined;
+      if (smart) {
+        joined = '';
+        for (var i = 0; i < para.length; i++) {
+          if (i === 0) { joined = para[i]; continue; }
+          var prevLast = joined[joined.length - 1];
+          var currFirst = para[i][0];
+          if (/[.,;:!?。，；：！？]/.test(currFirst) || /[.,;:!?。，；：！？]/.test(prevLast)) {
+            joined += para[i];
+          } else {
+            joined += rep + para[i];
+          }
+        }
+      } else {
+        joined = para.join(rep);
+      }
+      if (collapse) joined = joined.replace(/ {2,}/g, ' ');
+      return joined;
+    });
+
+    var result = resultParts.join('\n\n');
+    if (trimFinal) result = result.trim();
+    if (collapse) result = result.replace(/ {2,}/g, ' ');
+
+    if (wrapW > 0) {
+      var words = result.split(/\s+/);
+      var lines2 = [];
+      var current2 = '';
+      for (var w = 0; w < words.length; w++) {
+        if ((current2 + ' ' + words[w]).trim().length > wrapW) {
+          if (current2) lines2.push(current2.trim());
+          current2 = words[w];
+        } else {
+          current2 = current2 ? current2 + ' ' + words[w] : words[w];
+        }
+      }
+      if (current2) lines2.push(current2.trim());
+      result = lines2.join('\n');
+    }
+
+    return { result: result, before: before, after: result.length, breaks: breaksRemoved };
+  }
+
+  function updateCharCount() { charCount.textContent = input.value.length + ' chars'; }
+
+  function showResult(data) {
+    currentResult = data.result;
+    resultEl.textContent = data.result;
+    emptyState.classList.add('hidden');
+    resultWrap.classList.remove('hidden');
+    resultWrap.classList.add('animate-slide-up');
+    var lines = data.result.split('\n').length;
+    lineCountEl.textContent = lines + ' lines';
+    copyBtn.disabled = false;
+    downloadBtn.disabled = false;
+    statusEl.textContent = '✓ Cleaned';
+    statusEl.classList.add('text-green-600', 'dark:text-green-400');
+
+    statsBar.classList.remove('hidden');
+    statBefore.textContent = data.before;
+    statAfter.textContent = data.after;
+    statBreaks.textContent = data.breaks;
+    var pct = data.before > 0 ? Math.round(((data.before - data.after) / data.before) * 100) : 0;
+    statSaved.textContent = pct + '%';
+
+    setTimeout(function(){ resultWrap.classList.remove('animate-slide-up'); }, 500);
+  }
+
+  function clearResult() {
+    currentResult = '';
+    resultEl.textContent = '';
+    emptyState.classList.remove('hidden');
+    resultWrap.classList.add('hidden');
+    statsBar.classList.add('hidden');
+    copyBtn.disabled = true;
+    downloadBtn.disabled = true;
+    statusEl.textContent = '';
+    lineCountEl.textContent = '';
+  }
+
+  function run() {
+    var text = input.value;
+    if (!text.trim()) {
+      input.focus();
+      input.classList.add('ring-2', 'ring-brand-500/30');
+      setTimeout(function(){ input.classList.remove('ring-2', 'ring-brand-500/30'); }, 600);
+      return;
+    }
+    showResult(process());
+  }
+
+  runBtn.addEventListener('click', run);
+
+  clearBtn.addEventListener('click', function() {
+    input.value = ''; updateCharCount(); clearResult(); input.focus();
+  });
+
+  copyBtn.addEventListener('click', function() {
+    if (!currentResult) return;
+    navigator.clipboard.writeText(currentResult).then(function() {
+      var orig = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Copied!</span>';
+      copyBtn.classList.add('!bg-green-500');
+      setTimeout(function(){ copyBtn.innerHTML = orig; copyBtn.classList.remove('!bg-green-500'); }, 2000);
+    });
+  });
+
+  downloadBtn.addEventListener('click', function() {
+    if (!currentResult) return;
+    var blob = new Blob([currentResult], { type: 'text/plain' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'cleaned-text.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  replaceSel.addEventListener('change', function() {
+    customReplaceWrap.classList.toggle('hidden', replaceSel.value !== 'custom');
+    if (liveMode.checked && currentResult) showResult(process());
+  });
+
+  [paragraphSel, wrapSel, collapseSpaces, trimLines, trimOutput, removeTabs, smartJoin].forEach(function(el) {
+    el.addEventListener('change', function() { if (liveMode.checked && currentResult) showResult(process()); });
+  });
+
+  customReplaceInput.addEventListener('input', function() { if (liveMode.checked && currentResult) showResult(process()); });
+
+  input.addEventListener('input', function() {
+    updateCharCount();
+    if (liveMode.checked && currentResult) showResult(process());
+  });
+
+  liveMode.addEventListener('change', function() {
+    if (liveMode.checked && input.value.trim()) run();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); run(); }
+    else if (e.ctrlKey && e.shiftKey && e.key === 'C') { e.preventDefault(); if (!copyBtn.disabled) copyBtn.click(); }
+    else if (e.ctrlKey && e.shiftKey && e.key === 'K') { e.preventDefault(); clearBtn.click(); }
+    else if (e.ctrlKey && e.key === 'i') { e.preventDefault(); input.focus(); }
+  });
+
+  updateCharCount();
+})();
+</script>

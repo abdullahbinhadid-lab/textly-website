@@ -1,0 +1,237 @@
+---
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ToolCard from '../components/ToolCard.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import CTA from '../components/CTA.astro';
+import FAQ from '../components/FAQ.astro';
+import { tools, toolCategories, getFeaturedTools } from '../data/tools';
+import Icon from '../components/Icon.astro';
+
+const featured = getFeaturedTools();
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Textly',
+    url: 'https://text.toolly.site',
+    description: '33 free online text tools. 100% client-side, privacy-first, no signup required.',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://text.toolly.site/#tools',
+      'query-input': 'required name=search_term_string',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Textly',
+    url: 'https://text.toolly.site',
+    logo: 'https://text.toolly.site/favicon.svg',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'info@toolly.site',
+      url: 'https://text.toolly.site/contact',
+    },
+  },
+];
+const features = [
+  { icon: 'lock', title: '100% Private', description: 'All tools run entirely in your browser. Your text never touches a server. Zero data collection.', span: 'lg:col-span-2' },
+  { icon: 'zap', title: 'Instant Results', description: 'Real-time processing with no page reloads. See results update as you type or paste.', span: '' },
+  { icon: 'gift', title: 'Free Forever', description: 'No signup, no paywall, no hidden costs. All 33 tools are completely free, supported by ads.', span: '' },
+  { icon: 'smartphone', title: 'Works Everywhere', description: 'Fully responsive design optimized for desktop, tablet, and mobile — even 320px screens.', span: 'lg:col-span-2' },
+  { icon: 'moon', title: 'Dark Mode', description: 'Beautiful dark and light themes with system preference detection and manual toggle.', span: '' },
+  { icon: 'rocket', title: 'No Installation', description: 'Everything works in your browser. No downloads, no extensions, no plugins required.', span: '' },
+];
+
+const steps = [
+  { num: '01', icon: 'clipboard', title: 'Pick a Tool', description: 'Choose from 33 free text tools — word counter, case converter, text to speech, and more.' },
+  { num: '02', icon: 'pencil', title: 'Paste Your Text', description: 'Type or paste your text. Everything runs instantly in your browser — no waiting, no uploads.' },
+  { num: '03', icon: 'checkmark', title: 'Get Results', description: 'Copy your results with one click. Your text is never stored, sent, or tracked. Simple.' },
+];
+---
+
+<BaseLayout
+  title="Textly — Free Online Text Tools | 33 Privacy-First Tools"
+  description="33 free online text tools: word counter, case converter, text to speech, lorem ipsum generator, and more. 100% client-side, privacy-first, no signup required."
+  schema={schema}
+  showAds={false}
+  hideContactForm={true}
+>
+  <Hero />
+
+  <!-- Trust strip -->
+  <div class="container-page">
+    <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-2xl border border-border-light bg-surface-light/60 px-5 py-3 text-tiny text-txt-muted backdrop-blur-sm dark:border-border-dark dark:bg-surface-dark/60">
+      <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> No signup</span>
+      <span class="hidden h-3 w-px bg-border-light dark:bg-border-dark sm:block"></span>
+      <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Instant results</span>
+      <span class="hidden h-3 w-px bg-border-light dark:bg-border-dark sm:block"></span>
+      <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg> Free forever</span>
+      <span class="hidden h-3 w-px bg-border-light dark:bg-border-dark sm:block"></span>
+      <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M1 13h22M1 6h22v7H1V6z"/></svg> All devices</span>
+    </div>
+  </div>
+
+  <!-- Featured Tools -->
+  <section class="container-page py-12 sm:py-16">
+    <div class="mb-8 flex items-end justify-between gap-4">
+      <div>
+        <div class="mb-2 flex items-center gap-2">
+          <span class="badge-accent">★ Most Popular</span>
+        </div>
+        <h2 class="text-h2 font-bold tracking-tight xs:text-h3">Featured Tools</h2>
+        <p class="mt-2 text-body text-txt-muted xs:text-small">The tools our visitors use the most. Start here if you're new.</p>
+      </div>
+      <a href="#tools" class="hidden text-small font-semibold text-brand-600 hover:underline dark:text-brand-300 sm:block">View all 33 →</a>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 xs:grid-cols-1">
+      {featured.map((tool) => (
+        <a
+          href={`/tools/${tool.slug}`}
+          class="card-hover group relative flex flex-col items-center p-5 text-center overflow-hidden"
+        >
+          <div class="absolute inset-0 bg-mesh-radial opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+          <div class="relative mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+            <Icon name={tool.icon} class="h-8 w-8" />
+          </div>
+          <h3 class="relative text-h4 font-semibold leading-tight transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-300">{tool.shortName}</h3>
+          <p class="relative mt-1.5 text-tiny text-txt-muted leading-relaxed line-clamp-2">{tool.description}</p>
+          <span class="relative mt-3 text-tiny font-semibold text-brand-600 dark:text-brand-300 opacity-0 transition-opacity group-hover:opacity-100">Open tool →</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Tools Marquee -->
+  <div class="relative overflow-hidden py-6 border-y border-border-light dark:border-border-dark">
+    <div class="flex animate-marquee gap-3 whitespace-nowrap">
+      {[...tools, ...tools].map((tool) => (
+        <a href={`/tools/${tool.slug}`} class="flex items-center gap-2 rounded-full border border-border-light bg-surface-light/60 px-4 py-2 text-small text-txt-muted transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-border-dark dark:bg-surface-dark/60 dark:hover:text-brand-300">
+          <Icon name={tool.icon} class="h-4 w-4 text-brand-500" />
+          <span class="font-medium">{tool.shortName}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <div class="ad-slot container-page">
+    <span>Advertisement</span>
+  </div>
+
+  <!-- All Tools Grid -->
+  <section id="tools" class="container-page py-12 scroll-mt-20">
+    <SectionHeading
+      eyebrow="All Tools"
+      title="33 Free Text Tools"
+      subtitle="Every tool runs 100% in your browser. No data uploaded, no signup required."
+    />
+
+    <div class="mb-8 flex flex-wrap items-center justify-center gap-2" id="category-filters">
+      <button class="badge-brand filter-btn active" data-category="all">All ({tools.length})</button>
+      {toolCategories.map((cat) => {
+        const count = tools.filter((t) => t.category === cat).length;
+        return (
+          <button class="badge-neutral filter-btn" data-category={cat}>{cat} ({count})</button>
+        );
+      })}
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xs:grid-cols-1" id="tools-grid">
+      {tools.map((tool) => (
+        <div class="tool-item" data-category={tool.category}>
+          <ToolCard tool={tool} />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="relative overflow-hidden py-16 sm:py-20">
+    <div class="absolute inset-0 bg-mesh-radial opacity-50"></div>
+    <div class="container-page relative z-10">
+      <SectionHeading
+        eyebrow="How It Works"
+        title="Three Steps. That's It."
+        subtitle="No tutorials needed. Textly is designed to be instant."
+      />
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        {steps.map((step, i) => (
+          <div class="relative">
+            {i < steps.length - 1 && (
+              <div class="absolute left-full top-12 hidden h-px w-full -translate-x-1/2 bg-gradient-to-r from-brand-300 to-transparent sm:block dark:from-brand-700"></div>
+            )}
+            <div class="card-feature p-6 text-center">
+              <div class="mb-4 flex justify-center">
+                <div class="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow">
+                  <Icon name={step.icon} class="h-8 w-8" />
+                  <span class="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-surface-light text-tiny font-bold text-brand-600 shadow-soft dark:bg-surface-dark dark:text-brand-300">{step.num}</span>
+                </div>
+              </div>
+              <h3 class="text-h4 font-semibold">{step.title}</h3>
+              <p class="mt-2 text-small text-txt-muted leading-relaxed">{step.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento Features -->
+  <section class="container-page py-12 sm:py-16">
+    <SectionHeading
+      eyebrow="Why Textly?"
+      title="Built Different"
+      subtitle="We built Textly to fix what's wrong with other text tool sites — too many ads, no privacy, and clunky interfaces."
+    />
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {features.map((f) => (
+        <div class={`card-feature p-6 ${f.span}`}>
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow transition-transform group-hover:scale-110 group-hover:rotate-3">
+            <Icon name={f.icon} class="h-6 w-6" />
+          </div>
+          <h3 class="text-h4 font-semibold transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-300">{f.title}</h3>
+          <p class="mt-2 text-small text-txt-muted leading-relaxed">{f.description}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <CTA />
+
+  <FAQ />
+
+  <script is:inline>
+    (function () {
+      var filterBtns = document.querySelectorAll('.filter-btn');
+      var toolItems = document.querySelectorAll('.tool-item');
+
+      filterBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var category = btn.getAttribute('data-category');
+
+          filterBtns.forEach(function (b) {
+            b.classList.remove('active', 'badge-brand');
+            b.classList.add('badge-neutral');
+          });
+          btn.classList.remove('badge-neutral');
+          btn.classList.add('active', 'badge-brand');
+
+          toolItems.forEach(function (item) {
+            var itemCat = item.getAttribute('data-category');
+            if (category === 'all' || itemCat === category) {
+              item.style.display = '';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</BaseLayout>

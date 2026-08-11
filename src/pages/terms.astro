@@ -1,0 +1,168 @@
+---
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+
+const lastUpdated = 'August 2026';
+---
+
+<BaseLayout
+  title="Terms of Service — Textly"
+  description="Textly terms of service. Free to use text tools with no warranty. All tools run client-side."
+  canonical="/terms"
+  contactVariant="compact"
+  contactTitle="Questions about our terms?"
+  contactDescription="We're happy to clarify anything. Reach out and we'll get back to you."
+  contactButtonText="Contact Us"
+>
+  <div class="container-page py-12">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
+      <!-- Sidebar -->
+      <aside class="hidden lg:block lg:col-span-1">
+        <div class="sticky top-24 space-y-1">
+          <div class="mb-4">
+            <span class="badge-brand">Legal</span>
+          </div>
+          <h2 class="text-h4 font-bold mb-4">Terms of Service</h2>
+          <p class="text-tiny text-txt-muted mb-4">Last updated: {lastUpdated}</p>
+          <nav class="space-y-1">
+            <a href="#acceptance" class="sidebar-link">Acceptance of Terms</a>
+            <a href="#description" class="sidebar-link">Service Description</a>
+            <a href="#free-use" class="sidebar-link">Free Use</a>
+            <a href="#prohibited" class="sidebar-link">Prohibited Uses</a>
+            <a href="#warranty" class="sidebar-link">No Warranty</a>
+            <a href="#liability" class="sidebar-link">Limitation of Liability</a>
+            <a href="#ip" class="sidebar-link">Intellectual Property</a>
+            <a href="#third-party" class="sidebar-link">Third-Party Services</a>
+            <a href="#changes" class="sidebar-link">Changes to Terms</a>
+            <a href="#contact" class="sidebar-link">Contact</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <div class="lg:col-span-3 space-y-6">
+        <div class="lg:hidden">
+          <span class="badge-brand mb-3">Legal</span>
+          <h1 class="text-h2 font-bold tracking-tight xs:text-h3">Terms of Service</h1>
+          <p class="mt-2 text-small text-txt-muted">Last updated: {lastUpdated}</p>
+        </div>
+
+        <div class="card-feature p-6" id="acceptance">
+          <h2 class="text-h3 font-bold mb-3">Acceptance of Terms</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            By accessing and using Textly (the "Service"), you accept and agree to be bound by these Terms of Service.
+            If you do not agree, please do not use the Service.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="description">
+          <h2 class="text-h3 font-bold mb-3">Service Description</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            Textly provides free, browser-based text tools including but not limited to word counting, case conversion,
+            text reversal, text-to-speech, and more. All tools process data client-side in your browser.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="free-use">
+          <h2 class="text-h3 font-bold mb-3">Free Use</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            All tools on Textly are free to use. No account is required. The Service is supported by display advertising.
+            You may use the tools for personal or commercial purposes.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="prohibited">
+          <h2 class="text-h3 font-bold mb-3">Prohibited Uses</h2>
+          <ul class="space-y-3 text-body text-txt-muted">
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> Do not attempt to reverse engineer, decompile, or hack the Service.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> Do not use automated scripts to overload or disrupt the Service.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> Do not use the Service for any illegal activities.</li>
+            <li class="flex gap-3"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300 text-tiny">•</span> Do not click your own ads or use ad fraud techniques.</li>
+          </ul>
+        </div>
+
+        <div class="card-feature p-6" id="warranty">
+          <h2 class="text-h3 font-bold mb-3">No Warranty</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            The Service is provided "as is" and "as available" without warranties of any kind, either express or implied.
+            We do not guarantee that the tools will be error-free, accurate, or available at all times. Use at your own risk.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="liability">
+          <h2 class="text-h3 font-bold mb-3">Limitation of Liability</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            Textly shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising
+            from your use of the Service. Since all processing is client-side, you are responsible for your own data.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="ip">
+          <h2 class="text-h3 font-bold mb-3">Intellectual Property</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            The Textly brand, logo, and website design are our intellectual property. The tools themselves use standard
+            algorithms and browser APIs. You retain all rights to the text you process with our tools.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="third-party">
+          <h2 class="text-h3 font-bold mb-3">Third-Party Services</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            The Service uses third-party services including Google AdSense (advertising), Cloudflare (hosting), and
+            Google Fonts (typography). These services have their own terms and privacy policies.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="changes">
+          <h2 class="text-h3 font-bold mb-3">Changes to Terms</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            We may update these Terms at any time. Continued use of the Service after changes constitutes acceptance
+            of the new Terms. We recommend reviewing this page periodically.
+          </p>
+        </div>
+
+        <div class="card-feature p-6" id="contact">
+          <h2 class="text-h3 font-bold mb-3">Contact</h2>
+          <p class="text-body text-txt-muted leading-relaxed">
+            Questions about these Terms? Contact us at
+            <a href="mailto:info@toolly.site" class="text-brand-600 underline dark:text-brand-300">info@toolly.site</a>.
+            You may also want to read our <a href="/privacy" class="text-brand-600 underline dark:text-brand-300">Privacy Policy</a>
+            or <a href="/cookie-policy" class="text-brand-600 underline dark:text-brand-300">Cookie Policy</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <a href="/privacy" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Privacy Policy</h3>
+          <p class="text-tiny text-txt-muted">How we handle and protect your data</p>
+        </div>
+      </a>
+      <a href="/cookie-policy" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Cookie Policy</h3>
+          <p class="text-tiny text-txt-muted">Details about cookies we use</p>
+        </div>
+      </a>
+      <a href="/contact" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Contact Us</h3>
+          <p class="text-tiny text-txt-muted">Questions about our terms? Reach out</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</BaseLayout>

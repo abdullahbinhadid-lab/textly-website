@@ -1,0 +1,479 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="text-converter">
+  <!-- Interactive Tool Section -->
+  <section id="tool" class="reveal">
+    <div class="card-glass p-5 sm:p-6">
+      <!-- Format Tabs -->
+      <div class="mb-4">
+        <label class="mb-2 block text-small font-semibold text-txt-light dark:text-txt-dark" id="format-label">
+          Encoding Format
+        </label>
+        <div class="flex flex-wrap gap-2" role="tablist" aria-labelledby="format-label">
+          <button class="format-tab active" data-format="hex" role="tab" aria-selected="true" title="Hexadecimal encoding">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/></svg>
+            Hex
+          </button>
+          <button class="format-tab" data-format="binary" role="tab" aria-selected="false" title="Binary encoding">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M9 9h6v6H9z"/></svg>
+            Binary
+          </button>
+          <button class="format-tab" data-format="ascii" role="tab" aria-selected="false" title="ASCII decimal codes">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 6h11"/><path d="M10 12h11"/><path d="M10 18h11"/><path d="M4 6h1v4"/><path d="M4 10h2"/></svg>
+            ASCII
+          </button>
+          <button class="format-tab" data-format="base64" role="tab" aria-selected="false" title="Base64 encoding">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            Base64
+          </button>
+          <button class="format-tab" data-format="url" role="tab" aria-selected="false" title="URL percent encoding">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            URL
+          </button>
+        </div>
+      </div>
+
+      <!-- Direction Toggle -->
+      <div class="mb-4 flex items-center gap-3">
+        <label class="toggle-chip" title="Toggle between encoding and decoding">
+          <input type="checkbox" id="direction-toggle" class="sr-only" />
+          <span class="toggle-dot"></span>
+          <span class="text-tiny font-medium" id="direction-label">Encode (Text → Format)</span>
+        </label>
+        <button id="swap-direction" class="btn-ghost px-3 py-1.5 text-tiny" title="Swap direction (Ctrl+S)">
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 8h14l-3-3"/><path d="M3 8l3 3"/><path d="M21 16H7l3 3"/><path d="M21 16l-3-3"/></svg>
+          Swap
+        </button>
+      </div>
+
+      <!-- Input Area -->
+      <div class="mb-4">
+        <div class="mb-2 flex items-center justify-between">
+          <label for="conv-input" class="text-small font-semibold text-txt-light dark:text-txt-dark" id="input-label">
+            Input Text
+          </label>
+          <div class="flex items-center gap-2">
+            <button id="conv-sample" class="btn-ghost px-3 py-1.5 text-tiny" title="Load sample text">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              Sample
+            </button>
+            <button id="conv-clear" class="btn-ghost px-3 py-1.5 text-tiny" title="Clear all (Ctrl+K)">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Clear
+            </button>
+          </div>
+        </div>
+        <textarea
+          id="conv-input"
+          class="tool-textarea min-h-[120px] w-full"
+          placeholder="Type or paste text to convert..."
+          aria-label="Input text for conversion"
+          spellcheck="false"
+        ></textarea>
+        <div class="mt-1.5 flex items-center gap-3 text-tiny text-txt-muted" aria-live="polite">
+          <span><span id="conv-char-count">0</span> chars</span>
+          <span id="conv-encoding-info"></span>
+        </div>
+      </div>
+
+      <!-- Output Area -->
+      <div>
+        <div class="mb-2 flex items-center justify-between">
+          <label for="conv-output" class="text-small font-semibold text-txt-light dark:text-txt-dark" id="output-label">
+            Output (Hex)
+          </label>
+          <div class="flex items-center gap-2">
+            <span id="conv-status" class="text-tiny text-txt-muted" aria-live="polite"></span>
+            <button id="conv-copy" class="btn-ghost px-3 py-1.5 text-tiny" title="Copy result (Ctrl+Shift+C)" disabled>
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+        </div>
+
+        <!-- Empty State -->
+        <div id="conv-empty" class="flex min-h-[120px] flex-col items-center justify-center rounded-xl border border-dashed border-border-light bg-surface-light-alt/40 dark:border-border-dark dark:bg-surface-dark-alt/40">
+          <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white opacity-50">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/></svg>
+          </div>
+          <p class="text-small font-medium text-txt-muted">Enter text to see conversion</p>
+          <p class="mt-0.5 text-tiny text-txt-muted/70">Results update in real-time</p>
+        </div>
+
+        <textarea
+          id="conv-output"
+          class="tool-textarea min-h-[120px] w-full hidden"
+          readonly
+          aria-label="Conversion output"
+          spellcheck="false"
+        ></textarea>
+
+        <!-- Error State -->
+        <div id="conv-error" class="hidden rounded-xl border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+          <div class="flex items-center gap-2 text-small font-medium text-red-600 dark:text-red-400">
+            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            <span id="conv-error-msg">Invalid input for the selected format.</span>
+          </div>
+        </div>
+
+        <!-- Per-character breakdown -->
+        <div id="conv-breakdown" class="mt-3 hidden">
+          <p class="mb-2 text-tiny font-semibold text-txt-muted">Character Breakdown</p>
+          <div id="breakdown-grid" class="flex flex-wrap gap-1.5 max-h-[200px] overflow-y-auto scrollbar-thin"></div>
+        </div>
+      </div>
+
+      <!-- Keyboard Shortcuts -->
+      <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-border-light pt-3 text-tiny text-txt-muted dark:border-border-dark">
+        <span class="font-medium">Shortcuts:</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Enter</kbd> Convert</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">S</kbd> Swap</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Shift</kbd>+<kbd class="kbd">C</kbd> Copy</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">K</kbd> Clear</span>
+      </div>
+    </div>
+  </section>
+
+  <ToolSections slug="text-converter" />
+
+  <style>
+    .format-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: inherit;
+      min-height: 40px;
+    }
+    .format-tab:hover {
+      border-color: var(--color-brand);
+      color: var(--color-brand);
+      transform: translateY(-1px);
+    }
+    .format-tab.active {
+      border-color: var(--color-brand);
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.05));
+      color: var(--color-brand);
+      box-shadow: 0 0 0 1px var(--color-brand), 0 4px 12px -2px rgba(124, 58, 237, 0.15);
+    }
+    .dark .format-tab.active {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(34, 211, 238, 0.06));
+    }
+    .toggle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--color-border);
+      background: var(--color-surface);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .toggle-chip:hover { border-color: var(--color-brand); }
+    .toggle-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--color-border);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .toggle-chip input:checked ~ .toggle-dot {
+      background: var(--color-brand);
+      border-color: var(--color-brand);
+      box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+    }
+    .toggle-chip:has(input:checked) {
+      border-color: var(--color-brand);
+      background: rgba(124, 58, 237, 0.06);
+    }
+    .dark .toggle-chip:has(input:checked) { background: rgba(167, 139, 250, 0.08); }
+    .kbd {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface-alt);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+    }
+    #conv-copy:disabled { opacity: 0.4; cursor: not-allowed; }
+    #conv-copy.copied { color: #16a34a !important; }
+    .dark #conv-copy.copied { color: #4ade80 !important; }
+    .breakdown-item {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface-alt);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      gap: 2px;
+    }
+    .breakdown-char { font-weight: 700; color: var(--color-brand); }
+    .breakdown-val { color: var(--color-text-muted); font-size: 10px; }
+  </style>
+
+  <script is:inline>
+    (function () {
+      var input = document.getElementById('conv-input');
+      var output = document.getElementById('conv-output');
+      var emptyState = document.getElementById('conv-empty');
+      var errorState = document.getElementById('conv-error');
+      var errorMsg = document.getElementById('conv-error-msg');
+      var status = document.getElementById('conv-status');
+      var charCount = document.getElementById('conv-char-count');
+      var encodingInfo = document.getElementById('conv-encoding-info');
+      var copyBtn = document.getElementById('conv-copy');
+      var formatTabs = document.querySelectorAll('.format-tab');
+      var dirToggle = document.getElementById('direction-toggle');
+      var dirLabel = document.getElementById('direction-label');
+      var inputLabel = document.getElementById('input-label');
+      var outputLabel = document.getElementById('output-label');
+      var breakdown = document.getElementById('conv-breakdown');
+      var breakdownGrid = document.getElementById('breakdown-grid');
+      var currentFormat = 'hex';
+      var isDecoding = false;
+
+      var formatNames = { hex: 'Hex', binary: 'Binary', ascii: 'ASCII', base64: 'Base64', url: 'URL' };
+
+      function toHex(text) {
+        var bytes = new TextEncoder().encode(text);
+        return Array.from(bytes).map(function(b) { return b.toString(16).padStart(2, '0').toUpperCase(); }).join(' ');
+      }
+      function fromHex(text) {
+        var cleaned = text.replace(/0x/gi, '').replace(/[^0-9a-fA-F]/g, '');
+        if (cleaned.length % 2 !== 0) throw new Error('Hex string must have an even number of digits');
+        var bytes = new Uint8Array(cleaned.length / 2);
+        for (var i = 0; i < cleaned.length; i += 2) bytes[i / 2] = parseInt(cleaned.substr(i, 2), 16);
+        return new TextDecoder().decode(bytes);
+      }
+      function toBinary(text) {
+        var bytes = new TextEncoder().encode(text);
+        return Array.from(bytes).map(function(b) { return b.toString(2).padStart(8, '0'); }).join(' ');
+      }
+      function fromBinary(text) {
+        var parts = text.trim().split(/\s+/).filter(function(p) { return p.length; });
+        var bytes = new Uint8Array(parts.length);
+        for (var i = 0; i < parts.length; i++) {
+          if (!/^[01]+$/.test(parts[i])) throw new Error('Invalid binary digit: only 0 and 1 allowed');
+          bytes[i] = parseInt(parts[i], 2);
+        }
+        return new TextDecoder().decode(bytes);
+      }
+      function toAscii(text) {
+        var bytes = new TextEncoder().encode(text);
+        return Array.from(bytes).join(' ');
+      }
+      function fromAscii(text) {
+        var parts = text.trim().split(/[\s,]+/).filter(function(p) { return p.length; });
+        var bytes = new Uint8Array(parts.length);
+        for (var i = 0; i < parts.length; i++) {
+          var n = parseInt(parts[i], 10);
+          if (isNaN(n) || n < 0 || n > 255) throw new Error('ASCII codes must be 0-255');
+          bytes[i] = n;
+        }
+        return new TextDecoder().decode(bytes);
+      }
+      function toBase64(text) {
+        var bytes = new TextEncoder().encode(text);
+        var binary = Array.from(bytes, function(b) { return String.fromCharCode(b); }).join('');
+        return btoa(binary);
+      }
+      function fromBase64(text) {
+        var cleaned = text.replace(/\s/g, '').replace(/-/g, '+').replace(/_/g, '/');
+        if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleaned)) throw new Error('Invalid Base64 string');
+        var binary = atob(cleaned);
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return new TextDecoder().decode(bytes);
+      }
+      function toUrl(text) { return encodeURIComponent(text); }
+      function fromUrl(text) { return decodeURIComponent(text); }
+
+      function convert() {
+        var text = input.value;
+        if (!text) {
+          emptyState.classList.remove('hidden');
+          output.classList.add('hidden');
+          errorState.classList.add('hidden');
+          breakdown.classList.add('hidden');
+          copyBtn.disabled = true;
+          status.textContent = '';
+          return;
+        }
+
+        try {
+          var result;
+          if (isDecoding) {
+            switch (currentFormat) {
+              case 'hex': result = fromHex(text); break;
+              case 'binary': result = fromBinary(text); break;
+              case 'ascii': result = fromAscii(text); break;
+              case 'base64': result = fromBase64(text); break;
+              case 'url': result = fromUrl(text); break;
+            }
+          } else {
+            switch (currentFormat) {
+              case 'hex': result = toHex(text); break;
+              case 'binary': result = toBinary(text); break;
+              case 'ascii': result = toAscii(text); break;
+              case 'base64': result = toBase64(text); break;
+              case 'url': result = toUrl(text); break;
+            }
+          }
+
+          output.value = result;
+          emptyState.classList.add('hidden');
+          output.classList.remove('hidden');
+          errorState.classList.add('hidden');
+          copyBtn.disabled = false;
+          status.innerHTML = '<span class="text-green-600 dark:text-green-400">✓ Converted</span>';
+
+          if (!isDecoding && (currentFormat === 'hex' || currentFormat === 'binary' || currentFormat === 'ascii')) {
+            showBreakdown(text);
+          } else {
+            breakdown.classList.add('hidden');
+          }
+
+        } catch (e) {
+          emptyState.classList.add('hidden');
+          output.classList.add('hidden');
+          errorState.classList.remove('hidden');
+          errorMsg.textContent = e.message || 'Conversion failed. Check your input format.';
+          breakdown.classList.add('hidden');
+          copyBtn.disabled = true;
+          status.textContent = '';
+        }
+      }
+
+      function showBreakdown(text) {
+        var bytes = new TextEncoder().encode(text);
+        var chars = Array.from(text);
+        breakdownGrid.innerHTML = '';
+        var max = Math.min(chars.length, 100);
+        for (var i = 0; i < max; i++) {
+          var item = document.createElement('div');
+          item.className = 'breakdown-item';
+          var charSpan = document.createElement('span');
+          charSpan.className = 'breakdown-char';
+          charSpan.textContent = chars[i] === ' ' ? '␣' : chars[i] === '\n' ? '↵' : chars[i];
+          var valSpan = document.createElement('span');
+          valSpan.className = 'breakdown-val';
+          if (currentFormat === 'hex') valSpan.textContent = '0x' + (bytes[i] || 0).toString(16).padStart(2, '0').toUpperCase();
+          else if (currentFormat === 'binary') valSpan.textContent = (bytes[i] || 0).toString(2).padStart(8, '0');
+          else valSpan.textContent = bytes[i] || 0;
+          item.appendChild(charSpan);
+          item.appendChild(valSpan);
+          breakdownGrid.appendChild(item);
+        }
+        if (chars.length > 100) {
+          var more = document.createElement('span');
+          more.className = 'text-tiny text-txt-muted self-center';
+          more.textContent = '+' + (chars.length - 100) + ' more...';
+          breakdownGrid.appendChild(more);
+        }
+        breakdown.classList.remove('hidden');
+      }
+
+      function updateLabels() {
+        var fmtName = formatNames[currentFormat];
+        if (isDecoding) {
+          inputLabel.textContent = 'Input (' + fmtName + ')';
+          outputLabel.textContent = 'Output (Text)';
+          dirLabel.textContent = 'Decode (' + fmtName + ' → Text)';
+          input.placeholder = 'Paste ' + fmtName + ' to decode...';
+        } else {
+          inputLabel.textContent = 'Input Text';
+          outputLabel.textContent = 'Output (' + fmtName + ')';
+          dirLabel.textContent = 'Encode (Text → ' + fmtName + ')';
+          input.placeholder = 'Type or paste text to convert...';
+        }
+        encodingInfo.textContent = isDecoding ? 'Decoding mode' : 'UTF-8 encoding';
+      }
+
+      function updateStats() {
+        charCount.textContent = input.value.length;
+      }
+
+      formatTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          formatTabs.forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+          tab.classList.add('active');
+          tab.setAttribute('aria-selected', 'true');
+          currentFormat = tab.getAttribute('data-format');
+          updateLabels();
+          convert();
+        });
+      });
+
+      dirToggle.addEventListener('change', function() {
+        isDecoding = dirToggle.checked;
+        updateLabels();
+        convert();
+      });
+
+      document.getElementById('swap-direction').addEventListener('click', function() {
+        dirToggle.checked = !dirToggle.checked;
+        isDecoding = dirToggle.checked;
+        updateLabels();
+        convert();
+      });
+
+      input.addEventListener('input', function() { updateStats(); convert(); });
+
+      document.getElementById('conv-clear').addEventListener('click', function() {
+        input.value = ''; output.value = '';
+        updateStats(); convert(); input.focus();
+      });
+
+      document.getElementById('conv-sample').addEventListener('click', function() {
+        if (isDecoding) {
+          switch (currentFormat) {
+            case 'hex': input.value = '48 65 6C 6C 6F 20 57 6F 72 6C 64'; break;
+            case 'binary': input.value = '01001000 01101001 00100001'; break;
+            case 'ascii': input.value = '72 101 108 108 111'; break;
+            case 'base64': input.value = 'SGVsbG8gV29ybGQ='; break;
+            case 'url': input.value = 'Hello%20World%21'; break;
+          }
+        } else {
+          input.value = 'Hello, World! 🌍';
+        }
+        updateStats(); convert();
+      });
+
+      copyBtn.addEventListener('click', function() {
+        if (!output.value) return;
+        navigator.clipboard.writeText(output.value).then(function() {
+          var orig = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(function() { copyBtn.innerHTML = orig; copyBtn.classList.remove('copied'); }, 2000);
+        });
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); convert(); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); document.getElementById('swap-direction').click(); }
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'C' || e.key === 'c')) { e.preventDefault(); if (!copyBtn.disabled) copyBtn.click(); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); document.getElementById('conv-clear').click(); }
+      });
+
+      updateLabels();
+      updateStats();
+    })();
+  </script>
+</ToolLayout>

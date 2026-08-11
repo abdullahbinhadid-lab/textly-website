@@ -1,0 +1,507 @@
+---
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { blogPosts } from '../../data/blog-posts';
+import { blogContent } from '../../data/blog-content';
+import { getPublishedScheduledPosts } from '../../data/scheduled-posts';
+import { scheduledContent } from '../../data/scheduled-content';
+
+export function getStaticPaths() {
+  const scheduledPosts = getPublishedScheduledPosts();
+  const allPosts = [...blogPosts, ...scheduledPosts];
+
+  return allPosts.map((post) => ({
+    params: { slug: post.slug },
+    props: {
+      title: post.title,
+      date: post.date,
+      readTime: post.readTime,
+      tag: post.tag,
+      excerpt: post.excerpt,
+      icon: post.icon,
+      gradient: post.gradient,
+      image: post.image,
+      content: blogContent[post.slug] || scheduledContent[post.slug] || post.excerpt,
+    },
+  }));
+}
+
+const { title, date, readTime, tag, excerpt, icon, gradient, content, image } = Astro.props;
+
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+};
+
+const paragraphs = content.trim().split('\n\n');
+
+const allPosts = [...blogPosts, ...getPublishedScheduledPosts()].map((p) => ({
+  slug: p.slug,
+  title: p.title,
+  date: p.date,
+  readTime: p.readTime,
+  tag: p.tag,
+  icon: p.icon,
+  gradient: p.gradient,
+}));
+
+const currentSlug = Astro.params.slug;
+const relatedPosts = allPosts
+  .filter((p) => p.slug !== currentSlug)
+  .sort(() => Math.random() - 0.5)
+  .slice(0, 2);
+
+const articleURL = new URL(`/blog/${currentSlug}`, Astro.site);
+const imageURL = image ? new URL(image, Astro.site).href : new URL('/og-image.svg', Astro.site).href;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description: excerpt,
+    url: articleURL.href,
+    image: imageURL,
+    datePublished: date,
+    dateModified: date,
+    author: {
+      '@type': 'Organization',
+      name: 'Textly',
+      url: new URL('/', Astro.site).href,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Textly',
+      url: new URL('/', Astro.site).href,
+      logo: {
+        '@type': 'ImageObject',
+        url: new URL('/favicon.svg', Astro.site).href,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': articleURL.href,
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).href },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: new URL('/blog', Astro.site).href },
+      { '@type': 'ListItem', position: 3, name: title, item: articleURL.href },
+    ],
+  },
+];
+---
+
+<BaseLayout title={title} description={excerpt} canonical={`/blog/${Astro.params.slug}`} ogImage={image} schema={schema} hideContactForm={true}>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress" class="fixed left-0 top-0 z-[60] h-1 bg-brand-gradient transition-all duration-150" style="width: 0%"></div>
+
+  <article>
+    <!-- Hero Header -->
+    <header class={`relative overflow-hidden bg-gradient-to-br ${gradient} pt-16 pb-20`}>
+      {image && (
+        <img src={image} alt="" class="absolute inset-0 h-full w-full object-cover" loading="eager" />
+      )}
+      <div class="absolute inset-0 bg-gradient-to-br from-black/85 to-black/65"></div>
+      <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.2) 0%, transparent 50%);"></div>
+      <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+      <div class="container-narrow relative z-10">
+        <nav class="mb-8 flex items-center gap-2 text-small font-medium text-white/80" aria-label="Breadcrumb">
+          <a href="/blog" class="inline-flex items-center justify-center rounded-full bg-white/20 p-1.5 text-white backdrop-blur-sm transition-all hover:bg-white/30 hover:scale-110" aria-label="Back to Blog" title="Back to Blog">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          </a>
+          <a href="/" class="transition-colors hover:text-white">Home</a>
+          <span class="text-white/50">/</span>
+          <a href="/blog" class="transition-colors hover:text-white">Blog</a>
+        </nav>
+
+        <div class="mb-4 flex flex-wrap items-center gap-3">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-tiny font-bold text-white backdrop-blur-sm">
+            <Icon name={icon} class="h-3.5 w-3.5" />
+            {tag}
+          </span>
+          <span class="inline-flex items-center gap-1.5 text-tiny font-medium text-white/80">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {readTime} read
+          </span>
+          <span class="inline-flex items-center gap-1.5 text-tiny font-medium text-white/80">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            {formatDate(date)}
+          </span>
+        </div>
+
+        <h1 class="max-w-3xl text-display font-bold leading-tight tracking-tight text-white xs:text-h1">
+          {title}
+        </h1>
+
+        <p class="mt-4 max-w-2xl text-body-lg text-white/85 xs:text-body">
+          {excerpt}
+        </p>
+      </div>
+
+      <!-- Wave divider -->
+      <div class="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 60" fill="none" preserveAspectRatio="none" class="h-[40px] w-full">
+          <path d="M0 60V20C240 0 480 0 720 15C960 30 1200 30 1440 15V60H0Z" class="fill-surface-light dark:fill-surface-dark"/>
+        </svg>
+      </div>
+    </header>
+
+    <!-- Article Body -->
+    <div class="container-narrow py-12">
+      <!-- Share bar -->
+      <div class="mb-10 flex items-center justify-between border-b border-border-light pb-6 dark:border-border-dark">
+        <a href="/blog" class="inline-flex items-center gap-2 text-small font-semibold text-txt-muted transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          All Articles
+        </a>
+        <div class="flex items-center gap-2">
+          <span class="text-tiny font-medium text-txt-muted mr-1">Share</span>
+          <button data-share="twitter" class="flex h-9 w-9 items-center justify-center rounded-lg border border-border-light text-txt-muted transition-all hover:border-brand-400 hover:text-brand-600 dark:border-border-dark dark:hover:text-brand-300" aria-label="Share on Twitter">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </button>
+          <button data-share="copy" class="flex h-9 w-9 items-center justify-center rounded-lg border border-border-light text-txt-muted transition-all hover:border-brand-400 hover:text-brand-600 dark:border-border-dark dark:hover:text-brand-300" aria-label="Copy link">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="space-y-6">
+        {paragraphs.map((p) => {
+          if (p.startsWith('## ')) {
+            return (
+              <h2 class="mt-10 flex items-center gap-3 text-h3 font-bold leading-tight">
+                <span class="h-6 w-1 rounded-full bg-brand-gradient"></span>
+                {p.slice(3)}
+              </h2>
+            );
+          }
+          if (p.startsWith('- ')) {
+            const items = p.split('\n').filter((l) => l.startsWith('- ')).map((l) => l.slice(2));
+            return (
+              <ul class="space-y-3 pl-1">
+                {items.map((item) => (
+                  <li class="flex items-start gap-3 text-body text-txt-light dark:text-txt-dark">
+                    <span class="mt-1.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40">
+                      <svg class="h-3 w-3 text-brand-600 dark:text-brand-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </span>
+                    <span set:html={item.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-txt-light dark:text-txt-dark">$1</strong>')} />
+                  </li>
+                ))}
+              </ul>
+            );
+          }
+          if (p.match(/^\d+\./)) {
+            const items = p.split('\n').filter((l) => l.match(/^\d+\./));
+            return (
+              <ol class="space-y-3">
+                {items.map((item, idx) => (
+                  <li class="flex items-start gap-4 text-body text-txt-light dark:text-txt-dark">
+                    <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-brand-gradient text-tiny font-bold text-white">
+                      {idx + 1}
+                    </span>
+                    <span class="pt-0.5" set:html={item.replace(/^\d+\.\s/, '').replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-txt-light dark:text-txt-dark">$1</strong>')} />
+                  </li>
+                ))}
+              </ol>
+            );
+          }
+          return (
+            <p class="text-body-lg leading-relaxed text-txt-light/80 dark:text-txt-dark/80" set:html={p
+              .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-txt-light dark:text-txt-dark">$1</strong>')
+              .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="font-medium text-brand-600 underline decoration-brand-400/40 underline-offset-2 transition-colors hover:decoration-brand-400 dark:text-brand-300">$1</a>')} />
+          );
+        })}
+      </div>
+
+      <!-- Article footer -->
+      <div class="mt-12 flex flex-col gap-6 border-t border-border-light pt-8 dark:border-border-dark sm:flex-row sm:items-center sm:justify-between">
+        <a href="/blog" class="btn-secondary">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          Back to Blog
+        </a>
+        <div class="flex items-center gap-2">
+          <span class="text-tiny font-medium text-txt-muted">Share this article:</span>
+          <button data-share="twitter" class="flex h-9 w-9 items-center justify-center rounded-lg border border-border-light text-txt-muted transition-all hover:border-brand-400 hover:text-brand-600 dark:border-border-dark dark:hover:text-brand-300" aria-label="Share on Twitter">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </button>
+          <button data-share="copy" class="flex h-9 w-9 items-center justify-center rounded-lg border border-border-light text-txt-muted transition-all hover:border-brand-400 hover:text-brand-600 dark:border-border-dark dark:hover:text-brand-300" aria-label="Copy link">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inline CTA: contact popup trigger -->
+    <section class="border-t border-border-light py-12 dark:border-border-dark">
+      <div class="container-narrow">
+        <div class="relative overflow-hidden rounded-2xl border border-border-light bg-surface-light/60 backdrop-blur-sm dark:border-border-dark dark:bg-surface-dark/60">
+          <div class="absolute inset-0 bg-mesh-radial opacity-30"></div>
+          <div class="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-brand-500/10 blur-3xl"></div>
+          <div class="absolute -left-12 -bottom-12 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl"></div>
+          <div class="relative z-10 flex flex-col items-center gap-5 p-8 text-center sm:flex-row sm:text-left">
+            <div class="relative shrink-0">
+              <div class="absolute inset-0 animate-ping rounded-2xl bg-brand-400/20"></div>
+              <div class="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow">
+                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-h4 font-bold">Enjoyed this article?</h3>
+              <p class="mt-1 text-small text-txt-muted">Have feedback, questions, or an idea for a new tool? We'd love to hear from you.</p>
+            </div>
+            <button
+              type="button"
+              data-modal-trigger="modal-blog-cta"
+              class="btn-primary shrink-0 whitespace-nowrap"
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              Get in Touch
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Modal for blog CTA -->
+    <div
+      id="modal-blog-cta"
+      data-modal
+      class="fixed inset-0 z-[100] hidden items-center justify-center p-4"
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-blog-cta-title"
+    >
+      <div data-modal-backdrop class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+      <div data-modal-content class="relative z-10 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-surface-light shadow-2xl dark:bg-surface-dark opacity-0 scale-95 transition-all duration-300">
+        <div class="relative overflow-hidden rounded-t-2xl bg-brand-gradient-animated p-6">
+          <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+          <div class="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+          <div class="relative z-10 flex items-start justify-between">
+            <div>
+              <h3 id="modal-blog-cta-title" class="text-h3 font-bold text-white">Get in Touch</h3>
+              <p class="mt-1 text-small text-white/80">Have feedback, questions, or an idea for a new tool? We'd love to hear from you.</p>
+            </div>
+            <button type="button" data-modal-close class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/15 text-white backdrop-blur-sm transition-all hover:bg-white/25 hover:scale-110" aria-label="Close dialog">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <form id="blog-cta-form" class="p-6 space-y-4">
+          <input type="hidden" name="form_type" value="contact" />
+          <input type="hidden" name="page_url" value="" data-page-url />
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label for="blog-cta-name" class="block text-small font-medium mb-1.5">Name</label>
+              <input type="text" id="blog-cta-name" name="name" required class="tool-input" style="min-height: auto;" placeholder="Your name" />
+            </div>
+            <div>
+              <label for="blog-cta-email" class="block text-small font-medium mb-1.5">Email</label>
+              <input type="email" id="blog-cta-email" name="email" required class="tool-input" style="min-height: auto;" placeholder="you@example.com" />
+            </div>
+          </div>
+          <div>
+            <label for="blog-cta-subject" class="block text-small font-medium mb-1.5">Subject</label>
+            <select id="blog-cta-subject" name="subject" class="tool-select w-full">
+              <option value="General Inquiry">General Inquiry</option>
+              <option value="Feedback">Feedback</option>
+              <option value="Feature Request">Feature Request</option>
+              <option value="Bug Report">Bug Report</option>
+              <option value="Business Inquiry">Business Inquiry</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="blog-cta-message" class="block text-small font-medium mb-1.5">Message</label>
+            <textarea id="blog-cta-message" name="message" required rows="4" class="tool-textarea" placeholder="Your message..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary w-full" data-submit-btn>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            <span data-btn-text>Send Message</span>
+          </button>
+          <div data-form-success class="hidden rounded-xl border border-green-300 bg-green-50 p-4 text-small text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
+            <strong>Thank you!</strong> <span data-success-text>Your message has been sent successfully. We'll get back to you soon!</span>
+          </div>
+          <div data-form-error class="hidden rounded-xl border border-red-300 bg-red-50 p-4 text-small text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+            <strong>Oops!</strong> <span data-error-text>Something went wrong. Please try again or email us directly.</span>
+          </div>
+          <p class="text-center text-tiny text-txt-muted">
+            Or email us at
+            <a href="mailto:info@toolly.site" class="font-medium text-brand-600 hover:underline dark:text-brand-300">info@toolly.site</a>
+            {' '}&middot;{' '}
+            <a href="mailto:tool@toolly.site" class="font-medium text-brand-600 hover:underline dark:text-brand-300">tool@toolly.site</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <!-- Related Posts -->
+    <section class="border-t border-border-light bg-surface-light-alt/40 py-14 dark:border-border-dark dark:bg-surface-dark-alt/40">
+      <div class="container-page">
+        <h2 class="mb-8 text-center text-h3 font-bold">
+          Keep <span class="text-gradient">reading</span>
+        </h2>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          {relatedPosts.map((post) => (
+            <a
+              href={`/blog/${post.slug}`}
+              class="card-hover group flex items-center gap-5 p-5"
+            >
+              <div class={`flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${post.gradient}`}>
+                <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-sm ring-1 ring-white/30 transition-transform duration-300 group-hover:scale-110">
+                  <Icon name={post.icon} class="h-6 w-6" />
+                </span>
+              </div>
+              <div class="flex-1">
+                <div class="mb-1 flex items-center gap-2">
+                  <span class="badge-brand">{post.tag}</span>
+                  <span class="text-tiny text-txt-muted">{post.readTime}</span>
+                </div>
+                <h3 class="text-body font-semibold leading-snug transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-300">
+                  {post.title}
+                </h3>
+              </div>
+              <svg class="h-5 w-5 flex-shrink-0 text-txt-muted transition-all group-hover:text-brand-600 group-hover:translate-x-1 dark:group-hover:text-brand-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </article>
+</BaseLayout>
+
+<script>
+  // Reading progress bar
+  const progress = document.getElementById('reading-progress');
+  function updateProgress() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    if (progress) progress.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  // Share buttons
+  const url = window.location.href;
+  document.querySelectorAll('[data-share="twitter"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(document.title)}`, '_blank');
+    });
+  });
+  document.querySelectorAll('[data-share="copy"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(url).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+        btn.classList.add('text-green-600', 'dark:text-green-400', 'border-green-400');
+        setTimeout(() => {
+          btn.innerHTML = original;
+          btn.classList.remove('text-green-600', 'dark:text-green-400', 'border-green-400');
+        }, 2000);
+      });
+    });
+  });
+
+  // Blog CTA modal
+  (function () {
+    var modal = document.getElementById('modal-blog-cta');
+    if (!modal) return;
+    var backdrop = modal.querySelector('[data-modal-backdrop]');
+    var content = modal.querySelector('[data-modal-content]');
+    var triggers = document.querySelectorAll('[data-modal-trigger="modal-blog-cta"]');
+    var closeBtn = modal.querySelector('[data-modal-close]');
+    var form = document.getElementById('blog-cta-form');
+    if (!form) return;
+    var submitBtn = form.querySelector('[data-submit-btn]');
+    var btnText = form.querySelector('[data-btn-text]');
+    var successEl = form.querySelector('[data-form-success]');
+    var errorEl = form.querySelector('[data-form-error]');
+    var successText = form.querySelector('[data-success-text]');
+    var errorText = form.querySelector('[data-error-text]');
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(function () {
+        backdrop.classList.remove('opacity-0');
+        content.classList.remove('opacity-0', 'scale-95');
+      });
+      setTimeout(function () {
+        var firstInput = form.querySelector('input, textarea, select');
+        if (firstInput) firstInput.focus();
+      }, 300);
+    }
+
+    function closeModal() {
+      backdrop.classList.add('opacity-0');
+      content.classList.add('opacity-0', 'scale-95');
+      setTimeout(function () {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }, 300);
+    }
+
+    triggers.forEach(function (trigger) {
+      trigger.addEventListener('click', openModal);
+    });
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeModal();
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      btnText.textContent = 'Sending...';
+      successEl.classList.add('hidden');
+      errorEl.classList.add('hidden');
+
+      var pageUrlInput = form.querySelector('[data-page-url]');
+      if (pageUrlInput) pageUrlInput.value = window.location.href;
+
+      var data = {};
+      new FormData(form).forEach(function (val, key) { data[key] = val; });
+
+      fetch('/send-mail.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (result) {
+        if (result.success) {
+          successText.textContent = result.message;
+          successEl.classList.remove('hidden');
+          form.reset();
+          submitBtn.style.display = 'none';
+        } else {
+          errorText.textContent = result.message || 'Something went wrong.';
+          errorEl.classList.remove('hidden');
+        }
+      })
+      .catch(function () {
+        errorText.textContent = 'Could not connect to the server. Please email us directly.';
+        errorEl.classList.remove('hidden');
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        btnText.textContent = 'Send Message';
+      });
+    });
+  })();
+</script>

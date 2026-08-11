@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3b82f6"/><stop offset="1" stop-color="#0891b2"/>
+    </linearGradient>
+    <radialGradient id="v" cx="50%" cy="40%" r="55%"><stop stop-color="#fff" stop-opacity="0.28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="14" stdDeviation="20" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+    <pattern id="g" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#fff" stroke-opacity="0.07"/></pattern>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#g)"/>
+  <rect width="1280" height="720" fill="url(#v)"/>
+  <g transform="translate(71 478) rotate(13)" opacity="0.18">
+      <rect width="317" height="157" rx="24" fill="#fff" fill-opacity="0.14" stroke="#fff" stroke-opacity="0.28"/>
+      <rect x="18" y="24" width="158" height="12" rx="6" fill="#fff" fill-opacity="0.35"/>
+      <rect x="18" y="48" width="114" height="10" rx="5" fill="#fff" fill-opacity="0.2"/>
+    </g>
+<g transform="translate(206 320) rotate(-1)" opacity="0.18">
+      <rect width="325" height="172" rx="24" fill="#fff" fill-opacity="0.14" stroke="#fff" stroke-opacity="0.28"/>
+      <rect x="18" y="24" width="162" height="12" rx="6" fill="#fff" fill-opacity="0.35"/>
+      <rect x="18" y="48" width="117" height="10" rx="5" fill="#fff" fill-opacity="0.2"/>
+    </g>
+<g transform="translate(322 59) rotate(-4)" opacity="0.18">
+      <rect width="257" height="228" rx="24" fill="#fff" fill-opacity="0.14" stroke="#fff" stroke-opacity="0.28"/>
+      <rect x="18" y="24" width="128" height="12" rx="6" fill="#fff" fill-opacity="0.35"/>
+      <rect x="18" y="48" width="92" height="10" rx="5" fill="#fff" fill-opacity="0.2"/>
+    </g>
+<g transform="translate(908 437) rotate(13)" opacity="0.18">
+      <rect width="272" height="164" rx="24" fill="#fff" fill-opacity="0.14" stroke="#fff" stroke-opacity="0.28"/>
+      <rect x="18" y="24" width="136" height="12" rx="6" fill="#fff" fill-opacity="0.35"/>
+      <rect x="18" y="48" width="97" height="10" rx="5" fill="#fff" fill-opacity="0.2"/>
+    </g>
+  <!-- Premium glass icon badge -->
+  <g filter="url(#soft)">
+    <rect x="500" y="190" width="280" height="280" rx="56" fill="#ffffff" fill-opacity="0.18" stroke="#ffffff" stroke-opacity="0.45" stroke-width="2"/>
+    <rect x="520" y="210" width="240" height="240" rx="48" fill="#0f172a" fill-opacity="0.18"/>
+    <g transform="translate(580 270) scale(5)" fill="none" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="m12 14 4 4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>
+    </g>
+  </g>
+  <rect x="545" y="510" width="190" height="52" rx="26" fill="#0f172a" fill-opacity="0.3" stroke="#fff" stroke-opacity="0.3"/>
+  <text x="640" y="544" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#fff">Guide</text>
+  <text x="1220" y="670" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="800" fill="#fff" fill-opacity="0.85">Textly</text>
+</svg>

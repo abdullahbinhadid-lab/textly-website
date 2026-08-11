@@ -1,0 +1,333 @@
+---
+export interface Props {
+  type?: 'contact' | 'recommend' | 'feedback' | 'general';
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  buttonIcon?: 'mail' | 'chat' | 'tool';
+  variant?: 'full' | 'compact';
+  id?: string;
+}
+
+const {
+  type = 'contact',
+  title = 'Get in Touch',
+  description = 'Have a question, suggestion, or just want to say hi? We\u2019d love to hear from you.',
+  buttonText = 'Contact Us',
+  buttonIcon = 'mail',
+  variant = 'full',
+  id = 'contact-cta',
+} = Astro.props;
+
+const modalId = `modal-${id}`;
+const formId = `cf-${type}-${Math.random().toString(36).slice(2, 8)}`;
+
+const icons = {
+  mail: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+  chat: '<path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>',
+  tool: '<path stroke-linecap="round" stroke-linejoin="round" d="M11 42 11 3 5 3 5 42 11 42 11 42zM41 3l-6 6 6 6 6-6-6-6zM21 3l-6 6 6 6 6-6-6-6zM31 3l-6 6 6 6 6-6-6-6z"/>',
+};
+
+const subjectOptions = type === 'recommend'
+  ? [
+      { value: 'Tool Recommendation', label: 'Tool Recommendation' },
+      { value: 'Feature Request', label: 'Feature Request' },
+      { value: 'Feedback', label: 'Feedback' },
+      { value: 'Other', label: 'Other' },
+    ]
+  : [
+      { value: 'General Inquiry', label: 'General Inquiry' },
+      { value: 'Feedback', label: 'Feedback' },
+      { value: 'Feature Request', label: 'Feature Request' },
+      { value: 'Bug Report', label: 'Bug Report' },
+      { value: 'Business Inquiry', label: 'Business Inquiry' },
+      { value: 'Other', label: 'Other' },
+    ];
+---
+
+<!-- Trigger Section -->
+<section id={id} class="container-page {variant === 'compact' ? 'my-8' : 'my-12 sm:my-16'}">
+  {variant === 'full' ? (
+    <div class="relative overflow-hidden rounded-3xl shadow-large">
+      <!-- Animated gradient background -->
+      <div class="absolute inset-0 bg-brand-gradient-animated"></div>
+      <!-- Grid pattern overlay -->
+      <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      <!-- Floating glow orbs -->
+      <div class="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-3xl animate-float"></div>
+      <div class="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl animate-float-slow"></div>
+      <!-- Envelope icon decoration -->
+      <div class="absolute right-8 top-1/2 -translate-y-1/2 hidden opacity-10 lg:block">
+        <svg class="h-40 w-40 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+
+      <div class="relative z-10 px-8 py-10 text-center sm:px-12 sm:py-14 xs:px-6 xs:py-8">
+        <!-- Animated mail badge -->
+        <div class="mb-5 flex justify-center">
+          <div class="relative">
+            <div class="absolute inset-0 animate-ping rounded-2xl bg-white/20"></div>
+            <div class="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm border border-white/30">
+              <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="text-h2 font-bold text-white xs:text-h3">{title}</h2>
+        <p class="mx-auto mt-3 max-w-xl text-body-lg text-white/90 xs:text-body">{description}</p>
+
+        <div class="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row xs:w-full">
+          <button
+            type="button"
+            data-modal-trigger={modalId}
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 font-semibold text-brand-600 shadow-medium transition-all hover:scale-[1.03] hover:shadow-glow active:scale-[0.98] xs:w-full"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              {icons[buttonIcon] && <Fragment set:html={icons[buttonIcon]} />}
+            </svg>
+            {buttonText}
+          </button>
+          <a
+            href="/recommend-a-tool"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-7 py-3.5 font-semibold text-white border border-white/30 backdrop-blur-sm transition-all hover:bg-white/25 hover:scale-[1.03] active:scale-[0.98] xs:w-full"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Recommend a Tool
+          </a>
+        </div>
+
+        <p class="mt-5 text-tiny text-white/70">
+          Or email us directly at
+          <a href="mailto:info@toolly.site" class="font-medium text-white underline hover:no-underline">info@toolly.site</a>
+          {' '}&middot;{' '}
+          <a href="mailto:tool@toolly.site" class="font-medium text-white underline hover:no-underline">tool@toolly.site</a>
+        </p>
+      </div>
+    </div>
+  ) : (
+    <div class="relative overflow-hidden rounded-2xl border border-border-light bg-surface-light/60 backdrop-blur-sm dark:border-border-dark dark:bg-surface-dark/60">
+      <div class="absolute inset-0 bg-mesh-radial opacity-30"></div>
+      <div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-500/10 blur-2xl"></div>
+      <div class="relative z-10 flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:text-left">
+        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-body font-bold">{title}</h3>
+          <p class="mt-0.5 text-small text-txt-muted">{description}</p>
+        </div>
+        <button
+          type="button"
+          data-modal-trigger={modalId}
+          class="btn-primary shrink-0 whitespace-nowrap"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            {icons[buttonIcon] && <Fragment set:html={icons[buttonIcon]} />}
+          </svg>
+          {buttonText}
+        </button>
+      </div>
+    </div>
+  )}
+</section>
+
+<!-- Modal Dialog -->
+<div
+  id={modalId}
+  data-modal
+  class="fixed inset-0 z-[100] hidden items-center justify-center p-4"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby={`${modalId}-title`}
+>
+  <!-- Backdrop -->
+  <div data-modal-backdrop class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+
+  <!-- Modal Content -->
+  <div data-modal-content class="relative z-10 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-surface-light shadow-2xl dark:bg-surface-dark opacity-0 scale-95 transition-all duration-300">
+    <!-- Header with gradient -->
+    <div class="relative overflow-hidden rounded-t-2xl bg-brand-gradient-animated p-6">
+      <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      <div class="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+      <div class="relative z-10 flex items-start justify-between">
+        <div>
+          <h3 id={`${modalId}-title`} class="text-h3 font-bold text-white">{title}</h3>
+          <p class="mt-1 text-small text-white/80">{description}</p>
+        </div>
+        <button
+          type="button"
+          data-modal-close
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/15 text-white backdrop-blur-sm transition-all hover:bg-white/25 hover:scale-110"
+          aria-label="Close dialog"
+        >
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form id={formId} class="p-6 space-y-4" data-form-type={type}>
+      <input type="hidden" name="form_type" value={type} />
+      <input type="hidden" name="page_url" value="" data-page-url />
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label for={`${formId}-name`} class="block text-small font-medium mb-1.5">Name</label>
+          <input type="text" id={`${formId}-name`} name="name" required class="tool-input" style="min-height: auto;" placeholder="Your name" />
+        </div>
+        <div>
+          <label for={`${formId}-email`} class="block text-small font-medium mb-1.5">Email</label>
+          <input type="email" id={`${formId}-email`} name="email" required class="tool-input" style="min-height: auto;" placeholder="you@example.com" />
+        </div>
+      </div>
+
+      <div>
+        <label for={`${formId}-subject`} class="block text-small font-medium mb-1.5">Subject</label>
+        <select id={`${formId}-subject`} name="subject" class="tool-select w-full">
+          {subjectOptions.map((opt) => <option value={opt.value}>{opt.label}</option>)}
+        </select>
+      </div>
+
+      {type === 'recommend' && (
+        <div>
+          <label for={`${formId}-tool-name`} class="block text-small font-medium mb-1.5">Tool Name</label>
+          <input type="text" id={`${formId}-tool-name`} name="tool_name" class="tool-input" style="min-height: auto;" placeholder="e.g. JSON Formatter, Markdown Converter..." />
+        </div>
+      )}
+
+      <div>
+        <label for={`${formId}-message`} class="block text-small font-medium mb-1.5">Message</label>
+        <textarea id={`${formId}-message`} name="message" required rows="4" class="tool-textarea" placeholder={type === 'recommend' ? 'Describe what the tool does and what problem it solves...' : 'Your message...'}></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary w-full" data-submit-btn>
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        <span data-btn-text>Send Message</span>
+      </button>
+
+      <div data-form-success class="hidden rounded-xl border border-green-300 bg-green-50 p-4 text-small text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
+        <strong>Thank you!</strong> <span data-success-text>Your message has been sent successfully. We'll get back to you soon!</span>
+      </div>
+
+      <div data-form-error class="hidden rounded-xl border border-red-300 bg-red-50 p-4 text-small text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+        <strong>Oops!</strong> <span data-error-text>Something went wrong. Please try again or email us directly.</span>
+      </div>
+
+      <p class="text-center text-tiny text-txt-muted">
+        Or email us at
+        <a href="mailto:info@toolly.site" class="font-medium text-brand-600 hover:underline dark:text-brand-300">info@toolly.site</a>
+        {type === 'recommend' && (
+          <>
+            {' '}&middot;{' '}
+            <a href="mailto:tool@toolly.site" class="font-medium text-brand-600 hover:underline dark:text-brand-300">tool@toolly.site</a>
+          </>
+        )}
+      </p>
+    </form>
+  </div>
+</div>
+
+<script is:inline define:vars={{ modalId, formId }}>
+  (function () {
+    var modal = document.getElementById(modalId);
+    if (!modal) return;
+    var backdrop = modal.querySelector('[data-modal-backdrop]');
+    var content = modal.querySelector('[data-modal-content]');
+    var triggers = document.querySelectorAll('[data-modal-trigger="' + modalId + '"]');
+    var closeBtn = modal.querySelector('[data-modal-close]');
+    var form = document.getElementById(formId);
+    if (!form) return;
+    var submitBtn = form.querySelector('[data-submit-btn]');
+    var btnText = form.querySelector('[data-btn-text]');
+    var successEl = form.querySelector('[data-form-success]');
+    var errorEl = form.querySelector('[data-form-error]');
+    var successText = form.querySelector('[data-success-text]');
+    var errorText = form.querySelector('[data-error-text]');
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(function () {
+        backdrop.classList.remove('opacity-0');
+        content.classList.remove('opacity-0', 'scale-95');
+      });
+      setTimeout(function () {
+        var firstInput = form.querySelector('input, textarea, select');
+        if (firstInput) firstInput.focus();
+      }, 300);
+    }
+
+    function closeModal() {
+      backdrop.classList.add('opacity-0');
+      content.classList.add('opacity-0', 'scale-95');
+      setTimeout(function () {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }, 300);
+    }
+
+    triggers.forEach(function (trigger) {
+      trigger.addEventListener('click', openModal);
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    backdrop.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+        closeModal();
+      }
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      btnText.textContent = 'Sending...';
+      successEl.classList.add('hidden');
+      errorEl.classList.add('hidden');
+
+      var pageUrlInput = form.querySelector('[data-page-url]');
+      if (pageUrlInput) pageUrlInput.value = window.location.href;
+
+      var data = {};
+      new FormData(form).forEach(function (val, key) { data[key] = val; });
+
+      fetch('/send-mail.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (result) {
+        if (result.success) {
+          successText.textContent = result.message;
+          successEl.classList.remove('hidden');
+          form.reset();
+          submitBtn.style.display = 'none';
+        } else {
+          errorText.textContent = result.message || 'Something went wrong. Please try again.';
+          errorEl.classList.remove('hidden');
+        }
+      })
+      .catch(function () {
+        errorText.textContent = 'Could not connect to the server. Please email us directly.';
+        errorEl.classList.remove('hidden');
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        btnText.textContent = 'Send Message';
+      });
+    });
+  })();
+</script>

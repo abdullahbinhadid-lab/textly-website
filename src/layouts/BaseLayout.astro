@@ -1,0 +1,96 @@
+---
+
+import '../styles/global.css';
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ContactPopup from '../components/ContactPopup.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  noindex?: boolean;
+  hideContactForm?: boolean;
+  contactVariant?: 'full' | 'compact';
+  contactTitle?: string;
+  contactDescription?: string;
+  contactButtonText?: string;
+  ogImage?: string;
+  keywords?: string[];
+  schema?: object | object[];
+  showAds?: boolean;
+}
+
+const { title, description, canonical, noindex, hideContactForm = false, contactVariant = 'full', contactTitle, contactDescription, contactButtonText, ogImage, keywords, schema, showAds = true } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <BaseHead title={title} description={description} canonical={canonical} noindex={noindex} ogImage={ogImage} keywords={keywords} schema={schema} />
+    {showAds && (
+      <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6202805099839491"
+        crossorigin="anonymous"></script>
+    )}
+  </head>
+  <body class="min-h-screen antialiased">
+    <Header />
+    <main>
+      <slot />
+    </main>
+    {!hideContactForm && (
+      <ContactPopup
+        title={contactTitle}
+        description={contactDescription}
+        buttonText={contactButtonText}
+        variant={contactVariant}
+      />
+    )}
+    <Footer />
+
+    <script is:inline>
+      (function () {
+        function copyToClipboard(text, btn) {
+          navigator.clipboard.writeText(text).then(function () {
+            var originalHTML = btn.innerHTML;
+            btn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Copied!';
+            btn.classList.add('text-green-600', 'dark:text-green-400');
+            setTimeout(function () {
+              btn.innerHTML = originalHTML;
+              btn.classList.remove('text-green-600', 'dark:text-green-400');
+            }, 2000);
+          });
+        }
+
+        window.copyToClipboard = copyToClipboard;
+
+        document.addEventListener('click', function (e) {
+          var target = e.target.closest('[data-copy-btn]');
+          if (!target) return;
+          e.preventDefault();
+          var targetId = target.getAttribute('data-copy-target');
+          var el = document.getElementById(targetId);
+          if (el) {
+            var text = el.value !== undefined ? el.value : el.textContent;
+            copyToClipboard(text, target);
+          }
+        });
+      })();
+
+      // Scroll reveal
+      var revealEls = document.querySelectorAll('.reveal');
+      if (revealEls.length > 0 && 'IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        revealEls.forEach(function (el) { observer.observe(el); });
+      }
+    </script>
+  </body>
+</html>

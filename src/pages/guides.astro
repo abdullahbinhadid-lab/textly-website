@@ -1,0 +1,117 @@
+---
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import CTA from '../components/CTA.astro';
+import Icon from '../components/Icon.astro';
+import { tools, toolCategories } from '../data/tools';
+import { toolContent } from '../data/tool-content';
+
+const toolsByCategory = toolCategories.map((category) => ({
+  category,
+  categoryTools: tools.filter((t) => t.category === category),
+}));
+---
+
+<BaseLayout
+  title="Guides — How Each Textly Tool Works | Textly"
+  description="Step-by-step guides showing how every Textly text tool works. Learn the workflow for each of our free, privacy-first text tools."
+  canonical="/guides"
+  hideContactForm={true}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden pt-16 pb-12 sm:pt-24 sm:pb-16">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div class="absolute left-[10%] top-[20%] h-72 w-72 rounded-full bg-brand-500/15 blur-3xl animate-float dark:bg-brand-500/8"></div>
+      <div class="absolute right-[15%] top-[10%] h-64 w-64 rounded-full bg-accent-500/15 blur-3xl animate-float-slow dark:bg-accent-500/8"></div>
+    </div>
+    <div class="container-narrow relative z-10 text-center">
+      <div class="mb-4 flex justify-center">
+        <span class="badge-brand">Guides</span>
+      </div>
+      <h1 class="text-h1 font-extrabold tracking-tight xs:text-[2rem]">
+        <span class="text-gradient">How Each Tool Works</span>
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl text-body-lg text-txt-muted xs:text-small">
+        Step-by-step guides for every Textly tool. Learn the workflow, then jump straight into any tool and start using it.
+      </p>
+    </div>
+  </section>
+
+  <!-- Quick jump -->
+  <div class="container-page pb-8">
+    <div class="flex flex-wrap items-center justify-center gap-2">
+      {toolsByCategory.map(({ category }) => (
+        <a
+          href={`#category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+          class="badge-neutral transition-colors hover:text-brand-600 dark:hover:text-brand-300"
+        >
+          {category}
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- Tool guides by category -->
+  <div class="container-page space-y-16 pb-12">
+    {toolsByCategory.map(({ category, categoryTools }) => (
+      <section id={`category-${category.toLowerCase().replace(/\s+/g, '-')}`} class="scroll-mt-24">
+        <div class="mb-8 flex items-center gap-3">
+          <h2 class="text-h3 font-bold">{category}</h2>
+          <span class="badge-neutral">{categoryTools.length}</span>
+          <div class="h-px flex-1 bg-border-light dark:bg-border-dark"></div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {categoryTools.map((tool) => {
+            const content = toolContent[tool.slug];
+            const steps = content?.howItWorks ?? [{ title: 'Use the Tool', description: tool.longDescription }];
+            return (
+              <div class="card-feature overflow-hidden p-6">
+                <div class="mb-5 flex items-start gap-4">
+                  <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow">
+                    <Icon name={tool.icon} class="h-6 w-6" />
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-h4 font-semibold leading-tight">{tool.name}</h3>
+                    <p class="mt-1 text-small text-txt-muted leading-relaxed">{tool.description}</p>
+                  </div>
+                </div>
+
+                <ol class="relative space-y-4 pl-6">
+                  <div class="absolute left-[11px] top-2 bottom-2 w-px bg-border-light dark:bg-border-dark"></div>
+                  {steps.map((step, i) => (
+                    <li class="relative">
+                      <span class="absolute -left-6 top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-tiny font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
+                        {i + 1}
+                      </span>
+                      <div>
+                        <p class="font-semibold text-body">{step.title}</p>
+                        <p class="mt-0.5 text-small text-txt-muted leading-relaxed">{step.description}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+
+                <a
+                  href={`/tools/${tool.slug}`}
+                  class="mt-5 inline-flex items-center gap-1.5 text-small font-semibold text-brand-600 transition-colors hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200"
+                >
+                  Open {tool.shortName}
+                  <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </a>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <CTA
+    title="Ready to put these guides into practice?"
+    description="All tools are free, private, and ready to use right now. No signup, no uploads, no tracking."
+    buttonText="Browse All Tools"
+    buttonHref="/#tools"
+  />
+</BaseLayout>

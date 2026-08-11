@@ -1,0 +1,210 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="prefix-suffix-adder">
+  <div class="space-y-4">
+    <div class="card-glass p-4 sm:p-6">
+      <h2 class="mb-4 text-h4 font-bold">Prefix &amp; Suffix Adder</h2>
+
+      <div class="space-y-3">
+        <div>
+          <label for="ps-input" class="mb-1.5 block text-small font-semibold text-txt-muted">Your Text</label>
+          <textarea id="ps-input" class="tool-textarea min-h-[140px] w-full" placeholder="Paste or type your text here..." aria-label="Input text"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label for="ps-prefix" class="mb-1.5 block text-small font-semibold text-txt-muted">Prefix</label>
+            <input id="ps-prefix" type="text" class="tool-input min-h-[48px] w-full" placeholder="e.g. > or {n}. " aria-label="Prefix text" />
+          </div>
+          <div>
+            <label for="ps-suffix" class="mb-1.5 block text-small font-semibold text-txt-muted">Suffix</label>
+            <input id="ps-suffix" type="text" class="tool-input min-h-[48px] w-full" placeholder="e.g. , or ;" aria-label="Suffix text" />
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <div class="flex rounded-xl border border-border-light bg-surface-light p-1 dark:border-border-dark dark:bg-surface-dark">
+            <button id="ps-mode-lines" class="rounded-lg px-3 py-1.5 text-small font-semibold bg-brand-500 text-white transition-all">Lines</button>
+            <button id="ps-mode-words" class="rounded-lg px-3 py-1.5 text-small font-semibold text-txt-muted transition-all">Words</button>
+          </div>
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="ps-skip-empty" class="accent-brand-500" checked />
+            <span>Skip empty lines</span>
+          </label>
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="ps-pad" class="accent-brand-500" />
+            <span>Zero-pad numbers</span>
+          </label>
+          <select id="ps-pad-width" class="tool-input min-h-[40px] px-3 py-2 text-small" aria-label="Pad width">
+            <option value="2">2 digits</option>
+            <option value="3">3 digits</option>
+            <option value="4">4 digits</option>
+            <option value="5">5 digits</option>
+          </select>
+        </div>
+
+        <div class="rounded-xl bg-surface-light-alt/50 px-4 py-3 text-small text-txt-muted dark:bg-surface-dark-alt/50">
+          <span>Tip: Use <code class="rounded bg-brand-100 px-1 dark:bg-brand-900/30">{'{n}'}</code> for incrementing numbers, <code class="rounded bg-brand-100 px-1 dark:bg-brand-900/30">{'{n:0}'}</code> to start from 0, <code class="rounded bg-brand-100 px-1 dark:bg-brand-900/30">{'{i}'}</code> for line index, <code class="rounded bg-brand-100 px-1 dark:bg-brand-900/30">{'{text}'}</code> for original text.</span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button id="ps-apply" class="btn-primary px-5 py-2.5 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Apply
+            <kbd class="ml-1 hidden rounded bg-white/20 px-1.5 py-0.5 text-tiny sm:inline">Ctrl+Enter</kbd>
+          </button>
+          <button id="ps-clear" class="btn-ghost px-5 py-2.5 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h3 class="text-body font-semibold">Result</h3>
+        <div class="flex items-center gap-2">
+          <span id="ps-stats" class="text-small text-txt-muted"></span>
+          <button id="ps-copy" class="btn-secondary px-4 py-2 text-small" data-copy-target="ps-output">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <button id="ps-download" class="btn-ghost px-4 py-2 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 10l5 5 5-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 15V3"/></svg>
+            Download
+          </button>
+        </div>
+      </div>
+      <textarea id="ps-output" class="tool-textarea min-h-[140px] w-full" readonly placeholder="Result will appear here..." aria-label="Output text"></textarea>
+    </div>
+  </div>
+
+  <ToolSections slug="prefix-suffix-adder" />
+</ToolLayout>
+
+<script>
+(function() {
+  const input = document.getElementById('ps-input') as HTMLTextAreaElement;
+  const prefix = document.getElementById('ps-prefix') as HTMLInputElement;
+  const suffix = document.getElementById('ps-suffix') as HTMLInputElement;
+  const output = document.getElementById('ps-output') as HTMLTextAreaElement;
+  const skipEmpty = document.getElementById('ps-skip-empty') as HTMLInputElement;
+  const pad = document.getElementById('ps-pad') as HTMLInputElement;
+  const padWidth = document.getElementById('ps-pad-width') as HTMLSelectElement;
+  const applyBtn = document.getElementById('ps-apply') as HTMLButtonElement;
+  const clearBtn = document.getElementById('ps-clear') as HTMLButtonElement;
+  const copyBtn = document.getElementById('ps-copy') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('ps-download') as HTMLButtonElement;
+  const modeLines = document.getElementById('ps-mode-lines') as HTMLButtonElement;
+  const modeWords = document.getElementById('ps-mode-words') as HTMLButtonElement;
+  const stats = document.getElementById('ps-stats') as HTMLElement;
+
+  let mode = 'lines';
+
+  function processTemplate(tpl: string, n: number, i: number, text: string): string {
+    let result = tpl;
+    const numStr = pad.checked ? String(n).padStart(parseInt(padWidth.value), '0') : String(n);
+    result = result.replace(/\{n:\d+\}/g, (match) => {
+      const start = parseInt(match.slice(3, -1));
+      const val = n + start - 1;
+      return pad.checked ? String(val).padStart(parseInt(padWidth.value), '0') : String(val);
+    });
+    result = result.replace(/\{n\}/g, numStr);
+    result = result.replace(/\{i\}/g, String(i));
+    result = result.replace(/\{text\}/g, text);
+    return result;
+  }
+
+  function doApply() {
+    const text = input.value;
+    if (!text) { output.value = ''; stats.textContent = ''; return; }
+    const pfx = prefix.value;
+    const sfx = suffix.value;
+    let result = '';
+
+    if (mode === 'lines') {
+      const lines = text.split('\n');
+      let counter = 1;
+      result = lines.map((line, i) => {
+        if (skipEmpty.checked && line.trim() === '') return line;
+        const p = processTemplate(pfx, counter, i, line);
+        const s = processTemplate(sfx, counter, i, line);
+        counter++;
+        return p + line + s;
+      }).join('\n');
+    } else {
+      const words = text.split(/(\s+)/);
+      let counter = 1;
+      result = words.map((word, i) => {
+        if (/^\s+$/.test(word) || word === '') return word;
+        if (skipEmpty.checked && word.trim() === '') return word;
+        const p = processTemplate(pfx, counter, i, word.trim());
+        const s = processTemplate(sfx, counter, i, word.trim());
+        counter++;
+        return p + word.trim() + s;
+      }).join('');
+    }
+
+    output.value = result;
+    const lineCount = result.split('\n').length;
+    const wordCount = result.trim().split(/\s+/).filter(Boolean).length;
+    const charCount = result.length;
+    stats.textContent = charCount + ' chars · ' + wordCount + ' words · ' + lineCount + ' lines';
+  }
+
+  function setMode(m: string) {
+    mode = m;
+    if (m === 'lines') {
+      modeLines.classList.add('bg-brand-500', 'text-white');
+      modeLines.classList.remove('text-txt-muted');
+      modeWords.classList.remove('bg-brand-500', 'text-white');
+      modeWords.classList.add('text-txt-muted');
+    } else {
+      modeWords.classList.add('bg-brand-500', 'text-white');
+      modeWords.classList.remove('text-txt-muted');
+      modeLines.classList.remove('bg-brand-500', 'text-white');
+      modeLines.classList.add('text-txt-muted');
+    }
+    doApply();
+  }
+
+  function doClear() {
+    input.value = '';
+    prefix.value = '';
+    suffix.value = '';
+    output.value = '';
+    stats.textContent = '';
+  }
+
+  function doDownload() {
+    if (!output.value) return;
+    const blob = new Blob([output.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'prefix-suffix-output.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  input.addEventListener('input', doApply);
+  prefix.addEventListener('input', doApply);
+  suffix.addEventListener('input', doApply);
+  skipEmpty.addEventListener('change', doApply);
+  pad.addEventListener('change', doApply);
+  padWidth.addEventListener('change', doApply);
+  applyBtn.addEventListener('click', doApply);
+  clearBtn.addEventListener('click', doClear);
+  downloadBtn.addEventListener('click', doDownload);
+  modeLines.addEventListener('click', () => setMode('lines'));
+  modeWords.addEventListener('click', () => setMode('words'));
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); doApply(); }
+  });
+})();
+</script>

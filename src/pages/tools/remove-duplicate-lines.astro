@@ -1,0 +1,403 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="remove-duplicate-lines">
+  <div class="rdl-tool">
+    <!-- Input Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <label for="rdl-input" class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+          Your Text
+        </label>
+        <div class="flex items-center gap-2">
+          <span id="rdl-char-count" class="text-tiny text-txt-muted font-mono">0 chars</span>
+          <button id="rdl-clear-btn" class="btn-ghost px-3 py-1.5 text-tiny rounded-lg" title="Clear text (Ctrl+Shift+K)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <textarea id="rdl-input" class="tool-textarea min-h-[140px] w-full" placeholder="Type or paste your text here..." aria-label="Input text to remove duplicate lines" autocomplete="off" spellcheck="false"></textarea>
+    </div>
+
+    <!-- Options Grid -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <h3 class="text-body font-semibold flex items-center gap-2 mb-4">
+        <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+        Deduplication Options
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="rdl-label">Comparison Mode</label>
+          <select id="rdl-mode" class="rdl-select">
+            <option value="exact">Exact match</option>
+            <option value="case-insensitive">Case-insensitive</option>
+            <option value="trimmed">Trim whitespace before comparing</option>
+            <option value="trimmed-ci">Trim + Case-insensitive</option>
+          </select>
+        </div>
+        <div>
+          <label class="rdl-label">Keep Strategy</label>
+          <select id="rdl-keep" class="rdl-select">
+            <option value="first">Keep first occurrence</option>
+            <option value="last">Keep last occurrence</option>
+          </select>
+        </div>
+        <div>
+          <label class="rdl-label">Sort Result</label>
+          <select id="rdl-sort" class="rdl-select">
+            <option value="none">No sorting</option>
+            <option value="asc">Sort A → Z</option>
+            <option value="desc">Sort Z → A</option>
+            <option value="length-asc">Sort by length (short first)</option>
+            <option value="length-desc">Sort by length (long first)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Toggle Options -->
+      <div class="mt-4 flex flex-wrap gap-3">
+        <label class="rdl-toggle">
+          <input type="checkbox" id="rdl-ignore-empty" checked />
+          <span class="rdl-toggle-track"><span class="rdl-toggle-thumb"></span></span>
+          <span class="rdl-toggle-label">Ignore empty lines</span>
+        </label>
+        <label class="rdl-toggle">
+          <input type="checkbox" id="rdl-trim-result" />
+          <span class="rdl-toggle-track"><span class="rdl-toggle-thumb"></span></span>
+          <span class="rdl-toggle-label">Trim each line in output</span>
+        </label>
+        <label class="rdl-toggle">
+          <input type="checkbox" id="rdl-show-dupes" />
+          <span class="rdl-toggle-track"><span class="rdl-toggle-thumb"></span></span>
+          <span class="rdl-toggle-label">Show removed duplicates</span>
+        </label>
+        <label class="rdl-toggle">
+          <input type="checkbox" id="rdl-live" checked />
+          <span class="rdl-toggle-track"><span class="rdl-toggle-thumb"></span></span>
+          <span class="rdl-toggle-label">Live preview</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-2.5">
+          <button id="rdl-run-btn" class="btn-primary px-5 py-2.5 text-small rounded-xl flex items-center gap-2">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Remove Duplicates
+          </button>
+          <button id="rdl-download-btn" class="btn-ghost px-4 py-2.5 text-small rounded-xl flex items-center gap-2" disabled>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Download
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="rdl-status" class="text-tiny text-txt-muted"></span>
+          <button id="rdl-copy-btn" class="btn-primary px-4 py-2 text-small rounded-xl" disabled title="Copy result (Ctrl+Shift+C)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div id="rdl-stats" class="hidden mb-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="card-glass p-4 text-center">
+        <div class="text-h3 font-bold text-brand-500" id="rdl-stat-total">0</div>
+        <div class="text-tiny text-txt-muted mt-1">Total Lines</div>
+      </div>
+      <div class="card-glass p-4 text-center">
+        <div class="text-h3 font-bold text-brand-500" id="rdl-stat-unique">0</div>
+        <div class="text-tiny text-txt-muted mt-1">Unique Lines</div>
+      </div>
+      <div class="card-glass p-4 text-center">
+        <div class="text-h3 font-bold text-red-500" id="rdl-stat-removed">0</div>
+        <div class="text-tiny text-txt-muted mt-1">Duplicates Removed</div>
+      </div>
+      <div class="card-glass p-4 text-center">
+        <div class="text-h3 font-bold text-green-500" id="rdl-stat-reduction">0%</div>
+        <div class="text-tiny text-txt-muted mt-1">Reduction</div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Result
+        </h3>
+        <span id="rdl-line-count" class="text-tiny text-txt-muted font-mono"></span>
+      </div>
+      <div id="rdl-empty" class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-light-alt text-brand-400 dark:bg-surface-dark-alt dark:text-brand-500">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+        </div>
+        <p class="text-small text-txt-muted">Enter text above and click "Remove Duplicates" to see the result</p>
+      </div>
+      <div id="rdl-result-wrap" class="hidden">
+        <div id="rdl-result" class="tool-textarea min-h-[140px] w-full bg-surface-light-alt/50 dark:bg-surface-dark-alt/50 font-mono text-small leading-relaxed whitespace-pre-wrap break-words cursor-text" role="textbox" aria-label="Deduplicated text result" tabindex="0"></div>
+      </div>
+    </div>
+
+    <!-- Removed Duplicates Section -->
+    <div id="rdl-dupes-wrap" class="hidden card-glass p-5 sm:p-6 mb-4">
+      <h3 class="text-body font-semibold flex items-center gap-2 mb-3">
+        <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        Removed Duplicates
+      </h3>
+      <div id="rdl-dupes-list" class="space-y-1 max-h-[200px] overflow-y-auto"></div>
+    </div>
+
+    <!-- Keyboard Shortcuts -->
+    <div class="card-glass p-4 mb-4">
+      <details>
+        <summary class="cursor-pointer text-small font-semibold text-txt-muted flex items-center gap-2 list-none">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+          Keyboard Shortcuts
+          <svg class="h-4 w-4 transition-transform ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-tiny text-txt-muted">
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Remove duplicates</span><kbd class="kbd">Ctrl+Enter</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Copy result</span><kbd class="kbd">Ctrl+Shift+C</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Clear text</span><kbd class="kbd">Ctrl+Shift+K</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Focus input</span><kbd class="kbd">Ctrl+I</kbd></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <ToolSections slug="remove-duplicate-lines" />
+</ToolLayout>
+
+<style>
+  .rdl-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .rdl-select { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-size: 0.875rem; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+  .rdl-select:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }
+  .rdl-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .rdl-toggle input { display: none; }
+  .rdl-toggle-track { width: 36px; height: 20px; border-radius: 10px; background: var(--color-border); transition: background 0.25s; position: relative; flex-shrink: 0; }
+  .rdl-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .rdl-toggle input:checked + .rdl-toggle-track { background: var(--color-brand); }
+  .rdl-toggle input:checked + .rdl-toggle-track .rdl-toggle-thumb { transform: translateX(16px); }
+  .rdl-toggle-label { font-size: 0.8125rem; font-weight: 500; color: var(--color-text-muted); }
+  .rdl-dupe-item { padding: 6px 12px; border-radius: 8px; background: var(--color-surface-alt); font-size: 0.8125rem; font-family: 'JetBrains Mono', monospace; color: var(--color-text-muted); border-left: 3px solid var(--color-brand); }
+  .kbd { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface-alt); font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; font-weight: 600; color: var(--color-text); }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::marker { content: ''; }
+</style>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('rdl-input');
+  var charCount = document.getElementById('rdl-char-count');
+  var clearBtn = document.getElementById('rdl-clear-btn');
+  var copyBtn = document.getElementById('rdl-copy-btn');
+  var runBtn = document.getElementById('rdl-run-btn');
+  var downloadBtn = document.getElementById('rdl-download-btn');
+  var emptyState = document.getElementById('rdl-empty');
+  var resultWrap = document.getElementById('rdl-result-wrap');
+  var resultEl = document.getElementById('rdl-result');
+  var lineCountEl = document.getElementById('rdl-line-count');
+  var statusEl = document.getElementById('rdl-status');
+  var statsBar = document.getElementById('rdl-stats');
+  var statTotal = document.getElementById('rdl-stat-total');
+  var statUnique = document.getElementById('rdl-stat-unique');
+  var statRemoved = document.getElementById('rdl-stat-removed');
+  var statReduction = document.getElementById('rdl-stat-reduction');
+  var modeSel = document.getElementById('rdl-mode');
+  var keepSel = document.getElementById('rdl-keep');
+  var sortSel = document.getElementById('rdl-sort');
+  var ignoreEmpty = document.getElementById('rdl-ignore-empty');
+  var trimResult = document.getElementById('rdl-trim-result');
+  var showDupes = document.getElementById('rdl-show-dupes');
+  var liveMode = document.getElementById('rdl-live');
+  var dupesWrap = document.getElementById('rdl-dupes-wrap');
+  var dupesList = document.getElementById('rdl-dupes-list');
+  var currentResult = '';
+
+  function normalize(line, mode) {
+    var s = line;
+    if (mode === 'trimmed' || mode === 'trimmed-ci') s = s.trim();
+    if (mode === 'case-insensitive' || mode === 'trimmed-ci') s = s.toLowerCase();
+    return s;
+  }
+
+  function process() {
+    var text = input.value;
+    if (!text.trim()) return { result: '', total: 0, unique: 0, removed: 0, dupes: [] };
+    var mode = modeSel.value;
+    var keep = keepSel.value;
+    var sort = sortSel.value;
+    var skipEmpty = ignoreEmpty.checked;
+    var trimOut = trimResult.checked;
+
+    var lines = text.split('\n');
+    var total = lines.length;
+    var seen = {};
+    var uniqueLines = [];
+    var dupes = [];
+    var keepLast = keep === 'last';
+
+    if (keepLast) {
+      var lastIdx = {};
+      for (var i = 0; i < lines.length; i++) {
+        var key = normalize(lines[i], mode);
+        if (skipEmpty && lines[i].trim() === '') continue;
+        lastIdx[key] = i;
+      }
+      var usedKeys = {};
+      for (var j = 0; j < lines.length; j++) {
+        var k = normalize(lines[j], mode);
+        if (skipEmpty && lines[j].trim() === '') { continue; }
+        if (lastIdx[k] === j && !usedKeys[k]) {
+          usedKeys[k] = true;
+          uniqueLines.push(trimOut ? lines[j].trim() : lines[j]);
+        } else if (!usedKeys[k]) {
+          dupes.push(lines[j]);
+        }
+      }
+    } else {
+      for (var i2 = 0; i2 < lines.length; i2++) {
+        var key2 = normalize(lines[i2], mode);
+        if (skipEmpty && lines[i2].trim() === '') { continue; }
+        if (seen[key2]) {
+          dupes.push(lines[i2]);
+        } else {
+          seen[key2] = true;
+          uniqueLines.push(trimOut ? lines[i2].trim() : lines[i2]);
+        }
+      }
+    }
+
+    if (sort === 'asc') uniqueLines.sort();
+    else if (sort === 'desc') uniqueLines.sort().reverse();
+    else if (sort === 'length-asc') uniqueLines.sort(function(a,b){return a.length - b.length;});
+    else if (sort === 'length-desc') uniqueLines.sort(function(a,b){return b.length - a.length;});
+
+    return {
+      result: uniqueLines.join('\n'),
+      total: total,
+      unique: uniqueLines.length,
+      removed: total - uniqueLines.length,
+      dupes: dupes
+    };
+  }
+
+  function updateCharCount() { charCount.textContent = input.value.length + ' chars'; }
+
+  function showResult(data) {
+    currentResult = data.result;
+    resultEl.textContent = data.result;
+    emptyState.classList.add('hidden');
+    resultWrap.classList.remove('hidden');
+    resultWrap.classList.add('animate-slide-up');
+    lineCountEl.textContent = data.unique + ' lines';
+    copyBtn.disabled = false;
+    downloadBtn.disabled = false;
+    statusEl.textContent = '✓ ' + data.removed + ' duplicates removed';
+    statusEl.classList.add('text-green-600', 'dark:text-green-400');
+
+    statsBar.classList.remove('hidden');
+    statTotal.textContent = data.total;
+    statUnique.textContent = data.unique;
+    statRemoved.textContent = data.removed;
+    var pct = data.total > 0 ? Math.round((data.removed / data.total) * 100) : 0;
+    statReduction.textContent = pct + '%';
+
+    if (showDupes.checked && data.dupes.length > 0) {
+      dupesWrap.classList.remove('hidden');
+      dupesList.innerHTML = '';
+      data.dupes.forEach(function(d) {
+        var div = document.createElement('div');
+        div.className = 'rdl-dupe-item';
+        div.textContent = d;
+        dupesList.appendChild(div);
+      });
+    } else {
+      dupesWrap.classList.add('hidden');
+    }
+
+    setTimeout(function(){ resultWrap.classList.remove('animate-slide-up'); }, 500);
+  }
+
+  function clearResult() {
+    currentResult = '';
+    resultEl.textContent = '';
+    emptyState.classList.remove('hidden');
+    resultWrap.classList.add('hidden');
+    statsBar.classList.add('hidden');
+    dupesWrap.classList.add('hidden');
+    copyBtn.disabled = true;
+    downloadBtn.disabled = true;
+    statusEl.textContent = '';
+    lineCountEl.textContent = '';
+  }
+
+  function run() {
+    var text = input.value;
+    if (!text.trim()) {
+      input.focus();
+      input.classList.add('ring-2', 'ring-brand-500/30');
+      setTimeout(function(){ input.classList.remove('ring-2', 'ring-brand-500/30'); }, 600);
+      return;
+    }
+    showResult(process());
+  }
+
+  runBtn.addEventListener('click', run);
+
+  clearBtn.addEventListener('click', function() {
+    input.value = ''; updateCharCount(); clearResult(); input.focus();
+  });
+
+  copyBtn.addEventListener('click', function() {
+    if (!currentResult) return;
+    navigator.clipboard.writeText(currentResult).then(function() {
+      var orig = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Copied!</span>';
+      copyBtn.classList.add('!bg-green-500');
+      setTimeout(function(){ copyBtn.innerHTML = orig; copyBtn.classList.remove('!bg-green-500'); }, 2000);
+    });
+  });
+
+  downloadBtn.addEventListener('click', function() {
+    if (!currentResult) return;
+    var blob = new Blob([currentResult], { type: 'text/plain' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'deduplicated-text.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  [modeSel, keepSel, sortSel, ignoreEmpty, trimResult, showDupes].forEach(function(el) {
+    el.addEventListener('change', function() { if (liveMode.checked && currentResult) showResult(process()); });
+  });
+
+  input.addEventListener('input', function() {
+    updateCharCount();
+    if (liveMode.checked && currentResult) showResult(process());
+  });
+
+  liveMode.addEventListener('change', function() {
+    if (liveMode.checked && input.value.trim()) run();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); run(); }
+    else if (e.ctrlKey && e.shiftKey && e.key === 'C') { e.preventDefault(); if (!copyBtn.disabled) copyBtn.click(); }
+    else if (e.ctrlKey && e.shiftKey && e.key === 'K') { e.preventDefault(); clearBtn.click(); }
+    else if (e.ctrlKey && e.key === 'i') { e.preventDefault(); input.focus(); }
+  });
+
+  updateCharCount();
+})();
+</script>

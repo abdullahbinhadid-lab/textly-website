@@ -1,0 +1,151 @@
+---
+export interface Props {
+  type?: 'contact' | 'recommend' | 'feedback' | 'general';
+  title?: string;
+  description?: string;
+  showSubject?: boolean;
+  id?: string;
+}
+
+const {
+  type = 'contact',
+  title = 'Get in Touch',
+  description = 'Have a question, suggestion, or just want to say hi? Drop us a message and we\u2019ll get back to you.',
+  showSubject = true,
+  id = 'contact-section',
+} = Astro.props;
+
+const formId = `cf-${type}-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<section id={id} class="container-page scroll-mt-20 py-12 sm:py-16">
+  <div class="mx-auto max-w-2xl text-center mb-8">
+    <div class="mb-3 flex justify-center">
+      <span class="badge-brand">Contact</span>
+    </div>
+    <h2 class="text-h2 font-bold tracking-tight xs:text-h3">{title}</h2>
+    <p class="mx-auto mt-3 max-w-xl text-body text-txt-muted xs:text-small">{description}</p>
+  </div>
+
+  <div class="mx-auto max-w-2xl">
+    <form id={formId} class="card p-6 sm:p-8 space-y-5" data-form-type={type}>
+      <input type="hidden" name="form_type" value={type} />
+      <input type="hidden" name="page_url" value="" data-page-url />
+
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <label for={`${formId}-name`} class="block text-small font-medium mb-2">Name</label>
+          <input type="text" id={`${formId}-name`} name="name" required class="tool-input" style="min-height: auto;" placeholder="Your name" />
+        </div>
+        <div>
+          <label for={`${formId}-email`} class="block text-small font-medium mb-2">Email</label>
+          <input type="email" id={`${formId}-email`} name="email" required class="tool-input" style="min-height: auto;" placeholder="you@example.com" />
+        </div>
+      </div>
+
+      {showSubject && (
+        <div>
+          <label for={`${formId}-subject`} class="block text-small font-medium mb-2">Subject</label>
+          <select id={`${formId}-subject`} name="subject" class="tool-select w-full">
+            <option value="General Inquiry">General Inquiry</option>
+            <option value="Feedback">Feedback</option>
+            <option value="Feature Request">Feature Request</option>
+            <option value="Bug Report">Bug Report</option>
+            <option value="Business Inquiry">Business Inquiry</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      )}
+
+      {type === 'recommend' && (
+        <div>
+          <label for={`${formId}-tool-name`} class="block text-small font-medium mb-2">Tool Name</label>
+          <input type="text" id={`${formId}-tool-name`} name="tool_name" class="tool-input" style="min-height: auto;" placeholder="e.g. JSON Formatter, Markdown Converter..." />
+        </div>
+      )}
+
+      <div>
+        <label for={`${formId}-message`} class="block text-small font-medium mb-2">Message</label>
+        <textarea id={`${formId}-message`} name="message" required rows="5" class="tool-textarea" placeholder={type === 'recommend' ? 'Describe what the tool does and what problem it solves...' : 'Your message...'}></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary w-full" data-submit-btn>
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        <span data-btn-text>Send Message</span>
+      </button>
+
+      <div data-form-success class="hidden rounded-xl border border-green-300 bg-green-50 p-4 text-small text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
+        <strong>Thank you!</strong> <span data-success-text>Your message has been sent successfully. We'll get back to you soon!</span>
+      </div>
+
+      <div data-form-error class="hidden rounded-xl border border-red-300 bg-red-50 p-4 text-small text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+        <strong>Oops!</strong> <span data-error-text>Something went wrong. Please try again or email us directly.</span>
+      </div>
+
+      <p class="text-center text-tiny text-txt-muted">
+        Or email us directly at
+        <a href="mailto:info@toolly.site" class="font-medium text-brand-600 hover:underline dark:text-brand-300">info@toolly.site</a>
+        {type === 'recommend' && (
+          <>
+            {' '}&middot;{' '}
+            <a href="mailto:tool@toolly.site" class="font-medium text-brand-600 hover:underline dark:text-brand-300">tool@toolly.site</a>
+          </>
+        )}
+      </p>
+    </form>
+  </div>
+</section>
+
+<script is:inline define:vars={{ formId }}>
+  (function () {
+    var form = document.getElementById(formId);
+    if (!form) return;
+    var submitBtn = form.querySelector('[data-submit-btn]');
+    var btnText = form.querySelector('[data-btn-text]');
+    var successEl = form.querySelector('[data-form-success]');
+    var errorEl = form.querySelector('[data-form-error]');
+    var successText = form.querySelector('[data-success-text]');
+    var errorText = form.querySelector('[data-error-text]');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      btnText.textContent = 'Sending...';
+      successEl.classList.add('hidden');
+      errorEl.classList.add('hidden');
+
+      var pageUrlInput = form.querySelector('[data-page-url]');
+      if (pageUrlInput) pageUrlInput.value = window.location.href;
+
+      var data = {};
+      new FormData(form).forEach(function (val, key) { data[key] = val; });
+
+      fetch('/send-mail.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (result) {
+        if (result.success) {
+          successText.textContent = result.message;
+          successEl.classList.remove('hidden');
+          form.querySelector('textarea, input[type="text"], input[type="email"]').value = '';
+          form.reset();
+          submitBtn.style.display = 'none';
+        } else {
+          errorText.textContent = result.message || 'Something went wrong. Please try again.';
+          errorEl.classList.remove('hidden');
+        }
+      })
+      .catch(function () {
+        errorText.textContent = 'Could not connect to the server. Please email us directly.';
+        errorEl.classList.remove('hidden');
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        btnText.textContent = 'Send Message';
+      });
+    });
+  })();
+</script>

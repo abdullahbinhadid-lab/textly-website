@@ -1,0 +1,467 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="slug-generator">
+  <div class="slug-tool space-y-4 sm:space-y-5">
+    <!-- Main Glass Card -->
+    <div class="card-glass relative overflow-hidden p-4 sm:p-6">
+      <div class="pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-brand-500/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-accent-500/10 blur-3xl"></div>
+
+      <div class="relative z-10 space-y-4">
+        <!-- Text Input -->
+        <div>
+          <label for="slug-input" class="mb-2 flex items-center justify-between text-small font-semibold text-txt-light dark:text-txt-dark">
+            <span class="inline-flex items-center gap-1.5">
+              <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Your Title or Text
+            </span>
+            <span id="slug-input-count" class="text-tiny text-txt-muted">0 chars</span>
+          </label>
+          <input
+            type="text"
+            id="slug-input"
+            class="tool-input min-h-[auto] w-full rounded-xl border border-border-light bg-white/50 px-3 py-3 text-body text-txt-light backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-border-dark dark:bg-white/5 dark:text-txt-dark"
+            placeholder="e.g. How to Write a Great Blog Post in 2024"
+            aria-label="Text to convert to slug"
+            aria-describedby="slug-hint"
+          />
+          <p id="slug-hint" class="mt-1.5 text-tiny text-txt-muted">
+            <kbd class="rounded bg-surface-light-alt px-1.5 py-0.5 text-tiny font-mono dark:bg-surface-dark-alt">Ctrl+Enter</kbd> to copy primary slug · <kbd class="rounded bg-surface-light-alt px-1.5 py-0.5 text-tiny font-mono dark:bg-surface-dark-alt">Ctrl+Shift+S</kbd> to toggle separator
+          </p>
+        </div>
+
+        <!-- Options Bar -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+          <!-- Separator Toggle -->
+          <div class="flex rounded-xl border border-border-light bg-white/40 p-1 backdrop-blur-sm dark:border-border-dark dark:bg-white/5">
+            <button id="slug-sep-hyphen" class="slug-sep-btn active rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-sep="-">Hyphen (-)</button>
+            <button id="slug-sep-underscore" class="slug-sep-btn rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-sep="_">Underscore (_)</button>
+          </div>
+          <!-- Stop Words Toggle -->
+          <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-border-light bg-white/40 px-3 py-2 text-tiny font-semibold backdrop-blur-sm dark:border-border-dark dark:bg-white/5" title="Remove common stop words">
+            <input type="checkbox" id="slug-stop-words" class="h-4 w-4 rounded accent-brand-500" />
+            <span class="text-txt-muted">Remove stop words</span>
+          </label>
+        </div>
+
+        <!-- Max Length Slider -->
+        <div class="rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm dark:border-border-dark dark:bg-white/5">
+          <div class="mb-1.5 flex items-center justify-between">
+            <label for="slug-max-length" class="text-tiny font-semibold text-txt-muted">Max Length</label>
+            <span id="slug-max-length-value" class="text-tiny font-bold text-brand-500">Unlimited</span>
+          </div>
+          <input type="range" id="slug-max-length" min="0" max="100" step="5" value="0" class="slug-slider w-full" aria-label="Maximum slug length" />
+          <div class="mt-1 flex justify-between text-tiny text-txt-muted">
+            <span>Unlimited</span><span>100 chars</span>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="slug-empty-state" class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-light bg-surface-light-alt/30 py-8 text-center dark:border-border-dark dark:bg-surface-dark-alt/30">
+          <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <p class="text-small font-semibold text-txt-light dark:text-txt-dark">Enter a title to generate slugs</p>
+          <p class="mt-1 text-tiny text-txt-muted">Type any text above and get URL-friendly slugs instantly</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="slug-results" class="hidden space-y-3">
+          <!-- Primary Slug with URL Preview -->
+          <div class="rounded-xl border border-brand-200 bg-brand-50/50 p-4 dark:border-brand-800 dark:bg-brand-900/20">
+            <p class="mb-2 text-tiny font-semibold text-txt-muted">Live URL Preview</p>
+            <div class="flex items-center gap-2 overflow-x-auto scrollbar-thin">
+              <span class="shrink-0 font-mono text-small text-txt-muted">https://example.com/</span>
+              <span id="slug-url-preview" class="shrink-0 font-mono text-small font-bold text-brand-600 dark:text-brand-300"></span>
+            </div>
+          </div>
+
+          <!-- Primary Slug -->
+          <div class="rounded-xl border border-border-light bg-white/60 p-4 backdrop-blur-sm dark:border-border-dark dark:bg-white/5">
+            <div class="mb-2 flex items-center justify-between">
+              <span class="badge-brand">Primary Slug</span>
+              <button id="slug-copy-primary" class="btn-ghost px-3 py-1.5 text-tiny" aria-label="Copy primary slug">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <code id="slug-primary" class="block w-full break-all font-mono text-body font-semibold text-txt-light dark:text-txt-dark"></code>
+          </div>
+
+          <!-- Slug Variants -->
+          <div>
+            <p class="mb-2 text-tiny font-semibold text-txt-muted">Slug Variants</p>
+            <div class="space-y-2">
+              <!-- Short Variant -->
+              <div class="slug-variant-row flex items-center gap-2 rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm transition-all hover:border-brand-300 dark:border-border-dark dark:bg-white/5 dark:hover:border-brand-700">
+                <div class="flex shrink-0 items-center gap-2">
+                  <span class="badge-neutral">Short</span>
+                </div>
+                <code id="slug-short" class="flex-1 break-all font-mono text-small text-txt-light dark:text-txt-dark"></code>
+                <button class="slug-copy-variant btn-ghost shrink-0 px-2 py-1 text-tiny" data-target="slug-short" aria-label="Copy short slug">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+              <!-- SEO Variant -->
+              <div class="slug-variant-row flex items-center gap-2 rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm transition-all hover:border-brand-300 dark:border-border-dark dark:bg-white/5 dark:hover:border-brand-700">
+                <div class="flex shrink-0 items-center gap-2">
+                  <span class="badge-brand">SEO</span>
+                </div>
+                <code id="slug-seo" class="flex-1 break-all font-mono text-small text-txt-light dark:text-txt-dark"></code>
+                <button class="slug-copy-variant btn-ghost shrink-0 px-2 py-1 text-tiny" data-target="slug-seo" aria-label="Copy SEO slug">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+              <!-- Descriptive Variant -->
+              <div class="slug-variant-row flex items-center gap-2 rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm transition-all hover:border-brand-300 dark:border-border-dark dark:bg-white/5 dark:hover:border-brand-700">
+                <div class="flex shrink-0 items-center gap-2">
+                  <span class="badge-neutral">Descriptive</span>
+                </div>
+                <code id="slug-descriptive" class="flex-1 break-all font-mono text-small text-txt-light dark:text-txt-dark"></code>
+                <button class="slug-copy-variant btn-ghost shrink-0 px-2 py-1 text-tiny" data-target="slug-descriptive" aria-label="Copy descriptive slug">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+              <!-- Numeric Variant -->
+              <div class="slug-variant-row flex items-center gap-2 rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm transition-all hover:border-brand-300 dark:border-border-dark dark:bg-white/5 dark:hover:border-brand-700">
+                <div class="flex shrink-0 items-center gap-2">
+                  <span class="badge-neutral">Numeric</span>
+                </div>
+                <code id="slug-numeric" class="flex-1 break-all font-mono text-small text-txt-light dark:text-txt-dark"></code>
+                <button class="slug-copy-variant btn-ghost shrink-0 px-2 py-1 text-tiny" data-target="slug-numeric" aria-label="Copy numeric slug">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+              <!-- Camel Case Variant -->
+              <div class="slug-variant-row flex items-center gap-2 rounded-xl border border-border-light bg-white/40 p-3 backdrop-blur-sm transition-all hover:border-brand-300 dark:border-border-dark dark:bg-white/5 dark:hover:border-brand-700">
+                <div class="flex shrink-0 items-center gap-2">
+                  <span class="badge-neutral">CamelCase</span>
+                </div>
+                <code id="slug-camel" class="flex-1 break-all font-mono text-small text-txt-light dark:text-txt-dark"></code>
+                <button class="slug-copy-variant btn-ghost shrink-0 px-2 py-1 text-tiny" data-target="slug-camel" aria-label="Copy camelCase slug">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slug History -->
+          <div id="slug-history-container" class="hidden">
+            <div class="mb-2 flex items-center justify-between">
+              <p class="text-tiny font-semibold text-txt-muted">Recent Slugs</p>
+              <button id="slug-clear-history" class="btn-ghost px-2 py-1 text-tiny" aria-label="Clear history">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                <span>Clear</span>
+              </button>
+            </div>
+            <div id="slug-history-list" class="space-y-1.5"></div>
+          </div>
+        </div>
+
+        <!-- Success Toast -->
+        <div id="slug-success" class="hidden items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-small text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
+          <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-10 10.01-3-3"/></svg>
+          <span id="slug-success-text">Copied!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Quick Access Cards -->
+    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-500 transition-transform group-hover:scale-110 dark:bg-brand-900/30 dark:text-brand-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Real-Time</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 text-accent-500 transition-transform group-hover:scale-110 dark:bg-accent-900/30 dark:text-accent-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"/><path d="M9 20h6"/><path d="M12 5v15"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Separators</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 transition-transform group-hover:scale-110 dark:bg-cyan-900/30 dark:text-cyan-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">URL Preview</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600 transition-transform group-hover:scale-110 dark:bg-green-900/30 dark:text-green-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m12 2 9 5-9 5-9-5 9-5z"/><path d="m3 12 9 5 9-5"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">5 Variants</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-500 transition-transform group-hover:scale-110 dark:bg-brand-900/30 dark:text-brand-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">History</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 text-accent-500 transition-transform group-hover:scale-110 dark:bg-accent-900/30 dark:text-accent-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Private</p>
+      </div>
+    </div>
+  </div>
+
+  <ToolSections slug="slug-generator" />
+</ToolLayout>
+
+<style>
+  .slug-sep-btn { color: var(--color-text-muted); }
+  .slug-sep-btn.active { background: var(--color-brand); color: white; }
+  .slug-slider {
+    -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px;
+    background: var(--color-border); outline: none; cursor: pointer;
+  }
+  .slug-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--color-brand); cursor: pointer; border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3); transition: transform 0.15s ease;
+  }
+  .slug-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .slug-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--color-brand);
+    cursor: pointer; border: 2px solid white; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+  }
+  .slug-history-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+    border-radius: 8px; border: 1px solid var(--color-border); background: rgba(255,255,255,0.3);
+    transition: all 0.2s ease;
+  }
+  .dark .slug-history-item { background: rgba(255,255,255,0.03); }
+  .slug-history-item:hover { border-color: var(--color-brand); }
+  kbd { border: 1px solid var(--color-border); }
+  @media (max-width: 358px) {
+    .slug-tool .grid-cols-2 { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var input = document.getElementById('slug-input');
+    var inputCount = document.getElementById('slug-input-count');
+    var emptyState = document.getElementById('slug-empty-state');
+    var results = document.getElementById('slug-results');
+    var primarySlug = document.getElementById('slug-primary');
+    var urlPreview = document.getElementById('slug-url-preview');
+    var shortSlug = document.getElementById('slug-short');
+    var seoSlug = document.getElementById('slug-seo');
+    var descriptiveSlug = document.getElementById('slug-descriptive');
+    var numericSlug = document.getElementById('slug-numeric');
+    var camelSlug = document.getElementById('slug-camel');
+    var copyPrimary = document.getElementById('slug-copy-primary');
+    var sepHyphenBtn = document.getElementById('slug-sep-hyphen');
+    var sepUnderscoreBtn = document.getElementById('slug-sep-underscore');
+    var stopWordsCheck = document.getElementById('slug-stop-words');
+    var maxLengthSlider = document.getElementById('slug-max-length');
+    var maxLengthValue = document.getElementById('slug-max-length-value');
+    var historyContainer = document.getElementById('slug-history-container');
+    var historyList = document.getElementById('slug-history-list');
+    var clearHistoryBtn = document.getElementById('slug-clear-history');
+    var successEl = document.getElementById('slug-success');
+    var successText = document.getElementById('slug-success-text');
+    var currentSep = '-';
+    var history = [];
+
+    var stopWords = ['the','a','an','in','on','at','to','for','of','and','or','but','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','can','this','that','these','those','it','its','as','by','with','from','up','about','into','through','during','before','after','above','below','between','under','further'];
+
+    function showEl(el) { el.classList.remove('hidden'); el.style.display = 'flex'; }
+    function hideEl(el) { el.classList.add('hidden'); el.style.display = 'none'; }
+    function showSuccess(msg) { successText.textContent = msg; showEl(successEl); setTimeout(function() { hideEl(successEl); }, 2000); }
+
+    function transliterate(text) {
+      var map = {
+        'à':'a','á':'a','â':'a','ã':'a','ä':'a','å':'a','æ':'ae','ç':'c','è':'e','é':'e','ê':'e','ë':'e','ì':'i','í':'i','î':'i','ï':'i','ð':'d','ñ':'n','ò':'o','ó':'o','ô':'o','õ':'o','ö':'o','ø':'o','ù':'u','ú':'u','û':'u','ü':'u','ý':'y','þ':'th','ÿ':'y','ß':'ss',
+        'À':'A','Á':'A','Â':'A','Ã':'A','Ä':'A','Å':'A','Æ':'AE','Ç':'C','È':'E','É':'E','Ê':'E','Ë':'E','Ì':'I','Í':'I','Î':'I','Ï':'I','Ð':'D','Ñ':'N','Ò':'O','Ó':'O','Ô':'O','Õ':'O','Ö':'O','Ø':'O','Ù':'U','Ú':'U','Û':'U','Ü':'U','Ý':'Y','Þ':'TH','Ÿ':'Y',
+        'č':'c','ď':'d','ě':'e','ň':'n','ř':'r','š':'s','ť':'t','ů':'u','ž':'z','Č':'C','Ď':'D','Ě':'E','Ň':'N','Ř':'R','Š':'S','Ť':'T','Ů':'U','Ž':'Z',
+        'ł':'l','Ł':'L','ś':'s','Ś':'S','ż':'z','Ż':'Z','ź':'z','Ź':'Z',
+        'â':'a','ă':'a','ǎ':'a','ǟ':'a','ǡ':'a','ǻ':'a','ȁ':'a','ȃ':'a',
+        'е':'e','ё':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'h','ц':'ts','ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'
+      };
+      return text.replace(/[^\u0000-\u007F]/g, function(c) {
+        return map[c] || '';
+      });
+    }
+
+    function generateSlug(text, options) {
+      if (!text || !text.trim()) return '';
+      var sep = options.sep || currentSep;
+      var removeStopWords = options.removeStopWords || false;
+      var maxLength = options.maxLength || 0;
+      var words = transliterate(text).toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .trim()
+        .split(/\s+/)
+        .filter(function(w) { return w.length > 0; });
+
+      if (removeStopWords) {
+        words = words.filter(function(w) { return stopWords.indexOf(w) === -1; });
+      }
+
+      var slug = words.join(sep);
+
+      if (maxLength > 0 && slug.length > maxLength) {
+        var truncated = slug.substring(0, maxLength);
+        var lastSep = Math.max(truncated.lastIndexOf(sep), truncated.lastIndexOf('-'), truncated.lastIndexOf('_'));
+        if (lastSep > maxLength * 0.5) {
+          slug = truncated.substring(0, lastSep);
+        } else {
+          slug = truncated;
+        }
+      }
+
+      return slug.replace(new RegExp(sep + '+', 'g'), sep).replace(new RegExp('^' + sep + '|' + sep + '$', 'g'), '');
+    }
+
+    function generateCamelCase(text) {
+      var words = transliterate(text).toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .trim()
+        .split(/\s+/)
+        .filter(function(w) { return w.length > 0; });
+      if (words.length === 0) return '';
+      var result = words[0];
+      for (var i = 1; i < words.length; i++) {
+        result += words[i].charAt(0).toUpperCase() + words[i].slice(1);
+      }
+      return result;
+    }
+
+    function generateNumericSlug(text) {
+      var hash = 0;
+      for (var i = 0; i < text.length; i++) {
+        hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(36);
+    }
+
+    function update() {
+      var text = input.value;
+      inputCount.textContent = text.length + ' chars';
+
+      if (!text.trim()) {
+        showEl(emptyState);
+        hideEl(results);
+        return;
+      }
+
+      hideEl(emptyState);
+      showEl(results);
+
+      var maxLength = parseInt(maxLengthSlider.value);
+      var options = {
+        sep: currentSep,
+        removeStopWords: stopWordsCheck.checked,
+        maxLength: 0
+      };
+
+      var primary = generateSlug(text, options);
+      primarySlug.textContent = primary;
+      urlPreview.textContent = primary;
+
+      options.maxLength = 0;
+      var allWords = transliterate(text).toLowerCase().replace(/[^a-z0-9\s]/g, ' ').trim().split(/\s+/).filter(function(w) { return w.length > 0; });
+      var shortWords = allWords.slice(0, 3);
+      shortSlug.textContent = shortWords.join(currentSep);
+
+      options.removeStopWords = true;
+      seoSlug.textContent = generateSlug(text, options);
+      options.removeStopWords = false;
+
+      descriptiveSlug.textContent = generateSlug(text, { sep: currentSep, removeStopWords: false, maxLength: 0 });
+
+      numericSlug.textContent = generateNumericSlug(text);
+
+      camelSlug.textContent = generateCamelCase(text);
+
+      addToHistory(primary);
+    }
+
+    function addToHistory(slug) {
+      if (!slug) return;
+      if (history.length > 0 && history[0] === slug) return;
+      history = history.filter(function(s) { return s !== slug; });
+      history.unshift(slug);
+      if (history.length > 8) history = history.slice(0, 8);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      if (history.length === 0) { hideEl(historyContainer); return; }
+      showEl(historyContainer);
+      historyList.innerHTML = '';
+      history.forEach(function(s) {
+        var item = document.createElement('div');
+        item.className = 'slug-history-item';
+        item.innerHTML = '<code class="flex-1 break-all font-mono text-tiny text-txt-light dark:text-txt-dark">' + s + '</code>' +
+          '<button class="slug-copy-history btn-ghost shrink-0 px-2 py-1 text-tiny" data-slug="' + s + '" aria-label="Copy slug"><svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+        historyList.appendChild(item);
+      });
+    }
+
+    function copySlug(slug, btn) {
+      navigator.clipboard.writeText(slug).then(function() {
+        showSuccess('Copied: ' + slug.substring(0, 30) + (slug.length > 30 ? '...' : ''));
+        if (btn) {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>';
+          btn.classList.add('text-green-600', 'dark:text-green-400');
+          setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('text-green-600', 'dark:text-green-400'); }, 2000);
+        }
+      });
+    }
+
+    input.addEventListener('input', update);
+
+    sepHyphenBtn.addEventListener('click', function() {
+      currentSep = '-';
+      this.classList.add('active');
+      sepUnderscoreBtn.classList.remove('active');
+      update();
+    });
+    sepUnderscoreBtn.addEventListener('click', function() {
+      currentSep = '_';
+      this.classList.add('active');
+      sepHyphenBtn.classList.remove('active');
+      update();
+    });
+
+    stopWordsCheck.addEventListener('change', update);
+
+    maxLengthSlider.addEventListener('input', function() {
+      var v = parseInt(this.value);
+      maxLengthValue.textContent = v === 0 ? 'Unlimited' : v + ' chars';
+      update();
+    });
+
+    copyPrimary.addEventListener('click', function() { copySlug(primarySlug.textContent, this); });
+
+    document.querySelectorAll('.slug-copy-variant').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var target = document.getElementById(this.getAttribute('data-target'));
+        if (target) copySlug(target.textContent, this);
+      });
+    });
+
+    historyList.addEventListener('click', function(e) {
+      var btn = e.target.closest('.slug-copy-history');
+      if (btn) { copySlug(btn.getAttribute('data-slug'), btn); }
+    });
+
+    clearHistoryBtn.addEventListener('click', function() {
+      history = [];
+      renderHistory();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        if (primarySlug.textContent) copySlug(primarySlug.textContent, copyPrimary);
+      } else if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's')) {
+        e.preventDefault();
+        if (currentSep === '-') { sepUnderscoreBtn.click(); } else { sepHyphenBtn.click(); }
+      } else if (e.ctrlKey && (e.key === 'h' || e.key === 'H')) {
+        e.preventDefault();
+        clearHistoryBtn.click();
+      }
+    });
+
+    update();
+  })();
+</script>

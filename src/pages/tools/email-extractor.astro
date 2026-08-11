@@ -1,0 +1,472 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="email-extractor">
+  <div id="ee-app" class="space-y-4">
+    <!-- Input Section -->
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <label for="ee-input" class="text-body font-semibold">Your Text</label>
+        <div class="flex items-center gap-2">
+          <button id="ee-paste" class="btn-ghost px-3 py-1.5 text-small" title="Paste from clipboard">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Paste
+          </button>
+          <button id="ee-clear" class="btn-ghost px-3 py-1.5 text-small" title="Clear text (Ctrl+K)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <textarea id="ee-input" class="tool-textarea min-h-[180px] xs:min-h-[140px]" placeholder="Paste any text containing email addresses here — documents, web pages, logs, or raw data..." aria-label="Text input for email extraction"></textarea>
+
+      <!-- Options Bar -->
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="ee-dedup" checked class="h-4 w-4 rounded accent-brand-500" />
+          <span class="text-tiny text-txt-muted">Remove duplicates</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="ee-validate" checked class="h-4 w-4 rounded accent-brand-500" />
+          <span class="text-tiny text-txt-muted">Validate format</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="ee-normalize" checked class="h-4 w-4 rounded accent-brand-500" />
+          <span class="text-tiny text-txt-muted">Normalize (lowercase)</span>
+        </label>
+        <div class="flex items-center gap-2">
+          <span class="text-tiny text-txt-muted">Sort:</span>
+          <select id="ee-sort" class="rounded-lg border border-border-light bg-surface-light px-2 py-1.5 text-tiny dark:border-border-dark dark:bg-surface-dark">
+            <option value="appearance">Order of appearance</option>
+            <option value="alpha">Alphabetical</option>
+            <option value="domain">By domain</option>
+            <option value="freq">By frequency</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-tiny text-txt-muted">Domain filter:</span>
+          <input type="text" id="ee-domain-filter" placeholder="e.g. gmail.com" class="w-32 rounded-lg border border-border-light bg-surface-light px-2 py-1.5 text-tiny dark:border-border-dark dark:bg-surface-dark" />
+        </div>
+        <button id="ee-extract" class="btn-primary ml-auto px-5 py-2.5 text-small" title="Extract emails (Ctrl+Enter)">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          Extract Emails
+        </button>
+      </div>
+
+      <!-- Custom Regex (collapsible) -->
+      <details class="mt-3 rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50">
+        <summary class="cursor-pointer text-tiny font-semibold text-txt-muted">Advanced: Custom Regex Pattern</summary>
+        <div class="mt-3 flex items-center gap-2">
+          <input type="text" id="ee-custom-regex" placeholder="Enter custom regex pattern..." class="flex-1 rounded-lg border border-border-light bg-surface-light px-3 py-2 text-tiny font-mono dark:border-border-dark dark:bg-surface-dark" />
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="ee-use-custom" class="h-4 w-4 rounded accent-brand-500" />
+            <span class="text-tiny text-txt-muted">Use custom</span>
+          </label>
+        </div>
+      </details>
+    </div>
+
+    <!-- Empty State -->
+    <div id="ee-empty" class="flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center px-4">
+        <div class="mb-4 flex justify-center">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          </div>
+        </div>
+        <p class="text-body font-semibold text-txt-light dark:text-txt-dark">Ready to Extract</p>
+        <p class="mt-1 text-small text-txt-muted">Paste text containing email addresses and click "Extract Emails" to find, validate, and export them.</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="ee-loading" class="hidden flex min-h-[200px] items-center justify-center rounded-2xl border border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center">
+        <div class="mb-4 flex justify-center">
+          <div class="h-12 w-12 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500 dark:border-brand-800 dark:border-t-brand-400"></div>
+        </div>
+        <p class="text-small text-txt-muted">Extracting emails...</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="ee-results" class="hidden space-y-4">
+      <!-- Summary Stats -->
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="card-glass p-3 text-center">
+          <div id="ee-total-found" class="text-2xl font-bold text-brand-500">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Total Found</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="ee-unique-count" class="text-2xl font-bold text-accent-500">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Unique</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="ee-valid-count" class="text-2xl font-bold text-green-500">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Valid</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="ee-invalid-count" class="text-2xl font-bold text-red-400">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Invalid</div>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="card-glass p-4">
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="ee-copy-all" class="btn-primary px-4 py-2.5 text-small" title="Copy all emails (Ctrl+C)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy All
+          </button>
+          <button id="ee-export-csv" class="btn-secondary px-4 py-2.5 text-small" title="Export as CSV">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            CSV
+          </button>
+          <button id="ee-export-txt" class="btn-secondary px-4 py-2.5 text-small" title="Export as TXT">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            TXT
+          </button>
+          <div class="flex items-center gap-2 ml-auto">
+            <span class="text-tiny text-txt-muted">Separator:</span>
+            <select id="ee-separator" class="rounded-lg border border-border-light bg-surface-light px-2 py-1.5 text-tiny dark:border-border-dark dark:bg-surface-dark">
+              <option value="\n">Newline</option>
+              <option value=", ">Comma</option>
+              <option value="; ">Semicolon</option>
+              <option value=" ">Space</option>
+              <option value=" | ">Pipe</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Domain Statistics -->
+      <div class="card-glass p-4 sm:p-6">
+        <h4 class="mb-4 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Domain Statistics
+        </h4>
+        <div id="ee-domain-stats" class="space-y-1.5"></div>
+      </div>
+
+      <!-- Email List -->
+      <div class="card-glass p-4 sm:p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h4 class="text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            Extracted Emails
+          </h4>
+          <span id="ee-list-count" class="text-tiny text-txt-muted"></span>
+        </div>
+        <div id="ee-email-list" class="space-y-1.5 max-h-[400px] overflow-y-auto scrollbar-thin"></div>
+        <div id="ee-no-emails" class="hidden py-4 text-center">
+          <svg class="mx-auto mb-2 h-10 w-10 text-txt-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          <p class="text-small text-txt-muted">No email addresses found in the provided text.</p>
+        </div>
+      </div>
+
+      <!-- Highlighted Text -->
+      <div class="card-glass p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <h4 class="text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            Highlighted in Text
+          </h4>
+          <button id="ee-toggle-highlight" class="btn-ghost px-3 py-1.5 text-small">Toggle</button>
+        </div>
+        <div id="ee-highlighted" class="max-h-[250px] overflow-y-auto scrollbar-thin rounded-xl bg-surface-light-alt/50 p-3 text-small leading-relaxed dark:bg-surface-dark-alt/50"></div>
+      </div>
+    </div>
+  </div>
+
+  <ToolSections slug="email-extractor" />
+</ToolLayout>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('ee-input');
+  var extractBtn = document.getElementById('ee-extract');
+  var clearBtn = document.getElementById('ee-clear');
+  var pasteBtn = document.getElementById('ee-paste');
+  var copyAllBtn = document.getElementById('ee-copy-all');
+  var exportCsvBtn = document.getElementById('ee-export-csv');
+  var exportTxtBtn = document.getElementById('ee-export-txt');
+  var highlightToggle = document.getElementById('ee-toggle-highlight');
+  var highlightedDiv = document.getElementById('ee-highlighted');
+  var emptyState = document.getElementById('ee-empty');
+  var loadingState = document.getElementById('ee-loading');
+  var resultsDiv = document.getElementById('ee-results');
+  var showHighlight = true;
+
+  var defaultRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  var validationRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  var lastEmails = [];
+  var lastText = '';
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function extract() {
+    var text = input.value.trim();
+    if (!text) {
+      input.focus();
+      input.classList.add('border-red-400');
+      setTimeout(function () { input.classList.remove('border-red-400'); }, 1500);
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    resultsDiv.classList.add('hidden');
+    loadingState.classList.remove('hidden');
+    loadingState.classList.add('flex');
+
+    setTimeout(function () {
+      loadingState.classList.add('hidden');
+      loadingState.classList.remove('flex');
+      resultsDiv.classList.remove('hidden');
+
+      lastText = text;
+      var useCustom = document.getElementById('ee-use-custom').checked;
+      var customPattern = document.getElementById('ee-custom-regex').value.trim();
+      var regex;
+
+      if (useCustom && customPattern) {
+        try {
+          regex = new RegExp(customPattern, 'g');
+        } catch (e) {
+          regex = defaultRegex;
+        }
+      } else {
+        regex = defaultRegex;
+      }
+
+      var rawEmails = text.match(regex) || [];
+      var dedup = document.getElementById('ee-dedup').checked;
+      var validate = document.getElementById('ee-validate').checked;
+      var normalize = document.getElementById('ee-normalize').checked;
+
+      var processed = rawEmails.map(function (e) {
+        var email = normalize ? e.toLowerCase().trim() : e.trim();
+        var isValid = validationRegex.test(email);
+        return { email: email, valid: isValid, domain: email.split('@')[1] || '' };
+      });
+
+      if (validate) {
+        processed = processed.filter(function (e) { return e.valid; });
+      }
+
+      if (dedup) {
+        var seen = {};
+        processed = processed.filter(function (e) {
+          if (seen[e.email]) return false;
+          seen[e.email] = true;
+          return true;
+        });
+      }
+
+      var domainFilter = document.getElementById('ee-domain-filter').value.trim().toLowerCase();
+      if (domainFilter) {
+        processed = processed.filter(function (e) { return e.domain === domainFilter; });
+      }
+
+      var sort = document.getElementById('ee-sort').value;
+      switch (sort) {
+        case 'alpha':
+          processed.sort(function (a, b) { return a.email.localeCompare(b.email); });
+          break;
+        case 'domain':
+          processed.sort(function (a, b) {
+            var d = a.domain.localeCompare(b.domain);
+            return d !== 0 ? d : a.email.localeCompare(b.email);
+          });
+          break;
+        case 'freq':
+          var freqMap = {};
+          processed.forEach(function (e) { freqMap[e.email] = (freqMap[e.email] || 0) + 1; });
+          processed.sort(function (a, b) { return (freqMap[b.email] || 0) - (freqMap[a.email] || 0); });
+          break;
+      }
+
+      lastEmails = processed;
+
+      var totalFound = rawEmails.length;
+      var uniqueCount = processed.length;
+      var validCount = processed.filter(function (e) { return e.valid; }).length;
+      var invalidCount = totalFound - validCount;
+
+      document.getElementById('ee-total-found').textContent = totalFound.toLocaleString();
+      document.getElementById('ee-unique-count').textContent = uniqueCount.toLocaleString();
+      document.getElementById('ee-valid-count').textContent = validCount.toLocaleString();
+      document.getElementById('ee-invalid-count').textContent = Math.max(0, invalidCount).toLocaleString();
+
+      renderDomainStats(processed);
+      renderEmailList(processed);
+      renderHighlighted(text, processed);
+
+      var listCount = document.getElementById('ee-list-count');
+      listCount.textContent = uniqueCount + ' email' + (uniqueCount !== 1 ? 's' : '');
+    }, 400);
+  }
+
+  function renderDomainStats(emails) {
+    var el = document.getElementById('ee-domain-stats');
+    el.innerHTML = '';
+    var domainFreq = {};
+    emails.forEach(function (e) {
+      domainFreq[e.domain] = (domainFreq[e.domain] || 0) + 1;
+    });
+    var domains = Object.keys(domainFreq).map(function (d) { return { domain: d, count: domainFreq[d] }; });
+    domains.sort(function (a, b) { return b.count - a.count; });
+
+    if (domains.length === 0) {
+      el.innerHTML = '<p class="text-small text-txt-muted">No domains to display.</p>';
+      return;
+    }
+
+    var maxCount = domains[0].count;
+    domains.slice(0, 15).forEach(function (d) {
+      var pct = (d.count / maxCount) * 100;
+      var row = document.createElement('div');
+      row.className = 'flex items-center gap-2';
+      row.innerHTML =
+        '<span class="w-40 shrink-0 truncate text-tiny font-medium" title="' + escapeHtml(d.domain) + '">' + escapeHtml(d.domain) + '</span>' +
+        '<div class="h-4 flex-1 overflow-hidden rounded-md bg-border-light/50 dark:bg-border-dark/50">' +
+        '<div class="h-full rounded-md bg-cyan-500 transition-all duration-700" style="width:' + pct + '%"></div></div>' +
+        '<span class="w-10 shrink-0 text-right text-tiny font-semibold text-cyan-500">' + d.count + '</span>';
+      el.appendChild(row);
+    });
+  }
+
+  function renderEmailList(emails) {
+    var el = document.getElementById('ee-email-list');
+    var noEmails = document.getElementById('ee-no-emails');
+    el.innerHTML = '';
+
+    if (emails.length === 0) {
+      noEmails.classList.remove('hidden');
+      return;
+    }
+    noEmails.classList.add('hidden');
+
+    emails.forEach(function (e, i) {
+      var row = document.createElement('div');
+      row.className = 'flex items-center gap-3 rounded-xl bg-surface-light-alt/50 p-2.5 transition-all hover:bg-brand-50/50 dark:bg-surface-dark-alt/50 dark:hover:bg-brand-900/10 group';
+      row.innerHTML =
+        '<span class="w-6 shrink-0 text-tiny text-txt-muted">' + (i + 1) + '</span>' +
+        '<svg class="h-4 w-4 shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>' +
+        '<span class="flex-1 truncate text-small font-medium">' + escapeHtml(e.email) + '</span>' +
+        (e.valid ? '<svg class="h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : '<svg class="h-4 w-4 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>') +
+        '<button class="shrink-0 rounded-lg p-1.5 text-txt-muted opacity-0 transition-opacity group-hover:opacity-100 hover:bg-brand-100 hover:text-brand-600 dark:hover:bg-brand-900/30" data-email="' + escapeHtml(e.email) + '" title="Copy">' +
+        '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+      var copyBtn = row.querySelector('button');
+      copyBtn.addEventListener('click', function () {
+        navigator.clipboard.writeText(e.email).then(function () {
+          var original = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+          setTimeout(function () { copyBtn.innerHTML = original; }, 1500);
+        });
+      });
+      el.appendChild(row);
+    });
+  }
+
+  function renderHighlighted(text, emails) {
+    if (!showHighlight || emails.length === 0) {
+      highlightedDiv.innerHTML = escapeHtml(text);
+      return;
+    }
+    var html = escapeHtml(text);
+    emails.forEach(function (e) {
+      var escaped = e.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      var re = new RegExp('(' + escaped + ')', 'gi');
+      html = html.replace(re, '<mark class="rounded bg-brand-300/60 text-brand-900 dark:bg-brand-700/50 dark:text-brand-100">$1</mark>');
+    });
+    highlightedDiv.innerHTML = html;
+  }
+
+  function getSeparator() {
+    var val = document.getElementById('ee-separator').value;
+    if (val === '\\n') return '\n';
+    return val;
+  }
+
+  function copyAll() {
+    if (lastEmails.length === 0) return;
+    var text = lastEmails.map(function (e) { return e.email; }).join(getSeparator());
+    navigator.clipboard.writeText(text).then(function () {
+      var original = copyAllBtn.innerHTML;
+      copyAllBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Copied!';
+      copyAllBtn.classList.add('text-green-600');
+      setTimeout(function () {
+        copyAllBtn.innerHTML = original;
+        copyAllBtn.classList.remove('text-green-600');
+      }, 2000);
+    });
+  }
+
+  function exportCSV() {
+    if (lastEmails.length === 0) return;
+    var csv = 'Email,Domain,Valid\n';
+    lastEmails.forEach(function (e) {
+      csv += '"' + e.email + '","' + e.domain + '","' + (e.valid ? 'Yes' : 'No') + '"\n';
+    });
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'emails.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function exportTXT() {
+    if (lastEmails.length === 0) return;
+    var text = lastEmails.map(function (e) { return e.email; }).join('\n');
+    var blob = new Blob([text], { type: 'text/plain' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'emails.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  extractBtn.addEventListener('click', extract);
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    resultsDiv.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    input.focus();
+  });
+  pasteBtn.addEventListener('click', function () {
+    navigator.clipboard.readText().then(function (text) {
+      input.value = text;
+      input.focus();
+    }).catch(function () { input.focus(); });
+  });
+  copyAllBtn.addEventListener('click', copyAll);
+  exportCsvBtn.addEventListener('click', exportCSV);
+  exportTxtBtn.addEventListener('click', exportTXT);
+  highlightToggle.addEventListener('click', function () {
+    showHighlight = !showHighlight;
+    renderHighlighted(lastText, lastEmails);
+  });
+
+  document.getElementById('ee-domain-filter').addEventListener('input', function () {
+    if (lastText) extract();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      extract();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      clearBtn.click();
+    }
+  });
+})();
+</script>

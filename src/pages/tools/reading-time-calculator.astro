@@ -1,0 +1,549 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="reading-time-calculator">
+  <!-- Main Tool Card -->
+  <div class="rtc-card-glass relative overflow-hidden rounded-2xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-white/5 xs:p-3">
+    <div class="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl"></div>
+
+    <div class="relative z-10">
+      <!-- Textarea with drag-drop -->
+      <div class="relative" id="rtc-drop-zone">
+        <textarea
+          id="rtc-input"
+          class="w-full resize-y rounded-xl border border-border-light bg-surface-light/80 px-4 py-3 text-body leading-relaxed text-txt-light transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-border-dark dark:bg-surface-dark/80 dark:text-txt-dark xs:text-small xs:px-3"
+          rows="6"
+          placeholder="Paste your text or drag & drop a .txt / .md file here..."
+          aria-label="Text input for reading time calculation"
+          spellcheck="true"
+        ></textarea>
+
+        <!-- Empty state -->
+        <div id="rtc-empty-state" class="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div class="text-center">
+            <div class="mb-3 flex justify-center">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow opacity-50">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+            </div>
+            <p class="text-small text-txt-muted">Paste text or drop a file to calculate reading time</p>
+          </div>
+        </div>
+
+        <!-- Drag overlay -->
+        <div id="rtc-drag-overlay" class="absolute inset-0 hidden items-center justify-center rounded-xl border-2 border-dashed border-brand-500 bg-brand-50/80 backdrop-blur-sm dark:bg-brand-900/30">
+          <div class="text-center">
+            <svg class="mx-auto mb-2 h-10 w-10 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            <p class="text-small font-semibold text-brand-600 dark:text-brand-300">Drop your file here</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- File import + actions -->
+      <div class="mt-3 flex items-center gap-2 xs:flex-wrap">
+        <label class="btn-secondary cursor-pointer px-3 py-2 text-small xs:flex-1" title="Import file">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+          <span>Import File</span>
+          <input id="rtc-file-input" type="file" accept=".txt,.md,.csv" class="hidden" />
+        </label>
+        <button id="rtc-copy" class="btn-ghost px-3 py-2 text-small xs:flex-1" title="Copy report (Ctrl+Enter)" aria-label="Copy report">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy Report</span>
+        </button>
+        <button id="rtc-clear" class="btn-ghost px-3 py-2 text-small xs:flex-1" title="Clear (Ctrl+Backspace)" aria-label="Clear text">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Clear</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Speed Controls -->
+  <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+    <!-- Reading Speed -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Reading Speed
+      </h3>
+      <div class="flex items-center gap-3">
+        <input id="rtc-read-wpm" type="range" min="100" max="1000" value="200" step="10" class="flex-1 accent-brand-500" aria-label="Reading words per minute" />
+        <span id="rtc-read-wpm-val" class="w-16 text-right text-small font-bold text-txt-light dark:text-txt-dark">200 WPM</span>
+      </div>
+      <div class="mt-2 flex flex-wrap gap-1.5">
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="100" data-target="read">Slow (100)</button>
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="200" data-target="read">Average (200)</button>
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="300" data-target="read">Fast (300)</button>
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="500" data-target="read">Speed (500)</button>
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="800" data-target="read">Skim (800)</button>
+      </div>
+    </div>
+
+    <!-- Speaking Speed -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+        Speaking Speed
+      </h3>
+      <div class="flex items-center gap-3">
+        <input id="rtc-speak-wpm" type="range" min="80" max="400" value="130" step="5" class="flex-1 accent-brand-500" aria-label="Speaking words per minute" />
+        <span id="rtc-speak-wpm-val" class="w-16 text-right text-small font-bold text-txt-light dark:text-txt-dark">130 WPM</span>
+      </div>
+      <div class="mt-2 flex flex-wrap gap-1.5">
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="100" data-target="speak">Slow (100)</button>
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="130" data-target="speak">Average (130)</button>
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="160" data-target="speak">Fast (160)</button>
+        <button class="rtc-preset rounded-md bg-surface-light-alt px-2 py-1 text-tiny font-medium text-txt-muted transition-all hover:bg-brand-100 hover:text-brand-600 dark:bg-surface-dark-alt dark:hover:bg-brand-900/30" data-wpm="200" data-target="speak">Presentation (200)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Results Grid -->
+  <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 xs:grid-cols-2">
+    <!-- Reading Time -->
+    <div class="rtc-result-card relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Reading Time</span>
+      </div>
+      <div id="rtc-read-time" class="text-h3 font-bold text-txt-light dark:text-txt-dark">0s</div>
+      <div id="rtc-read-time-sec" class="mt-0.5 text-tiny text-txt-muted">0 seconds</div>
+    </div>
+
+    <!-- Speaking Time -->
+    <div class="rtc-result-card relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Speaking Time</span>
+      </div>
+      <div id="rtc-speak-time" class="text-h3 font-bold text-txt-light dark:text-txt-dark">0s</div>
+      <div id="rtc-speak-time-sec" class="mt-0.5 text-tiny text-txt-muted">0 seconds</div>
+    </div>
+
+    <!-- Page Count -->
+    <div class="rtc-result-card relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Pages</span>
+      </div>
+      <div id="rtc-pages" class="text-h3 font-bold text-txt-light dark:text-txt-dark">0</div>
+      <div class="mt-0.5 flex items-center gap-1 text-tiny text-txt-muted">
+        <span>@</span>
+        <input id="rtc-wpp" type="number" value="300" min="50" max="2000" step="50" class="w-14 rounded border border-border-light bg-surface-light px-1 py-0.5 text-tiny text-txt-light focus:border-brand-500 focus:outline-none dark:border-border-dark dark:bg-surface-dark dark:text-txt-dark" aria-label="Words per page" />
+        <span>wpp</span>
+      </div>
+    </div>
+
+    <!-- Difficulty -->
+    <div class="rtc-result-card relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M22 2 12 12"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Difficulty</span>
+      </div>
+      <div id="rtc-difficulty" class="text-h3 font-bold text-txt-light dark:text-txt-dark">—</div>
+      <div id="rtc-difficulty-desc" class="mt-0.5 text-tiny text-txt-muted">Enter text to score</div>
+    </div>
+  </div>
+
+  <!-- Time Format Toggle + Statistics -->
+  <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+    <!-- Time Formats -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg>
+        Time Formats
+      </h3>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between rounded-lg bg-surface-light-alt px-3 py-2 dark:bg-surface-dark-alt">
+          <span class="text-tiny text-txt-muted">Human-readable</span>
+          <span id="rtc-fmt-human" class="text-small font-bold text-txt-light dark:text-txt-dark">0s</span>
+        </div>
+        <div class="flex items-center justify-between rounded-lg bg-surface-light-alt px-3 py-2 dark:bg-surface-dark-alt">
+          <span class="text-tiny text-txt-muted">Total seconds</span>
+          <span id="rtc-fmt-seconds" class="text-small font-bold text-txt-light dark:text-txt-dark">0</span>
+        </div>
+        <div class="flex items-center justify-between rounded-lg bg-surface-light-alt px-3 py-2 dark:bg-surface-dark-alt">
+          <span class="text-tiny text-txt-muted">Total minutes</span>
+          <span id="rtc-fmt-minutes" class="text-small font-bold text-txt-light dark:text-txt-dark">0.0</span>
+        </div>
+        <div class="flex items-center justify-between rounded-lg bg-surface-light-alt px-3 py-2 dark:bg-surface-dark-alt">
+          <span class="text-tiny text-txt-muted">Total hours</span>
+          <span id="rtc-fmt-hours" class="text-small font-bold text-txt-light dark:text-txt-dark">0.0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text Statistics -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+        Text Statistics
+      </h3>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="rounded-lg bg-surface-light-alt p-2 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Words</div>
+          <div id="rtc-stat-words" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-2 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Sentences</div>
+          <div id="rtc-stat-sentences" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-2 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Paragraphs</div>
+          <div id="rtc-stat-paragraphs" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-2 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Chars</div>
+          <div id="rtc-stat-chars" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-2 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Words/Sentence</div>
+          <div id="rtc-stat-wps" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-2 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Avg Word Length</div>
+          <div id="rtc-stat-awl" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Planner + Cost Estimator -->
+  <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+    <!-- Session Planner -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+        Session Planner
+      </h3>
+      <div id="rtc-session" class="space-y-2">
+        <p class="text-tiny text-txt-muted">Enter text to get session planning recommendations.</p>
+      </div>
+    </div>
+
+    <!-- Cost Estimator -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Freelance Cost Estimator
+      </h3>
+      <div class="mb-3 flex items-center gap-2">
+        <select id="rtc-cost-type" class="tool-select flex-1 py-1.5 text-small">
+          <option value="per-word">Per Word ($)</option>
+          <option value="per-page">Per Page ($)</option>
+        </select>
+        <input id="rtc-cost-rate" type="number" value="0.10" min="0" step="0.01" class="w-20 rounded-lg border border-border-light bg-surface-light px-2 py-1.5 text-small text-txt-light focus:border-brand-500 focus:outline-none dark:border-border-dark dark:bg-surface-dark dark:text-txt-dark" aria-label="Rate" />
+      </div>
+      <div id="rtc-cost-result" class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+        <div class="text-tiny text-txt-muted">Estimated Cost</div>
+        <div id="rtc-cost-amount" class="text-h4 font-bold text-brand-600 dark:text-brand-300">$0.00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="rtc-toast" class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 translate-y-20 rounded-xl bg-brand-gradient px-5 py-3 text-small font-semibold text-white shadow-large opacity-0 transition-all duration-300">
+    <span id="rtc-toast-text">Copied!</span>
+  </div>
+
+  <ToolSections slug="reading-time-calculator" />
+</ToolLayout>
+
+<script is:inline>
+  (function () {
+    var input = document.getElementById('rtc-input');
+    if (!input) return;
+    var emptyState = document.getElementById('rtc-empty-state');
+    var dropZone = document.getElementById('rtc-drop-zone');
+    var dragOverlay = document.getElementById('rtc-drag-overlay');
+    var fileInput = document.getElementById('rtc-file-input');
+    var copyBtn = document.getElementById('rtc-copy');
+    var clearBtn = document.getElementById('rtc-clear');
+    var readWpm = document.getElementById('rtc-read-wpm');
+    var readWpmVal = document.getElementById('rtc-read-wpm-val');
+    var speakWpm = document.getElementById('rtc-speak-wpm');
+    var speakWpmVal = document.getElementById('rtc-speak-wpm-val');
+    var wppInput = document.getElementById('rtc-wpp');
+    var costType = document.getElementById('rtc-cost-type');
+    var costRate = document.getElementById('rtc-cost-rate');
+    var toast = document.getElementById('rtc-toast');
+    var toastText = document.getElementById('rtc-toast-text');
+
+    function showToast(msg) {
+      toastText.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(function () {
+        toast.classList.add('opacity-0', 'translate-y-20');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2000);
+    }
+
+    function countWords(text) {
+      var trimmed = text.trim();
+      if (!trimmed) return 0;
+      return trimmed.split(/\s+/).filter(function (w) { return w.length > 0; }).length;
+    }
+
+    function countSentences(text) {
+      if (!text.trim()) return 0;
+      return text.split(/[.!?]+(?=\s|$)/g).filter(function (s) { return s.trim().length > 0; }).length;
+    }
+
+    function countParagraphs(text) {
+      if (!text.trim()) return 0;
+      return text.split(/\n\s*\n/).filter(function (p) { return p.trim().length > 0; }).length;
+    }
+
+    function formatTime(seconds) {
+      if (seconds < 1) return '0s';
+      if (seconds < 60) return Math.round(seconds) + 's';
+      var mins = Math.floor(seconds / 60);
+      var secs = Math.round(seconds % 60);
+      if (mins < 60) return secs > 0 ? mins + 'm ' + secs + 's' : mins + 'm';
+      var hrs = Math.floor(mins / 60);
+      var remMins = mins % 60;
+      return remMins > 0 ? hrs + 'h ' + remMins + 'm' : hrs + 'h';
+    }
+
+    function calculateDifficulty(text, words, sentences) {
+      if (words === 0) return { level: '—', desc: 'Enter text to score', color: 'text-txt-muted' };
+      var charsNoSpaces = text.replace(/\s/g, '').length;
+      var avgWordLen = charsNoSpaces / words;
+      var avgSentLen = sentences > 0 ? words / sentences : 0;
+      var syllableEst = 0;
+      var wordArr = text.toLowerCase().match(/\b[\w']+\b/g) || [];
+      wordArr.forEach(function (w) {
+        var syl = w.replace(/[^aeiouy]/g, '').length;
+        syllableEst += Math.max(1, syl);
+      });
+      var avgSyllables = syllableEst / words;
+      var score = (avgWordLen * 0.3) + (avgSentLen * 0.4) + (avgSyllables * 0.3);
+
+      if (score < 4) return { level: 'Easy', desc: 'Simple vocabulary, short sentences', color: 'text-green-500' };
+      if (score < 6) return { level: 'Medium', desc: 'Moderate complexity, readable', color: 'text-cyan-500' };
+      if (score < 8) return { level: 'Hard', desc: 'Complex sentences, advanced vocab', color: 'text-amber-500' };
+      return { level: 'Very Hard', desc: 'Dense academic/technical text', color: 'text-red-500' };
+    }
+
+    function getSessionPlan(words, readSeconds) {
+      if (words === 0) return '<p class="text-tiny text-txt-muted">Enter text to get session planning recommendations.</p>';
+      var html = '';
+      if (readSeconds <= 1200) {
+        html += '<div class="rounded-lg bg-green-50 p-3 dark:bg-green-900/20">';
+        html += '<div class="text-small font-semibold text-green-600 dark:text-green-400">✓ Single Session</div>';
+        html += '<div class="mt-1 text-tiny text-green-600 dark:text-green-400">This text can be read in one sitting (~' + formatTime(readSeconds) + '). No breaks needed.</div>';
+        html += '</div>';
+      } else {
+        var sessionLen = 1200;
+        var sessions = Math.ceil(readSeconds / sessionLen);
+        var breakMin = 10;
+        html += '<div class="rounded-lg bg-amber-50 p-3 dark:bg-amber-900/20">';
+        html += '<div class="text-small font-semibold text-amber-600 dark:text-amber-400">📚 ' + sessions + ' Sessions Recommended</div>';
+        html += '<div class="mt-1 text-tiny text-amber-600 dark:text-amber-400">Read in ' + sessions + ' sessions of ~20 min with ' + breakMin + ' min breaks. Total time including breaks: ' + formatTime(readSeconds + sessions * breakMin * 60) + '.</div>';
+        html += '</div>';
+        html += '<div class="mt-2 rounded-lg bg-surface-light-alt p-3 dark:bg-surface-dark-alt">';
+        html += '<div class="text-tiny text-txt-muted">💡 Tip: Take a 5-minute break every 20 minutes to maintain comprehension. Stand up, stretch, and rest your eyes.</div>';
+        html += '</div>';
+      }
+      html += '<div class="mt-2 grid grid-cols-2 gap-2">';
+      html += '<div class="rounded-lg bg-surface-light-alt p-2 text-center dark:bg-surface-dark-alt"><div class="text-tiny text-txt-muted">Words</div><div class="text-small font-bold text-txt-light dark:text-txt-dark">' + words.toLocaleString() + '</div></div>';
+      html += '<div class="rounded-lg bg-surface-light-alt p-2 text-center dark:bg-surface-dark-alt"><div class="text-tiny text-txt-muted">Est. Comprehension</div><div class="text-small font-bold text-txt-light dark:text-txt-dark">85-95%</div></div>';
+      html += '</div>';
+      return html;
+    }
+
+    function update() {
+      var text = input.value;
+      var words = countWords(text);
+      var sentences = countSentences(text);
+      var paragraphs = countParagraphs(text);
+      var chars = text.length;
+      var rWpm = parseInt(readWpm.value) || 200;
+      var sWpm = parseInt(speakWpm.value) || 130;
+      var wpp = parseInt(wppInput.value) || 300;
+
+      var readSecs = words / rWpm * 60;
+      var speakSecs = words / sWpm * 60;
+      var pages = wpp > 0 ? (words / wpp) : 0;
+      var diff = calculateDifficulty(text, words, sentences);
+
+      if (text.trim()) {
+        emptyState.style.display = 'none';
+      } else {
+        emptyState.style.display = 'flex';
+      }
+
+      readWpmVal.textContent = rWpm + ' WPM';
+      speakWpmVal.textContent = sWpm + ' WPM';
+
+      document.getElementById('rtc-read-time').textContent = formatTime(readSecs);
+      document.getElementById('rtc-read-time-sec').textContent = Math.round(readSecs) + ' seconds';
+      document.getElementById('rtc-speak-time').textContent = formatTime(speakSecs);
+      document.getElementById('rtc-speak-time-sec').textContent = Math.round(speakSecs) + ' seconds';
+      document.getElementById('rtc-pages').textContent = pages.toFixed(1);
+      document.getElementById('rtc-difficulty').textContent = diff.level;
+      document.getElementById('rtc-difficulty').className = 'text-h3 font-bold ' + diff.color;
+      document.getElementById('rtc-difficulty-desc').textContent = diff.desc;
+
+      document.getElementById('rtc-fmt-human').textContent = formatTime(readSecs);
+      document.getElementById('rtc-fmt-seconds').textContent = Math.round(readSecs).toLocaleString();
+      document.getElementById('rtc-fmt-minutes').textContent = (readSecs / 60).toFixed(1);
+      document.getElementById('rtc-fmt-hours').textContent = (readSecs / 3600).toFixed(2);
+
+      document.getElementById('rtc-stat-words').textContent = words.toLocaleString();
+      document.getElementById('rtc-stat-sentences').textContent = sentences.toLocaleString();
+      document.getElementById('rtc-stat-paragraphs').textContent = paragraphs.toLocaleString();
+      document.getElementById('rtc-stat-chars').textContent = chars.toLocaleString();
+      document.getElementById('rtc-stat-wps').textContent = sentences > 0 ? (words / sentences).toFixed(1) : '0';
+      var charsNoSpaces = text.replace(/\s/g, '').length;
+      document.getElementById('rtc-stat-awl').textContent = words > 0 ? (charsNoSpaces / words).toFixed(1) : '0';
+
+      document.getElementById('rtc-session').innerHTML = getSessionPlan(words, readSecs);
+
+      var rate = parseFloat(costRate.value) || 0;
+      var cost = 0;
+      if (costType.value === 'per-word') {
+        cost = words * rate;
+      } else {
+        cost = pages * rate;
+      }
+      document.getElementById('rtc-cost-amount').textContent = '$' + cost.toFixed(2);
+    }
+
+    // Sliders
+    readWpm.addEventListener('input', update);
+    speakWpm.addEventListener('input', update);
+    wppInput.addEventListener('input', update);
+    costType.addEventListener('change', update);
+    costRate.addEventListener('input', update);
+
+    // Presets
+    document.querySelectorAll('.rtc-preset').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var wpm = btn.getAttribute('data-wpm');
+        var target = btn.getAttribute('data-target');
+        if (target === 'read') {
+          readWpm.value = wpm;
+        } else {
+          speakWpm.value = wpm;
+        }
+        update();
+      });
+    });
+
+    // Copy report
+    copyBtn.addEventListener('click', function () {
+      if (!input.value.trim()) { showToast('Nothing to copy'); return; }
+      var text = input.value;
+      var words = countWords(text);
+      var sentences = countSentences(text);
+      var paragraphs = countParagraphs(text);
+      var rWpm = parseInt(readWpm.value) || 200;
+      var sWpm = parseInt(speakWpm.value) || 130;
+      var wpp = parseInt(wppInput.value) || 300;
+      var readSecs = words / rWpm * 60;
+      var speakSecs = words / sWpm * 60;
+      var pages = (words / wpp).toFixed(1);
+      var diff = calculateDifficulty(text, words, sentences);
+
+      var report = 'READING TIME REPORT\n';
+      report += '==================\n';
+      report += 'Words: ' + words + '\n';
+      report += 'Sentences: ' + sentences + '\n';
+      report += 'Paragraphs: ' + paragraphs + '\n';
+      report += 'Characters: ' + text.length + '\n';
+      report += 'Reading Time: ' + formatTime(readSecs) + ' (at ' + rWpm + ' WPM)\n';
+      report += 'Speaking Time: ' + formatTime(speakSecs) + ' (at ' + sWpm + ' WPM)\n';
+      report += 'Pages: ' + pages + ' (at ' + wpp + ' words/page)\n';
+      report += 'Difficulty: ' + diff.level + ' - ' + diff.desc + '\n';
+
+      navigator.clipboard.writeText(report).then(function () {
+        showToast('Report copied to clipboard!');
+      });
+    });
+
+    // Clear
+    clearBtn.addEventListener('click', function () {
+      if (!input.value) return;
+      input.value = '';
+      update();
+      input.focus();
+      showToast('Text cleared');
+    });
+
+    // File import
+    fileInput.addEventListener('change', function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        input.value = ev.target.result;
+        update();
+        showToast('File imported: ' + file.name);
+      };
+      reader.onerror = function () {
+        showToast('Error reading file');
+      };
+      reader.readAsText(file);
+    });
+
+    // Drag and drop
+    dropZone.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      dragOverlay.classList.remove('hidden');
+      dragOverlay.classList.add('flex');
+    });
+    dropZone.addEventListener('dragleave', function (e) {
+      if (e.target === dropZone || e.relatedTarget === null) {
+        dragOverlay.classList.add('hidden');
+        dragOverlay.classList.remove('flex');
+      }
+    });
+    dropZone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dragOverlay.classList.add('hidden');
+      dragOverlay.classList.remove('flex');
+      var file = e.dataTransfer.files[0];
+      if (!file) return;
+      if (!file.name.match(/\.(txt|md|csv)$/i)) {
+        showToast('Only .txt, .md, .csv files supported');
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        input.value = ev.target.result;
+        update();
+        showToast('File imported: ' + file.name);
+      };
+      reader.readAsText(file);
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        copyBtn.click();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Backspace') {
+        e.preventDefault();
+        clearBtn.click();
+      }
+    });
+
+    input.addEventListener('input', update);
+    update();
+    input.focus();
+  })();
+</script>

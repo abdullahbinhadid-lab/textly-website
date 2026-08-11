@@ -1,0 +1,201 @@
+---
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import CTA from '../../components/CTA.astro';
+import FAQ from '../../components/FAQ.astro';
+import { tools, toolCategories } from '../../data/tools';
+
+export function getStaticPaths() {
+  const categorySlugs: Record<string, string> = {
+    'Counting': 'counting',
+    'Transform': 'transform',
+    'Clean': 'clean',
+    'Edit': 'edit',
+    'Generate': 'generate',
+    'Audio': 'audio',
+    'Compare': 'compare',
+    'SEO': 'seo',
+    'Organize': 'organize',
+    'Convert': 'convert',
+    'Analyze': 'analyze',
+    'Extract': 'extract',
+    'Split': 'split',
+    'Join': 'join',
+    'Format': 'format',
+  };
+
+  return toolCategories.map((category) => {
+    const slug = categorySlugs[category] || category.toLowerCase().replace(/\s+/g, '-');
+    const categoryTools = tools.filter((t) => t.category === category);
+
+    const descriptions: Record<string, string> = {
+      'Counting': 'Count words, characters, sentences, reading time, and social media limits with our free counting tools. Real-time results, all client-side.',
+      'Transform': 'Transform your text with case conversion, reversal, and repetition tools. Convert between UPPERCASE, lowercase, camelCase, and more.',
+      'Clean': 'Clean up messy text by removing line breaks, extra spaces, duplicate lines, and unwanted whitespace. Instant cleanup, all in your browser.',
+      'Edit': 'Edit and manipulate text with find and replace, regex support, and more. Powerful text editing tools that run entirely client-side.',
+      'Generate': 'Generate placeholder text, repeated patterns, and more with our text generation tools. Perfect for mockups, test data, and bulk operations.',
+      'Audio': 'Convert between text and speech using browser-native APIs. Text to speech with 50+ languages and speech to text dictation.',
+      'Compare': 'Compare text blocks and find differences with our text comparison tools. Line-by-line diff checking for documents and code.',
+      'SEO': 'Optimize your content for search engines with slug generation, keyword density analysis, and readability checking tools.',
+      'Organize': 'Sort and organize your text lines alphabetically, numerically, or by length. Remove duplicates and clean up lists.',
+      'Convert': 'Convert text between encoding formats including Hex, Binary, ASCII, Base64, and URL encoding. Useful for developers and debugging.',
+      'Analyze': 'Analyze your text with readability scores, keyword density, privacy policy scanning, and more. Get instant insights, all client-side.',
+      'Extract': 'Extract useful information from text including emails, URLs, and patterns. Instantly find and export what you need, all client-side.',
+      'Split': 'Split text into chunks by delimiters, characters, words, or lines. Perfect for parsing data and preparing content for further processing.',
+      'Join': 'Join multiple lines or text fragments into a single string with custom separators. Great for combining lists, data, and formatted output.',
+      'Format': 'Format and wrap text to specific widths with custom indentation and break rules. Perfect for emails, code comments, and plain text documents.',
+    };
+
+    const faqItems: Record<string, { question: string; answer: string }[]> = {
+      'Counting': [
+        { question: 'Are the counting tools accurate?', answer: 'Yes. Our word counter uses Unicode-aware word splitting, handles emojis, CJK characters, and smart quotes correctly. Character counts include or exclude spaces depending on the metric.' },
+        { question: 'Do the counting tools work with non-English text?', answer: 'Yes. All counting tools support Unicode and work with most languages including Chinese, Japanese, Arabic, and Cyrillic.' },
+      ],
+      'Transform': [
+        { question: 'What case formats are supported?', answer: 'Our Case Converter supports UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, and more.' },
+        { question: 'Can I reverse text by words instead of characters?', answer: 'Yes! Our Text Reverser lets you choose to reverse by characters, words, or entire lines.' },
+      ],
+      'Clean': [
+        { question: 'Will cleaning tools modify my original text?', answer: 'No. All cleaning tools show results in a separate output area. Your original text remains untouched in the input field.' },
+        { question: 'Can I remove duplicate lines case-insensitively?', answer: 'Yes. The Remove Duplicate Lines tool has an option for case-sensitive or case-insensitive comparison.' },
+      ],
+      'Edit': [
+        { question: 'Does Find and Replace support regex?', answer: 'Yes. You can enable regular expression mode for complex pattern matching and replacement, including capture groups.' },
+        { question: 'Can I do case-sensitive find and replace?', answer: 'Yes. There are toggles for case-sensitive matching and whole-word matching.' },
+      ],
+      'Generate': [
+        { question: 'How much Lorem Ipsum can I generate?', answer: 'You can generate up to 100 paragraphs, 1,000 sentences, or 10,000 words of Lorem Ipsum placeholder text.' },
+        { question: 'Can I customize the separator in Text Repeater?', answer: 'Yes. You can choose newlines, spaces, commas, or a custom separator between repeated text.' },
+      ],
+      'Audio': [
+        { question: 'What languages does Text to Speech support?', answer: 'Text to Speech supports 50+ languages through the Web Speech API. Available voices depend on your browser and operating system.' },
+        { question: 'Does Speech to Text work offline?', answer: 'It depends on your browser. Chrome may require an internet connection for speech recognition, while some browsers process locally. Textly does not store any audio or transcribed text.' },
+      ],
+      'Compare': [
+        { question: 'How does the diff checker work?', answer: 'Our Text Diff Checker compares two text blocks line by line and highlights added, removed, and changed lines with color coding.' },
+        { question: 'Is there a file size limit for comparison?', answer: 'There\'s no artificial limit, but very large texts may slow down your browser since processing is client-side.' },
+      ],
+      'SEO': [
+        { question: 'What slug formats are supported?', answer: 'Our Slug Generator creates URL-friendly slugs with options for hyphen or underscore separators, lowercase, and special character handling.' },
+        { question: 'How is keyword density calculated?', answer: 'Keyword density is calculated as (keyword count / total words) × 100. We show single-word, two-word, and three-word phrase densities.' },
+      ],
+      'Organize': [
+        { question: 'What sort options are available?', answer: 'Our Text Sorter supports alphabetical (A-Z, Z-A), numerical, by length, and reverse order sorting, with case-insensitive and empty line options.' },
+        { question: 'Can I sort and remove duplicates at the same time?', answer: 'Yes. The Remove Duplicate Lines tool has an option to sort results after removing duplicates.' },
+      ],
+      'Convert': [
+        { question: 'What encoding formats are supported?', answer: 'Our Text Converter supports Hex, Binary, ASCII, Base64, and URL encoding, with conversion in both directions (text to format and format to text).' },
+        { question: 'Is Base64 encoding secure?', answer: 'Base64 is encoding, not encryption. It\'s useful for data transport but should not be used for security purposes.' },
+      ],
+      'Analyze': [
+        { question: 'What readability formulas are used?', answer: 'Our Readability Checker uses six formulas: Flesch Reading Ease, Flesch-Kincaid Grade Level, Gunning Fog Index, SMOG Index, Automated Readability Index, and Coleman-Liau.' },
+        { question: 'Is the privacy policy scanner a legal tool?', answer: 'No. It\'s an informational tool that highlights key terms and potential red flags. It does not provide legal advice or guarantee compliance.' },
+      ],
+      'Extract': [
+        { question: 'What can I extract from text?', answer: 'Our Email Extractor finds all valid email addresses in your text, removes duplicates, validates formats, and shows domain statistics. All extraction happens client-side.' },
+        { question: 'Is extracted data stored?', answer: 'No. Your text is processed entirely in your browser. Extracted data is never sent to or stored on any server.' },
+      ],
+      'Split': [
+        { question: 'How can I split text?', answer: 'Our Text Splitter supports splitting by delimiters (commas, spaces, newlines, custom), character count, word count, or line count. Output can be copied or downloaded.' },
+        { question: 'Is there a limit to how much text I can split?', answer: 'There is no artificial limit, but very large texts may slow your browser since all processing is client-side.' },
+      ],
+      'Join': [
+        { question: 'What separators can I use?', answer: 'Our Text Joiner supports newlines, spaces, commas, custom text, and optional quoting or trimming of each item.' },
+        { question: 'Can I skip empty lines?', answer: 'Yes. The Text Joiner has options to trim whitespace and skip empty lines before joining.' },
+      ],
+      'Format': [
+        { question: 'What wrapping options are available?', answer: 'Our Text Wrapper supports word-aware wrapping and hard character wrapping at any column width, with optional indentation and custom line breaks.' },
+        { question: 'Can I use this for code comments?', answer: 'Yes. The Text Wrapper is ideal for formatting code comments, docstrings, emails, and plain text to a fixed width.' },
+      ],
+    };
+
+    return {
+      params: { category: slug },
+      props: {
+        category,
+        categoryTools,
+        description: descriptions[category] || `${category} tools for text processing.`,
+        faqItems: faqItems[category] || [],
+        allCategories: toolCategories.map((c) => ({
+          name: c,
+          slug: categorySlugs[c] || c.toLowerCase().replace(/\s+/g, '-'),
+          count: tools.filter((t) => t.category === c).length,
+        })),
+      },
+    };
+  });
+}
+
+const { category, categoryTools, description, faqItems, allCategories } = Astro.props;
+
+const categorySchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: 'Tools', item: new URL('/tools', Astro.site).href },
+    { '@type': 'ListItem', position: 3, name: category, item: new URL(`/tools/${Astro.params.category}`, Astro.site).href },
+  ],
+};
+---
+
+<BaseLayout
+  title={`${category} Tools — Free Online Text Tools | Textly`}
+  description={description}
+  canonical={`/tools/${Astro.params.category}`}
+  schema={categorySchema}
+  hideContactForm={true}
+>
+  <div class="container-page py-8 sm:py-12">
+    <nav class="mb-6 flex items-center gap-2 text-small text-txt-muted" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-brand-600 dark:hover:text-brand-300">Home</a>
+      <span>/</span>
+      <a href="/#tools" class="hover:text-brand-600 dark:hover:text-brand-300">Tools</a>
+      <span>/</span>
+      <span class="text-txt-light dark:text-txt-dark">{category}</span>
+    </nav>
+
+    <SectionHeading
+      eyebrow={`${categoryTools.length} ${categoryTools.length === 1 ? 'Tool' : 'Tools'}`}
+      title={`${category} Tools`}
+      subtitle={description}
+    />
+
+    <div class="mb-8 flex flex-wrap items-center justify-center gap-2">
+      <a href="/#tools" class="badge-neutral transition-colors hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 dark:hover:text-brand-300">
+        All ({tools.length})
+      </a>
+      {allCategories.map((cat) => (
+        <a
+          href={cat.name === category ? undefined : `/tools/${cat.slug}`}
+          class={`transition-colors ${cat.name === category ? 'badge-brand' : 'badge-neutral hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 dark:hover:text-brand-300'}`}
+        >
+          {cat.name} ({cat.count})
+        </a>
+      ))}
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xs:grid-cols-1">
+      {categoryTools.map((tool) => (
+        <ToolCard tool={tool} />
+      ))}
+    </div>
+
+    <div class="ad-slot mt-8">
+      <span>Advertisement</span>
+    </div>
+
+    {faqItems.length > 0 && (
+      <FAQ title={`${category} Tools — FAQ`} items={faqItems} />
+    )}
+
+    <CTA
+      title="Looking for more tools?"
+      description="Explore all 33 free text tools on Textly. All client-side, all private, all free."
+      buttonText="Browse All Tools"
+      buttonHref="/#tools"
+    />
+  </div>
+</BaseLayout>

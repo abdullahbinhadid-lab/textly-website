@@ -1,0 +1,16 @@
+{
+  "name": "Textly — Free Online Text Tools",
+  "short_name": "Textly",
+  "description": "33 free, privacy-first text tools that run entirely in your browser.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

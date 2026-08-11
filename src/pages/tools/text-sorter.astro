@@ -1,0 +1,478 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="text-sorter">
+  <!-- Interactive Tool Section -->
+  <section id="tool" class="reveal">
+    <div class="card-glass p-5 sm:p-6">
+      <!-- Sort Method Selector -->
+      <div class="mb-4">
+        <label class="mb-2 block text-small font-semibold text-txt-light dark:text-txt-dark" id="sort-method-label">
+          Sort Method
+        </label>
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-labelledby="sort-method-label">
+          <button class="sort-btn active" data-method="alpha-asc" role="radio" aria-checked="true" title="Sort A to Z">
+            <span class="text-base">A→Z</span>
+            <span class="text-tiny opacity-70">Alphabetical</span>
+          </button>
+          <button class="sort-btn" data-method="alpha-desc" role="radio" aria-checked="false" title="Sort Z to A">
+            <span class="text-base">Z→A</span>
+            <span class="text-tiny opacity-70">Reverse Alpha</span>
+          </button>
+          <button class="sort-btn" data-method="numeric" role="radio" aria-checked="false" title="Sort by embedded numbers">
+            <span class="text-base">123</span>
+            <span class="text-tiny opacity-70">Numerical</span>
+          </button>
+          <button class="sort-btn" data-method="length-asc" role="radio" aria-checked="false" title="Sort by line length (shortest first)">
+            <span class="text-base">↕ Short</span>
+            <span class="text-tiny opacity-70">By Length</span>
+          </button>
+          <button class="sort-btn" data-method="length-desc" role="radio" aria-checked="false" title="Sort by line length (longest first)">
+            <span class="text-base">↕ Long</span>
+            <span class="text-tiny opacity-70">By Length</span>
+          </button>
+          <button class="sort-btn" data-method="word-count" role="radio" aria-checked="false" title="Sort by word count">
+            <span class="text-base">W→</span>
+            <span class="text-tiny opacity-70">By Words</span>
+          </button>
+          <button class="sort-btn col-span-2 sm:col-span-1" data-method="random" role="radio" aria-checked="false" title="Randomly shuffle lines">
+            <span class="text-base">🔀</span>
+            <span class="text-tiny opacity-70">Random Shuffle</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Options Toggles -->
+      <div class="mb-4 flex flex-wrap gap-2">
+        <label class="toggle-chip" title="Ignore upper/lower case when sorting">
+          <input type="checkbox" id="opt-case-insensitive" class="sr-only" />
+          <span class="toggle-dot"></span>
+          <span class="text-tiny font-medium">Case-Insensitive</span>
+        </label>
+        <label class="toggle-chip" title="Remove blank lines before sorting">
+          <input type="checkbox" id="opt-remove-empty" class="sr-only" />
+          <span class="toggle-dot"></span>
+          <span class="text-tiny font-medium">Remove Empty Lines</span>
+        </label>
+        <label class="toggle-chip" title="Remove duplicate lines">
+          <input type="checkbox" id="opt-remove-dupes" class="sr-only" />
+          <span class="toggle-dot"></span>
+          <span class="text-tiny font-medium">Remove Duplicates</span>
+        </label>
+        <label class="toggle-chip" title="Reverse the sorted result">
+          <input type="checkbox" id="opt-reverse" class="sr-only" />
+          <span class="toggle-dot"></span>
+          <span class="text-tiny font-medium">Reverse Result</span>
+        </label>
+      </div>
+
+      <!-- Input Area -->
+      <div class="mb-4">
+        <div class="mb-2 flex items-center justify-between">
+          <label for="sort-input" class="text-small font-semibold text-txt-light dark:text-txt-dark">
+            Input Text
+          </label>
+          <div class="flex items-center gap-2">
+            <button id="load-sample" class="btn-ghost px-3 py-1.5 text-tiny" title="Load sample data (Ctrl+L)">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/></svg>
+              Sample
+            </button>
+            <button id="clear-input" class="btn-ghost px-3 py-1.5 text-tiny" title="Clear input (Ctrl+K)">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Clear
+            </button>
+          </div>
+        </div>
+        <textarea
+          id="sort-input"
+          class="tool-textarea min-h-[140px] w-full"
+          placeholder="Paste your text here — one item per line..."
+          aria-label="Input text to sort"
+          spellcheck="false"
+        ></textarea>
+        <div id="input-stats" class="mt-1.5 flex items-center gap-3 text-tiny text-txt-muted" aria-live="polite">
+          <span><span id="line-count">0</span> lines</span>
+          <span><span id="char-count">0</span> chars</span>
+        </div>
+      </div>
+
+      <!-- Output Area -->
+      <div>
+        <div class="mb-2 flex items-center justify-between">
+          <label for="sort-output" class="text-small font-semibold text-txt-light dark:text-txt-dark">
+            Sorted Output
+          </label>
+          <div class="flex items-center gap-2">
+            <span id="sort-status" class="text-tiny text-txt-muted" aria-live="polite"></span>
+            <button id="copy-output" class="btn-ghost px-3 py-1.5 text-tiny" title="Copy result (Ctrl+Shift+C)" disabled>
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="flex min-h-[140px] flex-col items-center justify-center rounded-xl border border-dashed border-border-light bg-surface-light-alt/40 dark:border-border-dark dark:bg-surface-dark-alt/40">
+          <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white opacity-50">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h12"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 18h6"/></svg>
+          </div>
+          <p class="text-small font-medium text-txt-muted">Enter text above to see sorted results</p>
+          <p class="mt-0.5 text-tiny text-txt-muted/70">Results update automatically</p>
+        </div>
+
+        <!-- Output textarea (hidden until input) -->
+        <textarea
+          id="sort-output"
+          class="tool-textarea min-h-[140px] w-full hidden"
+          readonly
+          aria-label="Sorted output"
+          spellcheck="false"
+        ></textarea>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden rounded-xl border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+          <div class="flex items-center gap-2 text-small font-medium text-red-600 dark:text-red-400">
+            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            <span id="error-message">An error occurred while sorting.</span>
+          </div>
+        </div>
+
+        <!-- Success Stats -->
+        <div id="success-stats" class="mt-2 hidden flex-wrap items-center gap-2 text-tiny">
+          <span class="badge-success" id="stat-sorted">0 lines sorted</span>
+          <span class="badge-neutral hidden" id="stat-removed-empty">0 empty removed</span>
+          <span class="badge-neutral hidden" id="stat-removed-dupes">0 duplicates removed</span>
+        </div>
+      </div>
+
+      <!-- Keyboard Shortcuts Hint -->
+      <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-border-light pt-3 text-tiny text-txt-muted dark:border-border-dark">
+        <span class="font-medium">Shortcuts:</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">L</kbd> Sample</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">K</kbd> Clear</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Shift</kbd>+<kbd class="kbd">C</kbd> Copy</span>
+      </div>
+    </div>
+  </section>
+
+  <ToolSections slug="text-sorter" />
+
+  <style>
+    .sort-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 10px 8px;
+      border-radius: 12px;
+      border: 1.5px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 56px;
+      font-family: inherit;
+    }
+    .sort-btn:hover {
+      border-color: var(--color-brand);
+      color: var(--color-brand);
+      transform: translateY(-1px);
+    }
+    .sort-btn.active {
+      border-color: var(--color-brand);
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.05));
+      color: var(--color-brand);
+      box-shadow: 0 0 0 1px var(--color-brand), 0 4px 12px -2px rgba(124, 58, 237, 0.15);
+    }
+    .dark .sort-btn.active {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(34, 211, 238, 0.06));
+    }
+    .toggle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--color-border);
+      background: var(--color-surface);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .toggle-chip:hover {
+      border-color: var(--color-brand);
+    }
+    .toggle-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--color-border);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .toggle-chip input:checked ~ .toggle-dot {
+      background: var(--color-brand);
+      border-color: var(--color-brand);
+      box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+    }
+    .toggle-chip:has(input:checked) {
+      border-color: var(--color-brand);
+      background: rgba(124, 58, 237, 0.06);
+    }
+    .dark .toggle-chip:has(input:checked) {
+      background: rgba(167, 139, 250, 0.08);
+    }
+    .kbd {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface-alt);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    #copy-output:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    #copy-output.copied {
+      color: #16a34a !important;
+    }
+    .dark #copy-output.copied {
+      color: #4ade80 !important;
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      var input = document.getElementById('sort-input');
+      var output = document.getElementById('sort-output');
+      var emptyState = document.getElementById('empty-state');
+      var errorState = document.getElementById('error-state');
+      var errorMessage = document.getElementById('error-message');
+      var successStats = document.getElementById('success-stats');
+      var sortStatus = document.getElementById('sort-status');
+      var lineCount = document.getElementById('line-count');
+      var charCount = document.getElementById('char-count');
+      var copyBtn = document.getElementById('copy-output');
+      var sortBtns = document.querySelectorAll('.sort-btn');
+      var currentMethod = 'alpha-asc';
+
+      function naturalCompare(a, b) {
+        var ax = [], bx = [];
+        a.replace(/(\d+)|(\D+)/g, function(_, $1, $2) { ax.push([$1 || Infinity, $2 || '']); });
+        b.replace(/(\d+)|(\D+)/g, function(_, $1, $2) { bx.push([$1 || Infinity, $2 || '']); });
+        while (ax.length && bx.length) {
+          var an = ax.shift(), bn = bx.shift();
+          var nn = (an[0] - bn[0]) || an[1].localeCompare(bn[1]);
+          if (nn) return nn;
+        }
+        return ax.length - bx.length;
+      }
+
+      function sortLines() {
+        var text = input.value;
+        if (!text.trim()) {
+          emptyState.classList.remove('hidden');
+          output.classList.add('hidden');
+          errorState.classList.add('hidden');
+          successStats.classList.add('hidden');
+          successStats.classList.remove('flex');
+          copyBtn.disabled = true;
+          sortStatus.textContent = '';
+          return;
+        }
+
+        try {
+          var lines = text.split('\n');
+          var originalCount = lines.length;
+          var removedEmpty = 0;
+          var removedDupes = 0;
+
+          var removeEmpty = document.getElementById('opt-remove-empty').checked;
+          var removeDupes = document.getElementById('opt-remove-dupes').checked;
+          var caseInsensitive = document.getElementById('opt-case-insensitive').checked;
+          var reverse = document.getElementById('opt-reverse').checked;
+
+          if (removeEmpty) {
+            var filtered = lines.filter(function(l) {
+              if (l.trim() === '') { removedEmpty++; return false; }
+              return true;
+            });
+            lines = filtered;
+          }
+
+          if (removeDupes) {
+            var seen = {};
+            var unique = [];
+            lines.forEach(function(l) {
+              var key = caseInsensitive ? l.toLowerCase().trim() : l.trim();
+              if (!seen[key]) { seen[key] = true; unique.push(l); }
+              else { removedDupes++; }
+            });
+            lines = unique;
+          }
+
+          var compareFn;
+          switch (currentMethod) {
+            case 'alpha-asc':
+              compareFn = caseInsensitive
+                ? function(a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); }
+                : function(a, b) { return a.localeCompare(b); };
+              break;
+            case 'alpha-desc':
+              compareFn = caseInsensitive
+                ? function(a, b) { return b.toLowerCase().localeCompare(a.toLowerCase()); }
+                : function(a, b) { return b.localeCompare(a); };
+              break;
+            case 'numeric':
+              compareFn = function(a, b) { return naturalCompare(
+                caseInsensitive ? a.toLowerCase() : a,
+                caseInsensitive ? b.toLowerCase() : b
+              ); };
+              break;
+            case 'length-asc':
+              compareFn = function(a, b) { return a.length - b.length || a.localeCompare(b); };
+              break;
+            case 'length-desc':
+              compareFn = function(a, b) { return b.length - a.length || a.localeCompare(b); };
+              break;
+            case 'word-count':
+              compareFn = function(a, b) {
+                var aw = a.trim().split(/\s+/).filter(function(w) { return w.length; }).length;
+                var bw = b.trim().split(/\s+/).filter(function(w) { return w.length; }).length;
+                return aw - bw || a.localeCompare(b);
+              };
+              break;
+            case 'random':
+              for (var i = lines.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = lines[i]; lines[i] = lines[j]; lines[j] = tmp;
+              }
+              compareFn = null;
+              break;
+          }
+
+          if (compareFn) lines.sort(compareFn);
+          if (reverse) lines.reverse();
+
+          var result = lines.join('\n');
+          output.value = result;
+          emptyState.classList.add('hidden');
+          output.classList.remove('hidden');
+          errorState.classList.add('hidden');
+          copyBtn.disabled = false;
+
+          sortStatus.innerHTML = '<span class="text-green-600 dark:text-green-400">✓ Sorted</span>';
+
+          successStats.classList.remove('hidden');
+          successStats.classList.add('flex');
+          document.getElementById('stat-sorted').textContent = lines.length + ' lines sorted';
+
+          var statEmpty = document.getElementById('stat-removed-empty');
+          if (removedEmpty > 0) {
+            statEmpty.textContent = removedEmpty + ' empty removed';
+            statEmpty.classList.remove('hidden');
+          } else { statEmpty.classList.add('hidden'); }
+
+          var statDupes = document.getElementById('stat-removed-dupes');
+          if (removedDupes > 0) {
+            statDupes.textContent = removedDupes + ' duplicates removed';
+            statDupes.classList.remove('hidden');
+          } else { statDupes.classList.add('hidden'); }
+
+        } catch (e) {
+          emptyState.classList.add('hidden');
+          output.classList.add('hidden');
+          errorState.classList.remove('hidden');
+          errorMessage.textContent = e.message || 'An error occurred while sorting.';
+          successStats.classList.add('hidden');
+          successStats.classList.remove('flex');
+          copyBtn.disabled = true;
+        }
+      }
+
+      function updateStats() {
+        var text = input.value;
+        lineCount.textContent = text.trim() ? text.split('\n').length : 0;
+        charCount.textContent = text.length;
+      }
+
+      function doSort() {
+        var text = input.value;
+        if (!text.trim()) return;
+        sortStatus.textContent = 'Sorting...';
+        setTimeout(sortLines, 10);
+      }
+
+      sortBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          sortBtns.forEach(function(b) {
+            b.classList.remove('active');
+            b.setAttribute('aria-checked', 'false');
+          });
+          btn.classList.add('active');
+          btn.setAttribute('aria-checked', 'true');
+          currentMethod = btn.getAttribute('data-method');
+          doSort();
+        });
+      });
+
+      input.addEventListener('input', function() {
+        updateStats();
+        doSort();
+      });
+
+      ['opt-case-insensitive', 'opt-remove-empty', 'opt-remove-dupes', 'opt-reverse'].forEach(function(id) {
+        document.getElementById(id).addEventListener('change', doSort);
+      });
+
+      document.getElementById('clear-input').addEventListener('click', function() {
+        input.value = '';
+        output.value = '';
+        updateStats();
+        sortLines();
+        input.focus();
+      });
+
+      document.getElementById('load-sample').addEventListener('click', function() {
+        input.value = 'Banana\napple\nCherry\n123\nitem10\nitem2\nitem1\n  \nDate\nbanana\nElderberry\n42\nfig';
+        updateStats();
+        doSort();
+      });
+
+      copyBtn.addEventListener('click', function() {
+        if (!output.value) return;
+        navigator.clipboard.writeText(output.value).then(function() {
+          var orig = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(function() {
+            copyBtn.innerHTML = orig;
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        });
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+          e.preventDefault();
+          document.getElementById('load-sample').click();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          document.getElementById('clear-input').click();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+          e.preventDefault();
+          if (!copyBtn.disabled) copyBtn.click();
+        }
+      });
+
+      updateStats();
+    })();
+  </script>
+</ToolLayout>

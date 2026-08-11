@@ -1,0 +1,189 @@
+---
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+
+const lastUpdated = 'August 2026';
+---
+
+<BaseLayout
+  title="Cookie Policy — Textly"
+  description="Textly cookie policy. We use minimal cookies for theme preference and advertising. No tracking cookies."
+  canonical="/cookie-policy"
+  contactVariant="compact"
+  contactTitle="Questions about cookies?"
+  contactDescription="We're happy to clarify anything about our cookie usage. Reach out and we'll get back to you."
+  contactButtonText="Contact Us"
+>
+  <div class="container-narrow py-12">
+    <SectionHeading
+      eyebrow="Legal"
+      title="Cookie Policy"
+      subtitle={`Last updated: ${lastUpdated}`}
+    />
+
+    <div class="space-y-6">
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">Overview</h2>
+        <p class="text-body text-txt-muted leading-relaxed">
+          This Cookie Policy explains how Textly uses cookies and similar technologies. We are committed to
+          minimizing data collection. <strong>Your text content is never stored in cookies</strong> — all tool
+          processing happens entirely in your browser.
+        </p>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">What Are Cookies?</h2>
+        <p class="text-body text-txt-muted leading-relaxed">
+          Cookies are small text files stored on your device by your browser when you visit a website. They are
+          widely used to make websites work efficiently and to provide information to site owners. Cookies can be
+          "first-party" (set by the site you're visiting) or "third-party" (set by external services like advertisers).
+        </p>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">Cookies We Use</h2>
+        <p class="text-body text-txt-muted leading-relaxed mb-4">
+          Textly uses the following cookies:
+        </p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-small text-txt-muted">
+            <thead>
+              <tr class="border-b border-border-light dark:border-border-dark text-left">
+                <th class="py-2 pr-4 font-semibold">Cookie</th>
+                <th class="py-2 pr-4 font-semibold">Type</th>
+                <th class="py-2 pr-4 font-semibold">Purpose</th>
+                <th class="py-2 font-semibold">Duration</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border-light dark:divide-border-dark">
+              <tr>
+                <td class="py-3 pr-4"><code class="text-brand-600 dark:text-brand-300">textly-theme</code></td>
+                <td class="py-3 pr-4">First-party</td>
+                <td class="py-3 pr-4">Stores your dark/light theme preference</td>
+                <td class="py-3">Persistent (localStorage)</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4">AdSense cookies</td>
+                <td class="py-3 pr-4">Third-party</td>
+                <td class="py-3 pr-4">Used by Google to serve relevant ads and measure ad performance</td>
+                <td class="py-3">Up to 13 months</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4">__cf_bm</td>
+                <td class="py-3 pr-4">Third-party</td>
+                <td class="py-3 pr-4">Cloudflare bot management — protects against malicious traffic</td>
+                <td class="py-3">30 minutes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">Cookie Categories</h2>
+        <ul class="space-y-3 text-body text-txt-muted">
+          <li class="flex gap-3">
+            <span class="text-brand-500 shrink-0">✓</span>
+            <span><strong>Essential:</strong> The <code class="text-brand-600 dark:text-brand-300">textly-theme</code> localStorage entry is essential for remembering your theme preference. Without it, the site still works but defaults to your system preference.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-accent-500 shrink-0">•</span>
+            <span><strong>Advertising:</strong> Google AdSense uses cookies to display ads relevant to your interests and measure campaign performance. These are third-party cookies controlled by Google.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-accent-500 shrink-0">•</span>
+            <span><strong>Security:</strong> Cloudflare uses the <code class="text-brand-600 dark:text-brand-300">__cf_bm</code> cookie to distinguish between humans and bots, protecting the site from automated attacks.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">Managing Cookies</h2>
+        <p class="text-body text-txt-muted leading-relaxed mb-4">
+          You can control and delete cookies through your browser settings. Here's how for popular browsers:
+        </p>
+        <ul class="space-y-2 text-body text-txt-muted">
+          <li class="flex gap-2"><span class="text-accent-500">•</span> <strong>Chrome:</strong> Settings → Privacy and security → Cookies and other site data</li>
+          <li class="flex gap-2"><span class="text-accent-500">•</span> <strong>Firefox:</strong> Settings → Privacy & Security → Cookies and Site Data</li>
+          <li class="flex gap-2"><span class="text-accent-500">•</span> <strong>Safari:</strong> Preferences → Privacy → Cookies and website data</li>
+          <li class="flex gap-2"><span class="text-accent-500">•</span> <strong>Edge:</strong> Settings → Cookies and site permissions → Cookies and site data</li>
+        </ul>
+        <p class="text-body text-txt-muted leading-relaxed mt-4">
+          For Google AdSense cookies specifically, you can opt out via
+          <a href="https://www.google.com/settings/ads" class="text-brand-600 underline dark:text-brand-300">Google Ads Settings</a>
+          or
+          <a href="https://adssettings.google.com" class="text-brand-600 underline dark:text-brand-300">Google Ad Settings</a>.
+        </p>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">What We Don't Use Cookies For</h2>
+        <ul class="space-y-2 text-body text-txt-muted">
+          <li class="flex gap-2"><span class="text-brand-500">✓</span> We do NOT use cookies to track your browsing across other websites.</li>
+          <li class="flex gap-2"><span class="text-brand-500">✓</span> We do NOT store your text input in cookies or localStorage.</li>
+          <li class="flex gap-2"><span class="text-brand-500">✓</span> We do NOT use cookies for analytics or user profiling.</li>
+          <li class="flex gap-2"><span class="text-brand-500">✓</span> We do NOT use cookies to identify you personally.</li>
+        </ul>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">Third-Party Cookie Policies</h2>
+        <ul class="space-y-2 text-body text-txt-muted">
+          <li class="flex gap-2"><span class="text-accent-500">•</span> <a href="https://policies.google.com/technologies/cookies" class="text-brand-600 underline dark:text-brand-300">Google Cookies Policy</a></li>
+          <li class="flex gap-2"><span class="text-accent-500">•</span> <a href="https://policies.google.com/technologies/ads" class="text-brand-600 underline dark:text-brand-300">Google Advertising Cookies Policy</a></li>
+          <li class="flex gap-2"><span class="text-accent-500">•</span> <a href="https://www.cloudflare.com/privacypolicy/" class="text-brand-600 underline dark:text-brand-300">Cloudflare Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">Changes to This Policy</h2>
+        <p class="text-body text-txt-muted leading-relaxed">
+          We may update this Cookie Policy from time to time. Any changes will be posted on this page with an updated
+          date. We recommend reviewing this page periodically.
+        </p>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-h3 font-bold mb-3">Contact</h2>
+        <p class="text-body text-txt-muted leading-relaxed">
+          Questions about our use of cookies? Contact us at
+          <a href="mailto:info@toolly.site" class="text-brand-600 underline dark:text-brand-300">info@toolly.site</a>.
+          You can also read our <a href="/privacy" class="text-brand-600 underline dark:text-brand-300">Privacy Policy</a>
+          or <a href="/terms" class="text-brand-600 underline dark:text-brand-300">Terms of Service</a>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <a href="/privacy" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Privacy Policy</h3>
+          <p class="text-tiny text-txt-muted">How we handle and protect your data</p>
+        </div>
+      </a>
+      <a href="/terms" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Terms of Service</h3>
+          <p class="text-tiny text-txt-muted">Rules and guidelines for using Textly</p>
+        </div>
+      </a>
+      <a href="/tools" class="card-feature p-5 flex items-center gap-4 transition-all hover:scale-[1.02]">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-body">Browse All Tools</h3>
+          <p class="text-tiny text-txt-muted">Explore 33 free, privacy-first text tools</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</BaseLayout>

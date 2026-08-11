@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CTA from '../components/CTA.astro';
+const PAYPAL_CLIENT_ID = 'BAANqQevO0R5a15WKUM1CnaVBo31nhGmc1JW4iG58x2tZ97IT0KEON6cr2rZbxfoJhAh-HXvfL5jxLZNHY';
+---
+<BaseLayout title="Donate to Textly — Support Free Text Tools" description="Support Textly by making a donation." canonical="/donate" hideContactForm={true}>
+  <section class="relative overflow-hidden pt-16 pb-12 sm:pt-24 sm:pb-16">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div class="absolute left-[10%] top-[20%] h-72 w-72 rounded-full bg-brand-500/15 blur-3xl animate-float dark:bg-brand-500/8"></div>
+      <div class="absolute right-[15%] top-[10%] h-64 w-64 rounded-full bg-accent-500/15 blur-3xl animate-float-slow dark:bg-accent-500/8"></div>
+    </div>
+    <div class="container-narrow relative z-10 text-center">
+      <div class="mb-4 flex justify-center"><span class="badge-brand">Support Us</span></div>
+      <h1 class="text-h1 font-extrabold tracking-tight xs:text-[2rem]"><span class="text-gradient">Support Textly</span></h1>
+      <p class="mx-auto mt-6 max-w-2xl text-body-lg text-txt-muted xs:text-small">Textly is and always will be 100% free. Your donation helps us cover hosting costs, keep ads minimal, and build new tools for everyone.</p>
+    </div>
+  </section>
+
+  <section class="container-narrow pb-20">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div class="card-feature p-5 text-center">
+        <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h3 class="font-semibold text-body">Keep Tools Free</h3>
+        <p class="mt-1 text-small text-txt-muted">Your support ensures all 33+ tools stay free for everyone, forever.</p>
+      </div>
+      <div class="card-feature p-5 text-center">
+        <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <h3 class="font-semibold text-body">Build New Tools</h3>
+        <p class="mt-1 text-small text-txt-muted">Donations fund development of new tools and features requested by users.</p>
+      </div>
+      <div class="card-feature p-5 text-center">
+        <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <h3 class="font-semibold text-body">Privacy First</h3>
+        <p class="mt-1 text-small text-txt-muted">Donations reduce reliance on ads, keeping the site clean and private.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-narrow pb-20">
+    <div class="card-feature p-8 sm:p-10">
+      <div class="mb-8">
+        <h2 class="text-h3 font-bold mb-2">Choose an amount</h2>
+        <p class="text-small text-txt-muted mb-6">Select a preset amount or enter your own.</p>
+        <div id="amount-buttons" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <button data-amount="1" class="amount-btn rounded-xl border-2 border-border-light px-4 py-3 text-body font-bold transition-all hover:border-brand-400 hover:bg-brand-50 dark:border-border-dark dark:hover:bg-brand-900/30">$1</button>
+          <button data-amount="2" class="amount-btn rounded-xl border-2 border-border-light px-4 py-3 text-body font-bold transition-all hover:border-brand-400 hover:bg-brand-50 dark:border-border-dark dark:hover:bg-brand-900/30">$2</button>
+          <button data-amount="5" class="amount-btn selected rounded-xl border-2 border-brand-500 bg-brand-50 px-4 py-3 text-body font-bold text-brand-600 transition-all dark:border-brand-400 dark:bg-brand-900/30 dark:text-brand-300">$5</button>
+          <button data-amount="10" class="amount-btn rounded-xl border-2 border-border-light px-4 py-3 text-body font-bold transition-all hover:border-brand-400 hover:bg-brand-50 dark:border-border-dark dark:hover:bg-brand-900/30">$10</button>
+          <button data-amount="50" class="amount-btn rounded-xl border-2 border-border-light px-4 py-3 text-body font-bold transition-all hover:border-brand-400 hover:bg-brand-50 dark:border-border-dark dark:hover:bg-brand-900/30">$50</button>
+          <button data-amount="custom" class="amount-btn rounded-xl border-2 border-border-light px-4 py-3 text-body font-bold transition-all hover:border-brand-400 hover:bg-brand-50 dark:border-border-dark dark:hover:bg-brand-900/30">Custom</button>
+        </div>
+      </div>
+      <div id="custom-amount-wrapper" class="mb-8 hidden">
+        <label for="custom-amount" class="block text-small font-semibold mb-2">Enter custom amount</label>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-body font-bold text-txt-muted">$</span>
+          <input id="custom-amount" type="number" min="1" step="1" placeholder="Enter amount" value="5" class="w-full rounded-xl border-2 border-border-light bg-surface-light px-10 py-3 text-body font-semibold outline-none transition-all focus:border-brand-400 dark:border-border-dark dark:bg-surface-dark" />
+        </div>
+      </div>
+      <div id="paypal-button-container" class="mb-2"></div>
+      <p class="text-center text-tiny text-txt-muted">Secure payment powered by PayPal. You don't need a PayPal account to donate.</p>
+    </div>
+  </section>
+
+  <CTA title="Want to explore our tools instead?" description="All 33 tools are free to use, no donation required." buttonText="Browse All Tools" buttonHref="/tools" />
+
+  <script define:vars={{ PAYPAL_CLIENT_ID }}>
+    (function () {
+      var amountButtons = document.querySelectorAll('.amount-btn');
+      var customWrapper = document.getElementById('custom-amount-wrapper');
+      var customInput = document.getElementById('custom-amount');
+      var selectedAmount = 5;
+
+      function selectAmount(value) {
+        amountButtons.forEach(function (btn) {
+          btn.classList.remove('selected', 'border-brand-500', 'bg-brand-50', 'text-brand-600', 'dark:border-brand-400', 'dark:bg-brand-900/30', 'dark:text-brand-300');
+          btn.classList.add('border-border-light', 'dark:border-border-dark');
+        });
+        if (value === 'custom') {
+          customWrapper.classList.remove('hidden');
+          customInput.focus();
+          selectedAmount = parseFloat(customInput.value) || 5;
+        } else {
+          customWrapper.classList.add('hidden');
+          var activeBtn = document.querySelector('[data-amount="' + value + '"]');
+          if (activeBtn) {
+            activeBtn.classList.add('selected', 'border-brand-500', 'bg-brand-50', 'text-brand-600', 'dark:border-brand-400', 'dark:bg-brand-900/30', 'dark:text-brand-300');
+            activeBtn.classList.remove('border-border-light', 'dark:border-border-dark');
+          }
+          selectedAmount = parseFloat(value);
+        }
+        if (window.paypal) renderPayPal(selectedAmount);
+      }
+
+      amountButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          selectAmount(btn.getAttribute('data-amount'));
+        });
+      });
+
+      if (customInput) {
+        customInput.addEventListener('input', function () {
+          selectedAmount = parseFloat(customInput.value) || 5;
+          if (window.paypal) renderPayPal(selectedAmount);
+        });
+      }
+
+      function renderPayPal(amount) {
+        var container = document.getElementById('paypal-button-container');
+        if (!container) return;
+        container.innerHTML = '';
+        paypal.Buttons({
+          style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'paypal' },
+          createOrder: function (data, actions) {
+            return actions.order.create({
+              purchase_units: [{
+                amount: { value: amount.toString() },
+                description: 'Donation to Textly'
+              }]
+            });
+          },
+          onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+              alert('Thank you, ' + details.payer.name.given_name + ', for your donation!');
+            });
+          },
+          onError: function (err) {
+            console.error('PayPal error:', err);
+            alert('PayPal checkout could not be loaded. Please try again later.');
+          }
+        }).render('#paypal-button-container');
+      }
+
+      function loadPayPal() {
+        if (window.paypal) {
+          renderPayPal(selectedAmount);
+          return;
+        }
+        var script = document.createElement('script');
+        script.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(PAYPAL_CLIENT_ID) + '&currency=USD';
+        script.async = true;
+        script.onload = function () { renderPayPal(selectedAmount); };
+        script.onerror = function () { console.error('PayPal SDK failed to load'); };
+        document.body.appendChild(script);
+      }
+
+      loadPayPal();
+    })();
+  </script>
+</BaseLayout>

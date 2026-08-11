@@ -1,0 +1,39 @@
+---
+
+export interface Props {
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  buttonHref?: string;
+}
+
+const {
+  title = 'Ready to supercharge your text workflow?',
+  description = 'All 33 tools are free, forever. No signup, no uploads, no tracking. Just open and use.',
+  buttonText = 'Start Using Tools',
+  buttonHref = '#tools',
+} = Astro.props;
+---
+
+<section class="container-page my-16 sm:my-20">
+  <div class="relative overflow-hidden rounded-3xl bg-brand-gradient-animated p-10 text-center shadow-large sm:p-16 xs:p-8">
+    <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+    <div class="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"></div>
+    <div class="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-cyan-300/20 blur-3xl"></div>
+    <div class="relative z-10">
+      <h2 class="text-h2 font-bold text-white xs:text-h3">{title}</h2>
+      <p class="mx-auto mt-4 max-w-2xl text-body-lg text-white/90 xs:text-body">{description}</p>
+      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row xs:w-full">
+        <a href={buttonHref} class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 font-semibold text-brand-600 shadow-medium transition-all hover:scale-[1.03] hover:shadow-glow active:scale-[0.98] xs:w-full">
+          {buttonText}
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+        <a href="/contact" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-7 py-3.5 font-semibold text-white border border-white/30 backdrop-blur-sm transition-all hover:bg-white/25 hover:scale-[1.03] active:scale-[0.98] xs:w-full">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          Contact Us
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+

@@ -1,0 +1,375 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="upside-down-text">
+  <div id="udt-app" class="space-y-4">
+    <!-- Mode Selector -->
+    <div class="card-glass p-4 sm:p-5">
+      <div class="mb-3 flex items-center gap-2">
+        <svg class="h-4 w-4 text-brand-500 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span class="text-small font-semibold text-txt-light dark:text-txt-dark">Conversion Mode</span>
+        <span class="ml-auto text-tiny text-txt-muted" id="udt-mode-hint">Tip: Press 1, 2, or 3 to switch modes</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 xs:gap-1.5" role="radiogroup" aria-label="Conversion mode">
+        <button class="udt-mode-btn active" data-mode="both" role="radio" aria-checked="true" title="Flip characters and reverse order (Ctrl+1)">
+          <div class="flex flex-col items-center gap-1">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="m8 7 4-4 4 4"/><path d="m8 17 4 4 4-4"/></svg>
+            <span class="text-tiny font-semibold">Both</span>
+          </div>
+        </button>
+        <button class="udt-mode-btn" data-mode="flip" role="radio" aria-checked="false" title="Only flip characters to upside-down (Ctrl+2)">
+          <div class="flex flex-col items-center gap-1">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M7 4v16"/><path d="M17 4v16"/><path d="M3 8h4"/><path d="M17 8h4"/><path d="M3 16h4"/><path d="M17 16h4"/></svg>
+            <span class="text-tiny font-semibold">Flip Only</span>
+          </div>
+        </button>
+        <button class="udt-mode-btn" data-mode="reverse" role="radio" aria-checked="false" title="Only reverse character order (Ctrl+3)">
+          <div class="flex flex-col items-center gap-1">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 8h14l-3-3"/><path d="M3 8l3 3"/><path d="M21 16H7l3 3"/><path d="M21 16l-3-3"/></svg>
+            <span class="text-tiny font-semibold">Reverse Only</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Input Section -->
+    <div class="card-glass p-4 sm:p-5">
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <label for="udt-input" class="text-small font-semibold text-txt-light dark:text-txt-dark flex items-center gap-2">
+          <svg class="h-4 w-4 text-brand-500 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          Input Text
+        </label>
+        <div class="flex items-center gap-1.5">
+          <button id="udt-sample" class="udt-icon-btn" title="Load sample text (Ctrl+Shift+L)" aria-label="Load sample text">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+          </button>
+          <button id="udt-clear" class="udt-icon-btn" title="Clear input (Ctrl+K)" aria-label="Clear input">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+      <textarea
+        id="udt-input"
+        class="tool-textarea min-h-[140px] w-full resize-y rounded-xl border border-border-light bg-white/50 px-3 py-2.5 text-small leading-relaxed text-txt-light placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all dark:border-border-dark dark:bg-white/5 dark:text-txt-dark"
+        placeholder="Type or paste your text here..."
+        aria-label="Input text"
+        spellcheck="false"
+      ></textarea>
+      <div class="mt-2 flex items-center justify-between text-tiny text-txt-muted">
+        <span id="udt-input-stats">0 characters · 0 words</span>
+        <span class="flex items-center gap-1">
+          <span class="inline-block h-2 w-2 rounded-full bg-brand-400 animate-pulse"></span>
+          Live preview
+        </span>
+      </div>
+    </div>
+
+    <!-- Output Section -->
+    <div class="card-glass p-4 sm:p-5">
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <label for="udt-output" class="text-small font-semibold text-txt-light dark:text-txt-dark flex items-center gap-2">
+          <svg class="h-4 w-4 text-brand-500 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="m8 7 4-4 4 4"/><path d="m8 17 4 4 4-4"/></svg>
+          Upside Down Output
+        </label>
+        <div class="flex items-center gap-1.5">
+          <button id="udt-swap" class="udt-icon-btn" title="Swap output to input (Ctrl+Shift+S)" aria-label="Swap output to input">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+          </button>
+          <button id="udt-download" class="udt-icon-btn" title="Download as .txt file" aria-label="Download output">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          </button>
+          <button id="udt-copy" class="udt-icon-btn udt-copy-btn" title="Copy to clipboard (Ctrl+Enter)" aria-label="Copy output to clipboard">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="udt-empty-state" class="flex min-h-[140px] flex-col items-center justify-center rounded-xl border border-dashed border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/20">
+        <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="m8 7 4-4 4 4"/><path d="m8 17 4 4 4-4"/></svg>
+        </div>
+        <p class="text-small font-semibold text-txt-light dark:text-txt-dark">Your upside-down text will appear here</p>
+        <p class="mt-0.5 text-tiny text-txt-muted">Start typing above to see the magic</p>
+      </div>
+
+      <!-- Output Content -->
+      <textarea
+        id="udt-output"
+        class="tool-textarea udt-output-hidden min-h-[140px] w-full resize-y rounded-xl border border-border-light bg-white/50 px-3 py-2.5 text-small leading-relaxed text-txt-light focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all dark:border-border-dark dark:bg-white/5 dark:text-txt-dark"
+        readonly
+        aria-label="Upside down output text"
+        spellcheck="false"
+      ></textarea>
+
+      <!-- Stats Bar -->
+      <div id="udt-output-stats-bar" class="udt-output-hidden mt-2 flex items-center justify-between text-tiny text-txt-muted">
+        <span id="udt-output-stats">0 characters · 0 words</span>
+        <span id="udt-mode-label" class="badge-brand">Both mode</span>
+      </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="udt-toast" class="udt-toast-hidden fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-small font-semibold text-white shadow-large transition-all">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      <span id="udt-toast-msg">Copied to clipboard!</span>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="udt-error-toast" class="udt-toast-hidden fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-small font-semibold text-white shadow-large transition-all">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+      <span id="udt-error-msg">Something went wrong</span>
+    </div>
+  </div>
+
+  <ToolSections slug="upside-down-text" />
+</ToolLayout>
+
+<style>
+  .udt-mode-btn {
+    @apply flex items-center justify-center rounded-xl border border-border-light bg-white/40 px-2 py-2.5 text-brand-600 transition-all duration-200 hover:border-brand-400 hover:bg-brand-50 dark:border-border-dark dark:bg-white/5 dark:text-brand-400 dark:hover:bg-brand-900/20;
+    min-height: 44px;
+  }
+  .udt-mode-btn.active {
+    @apply border-brand-500 bg-brand-500 text-white shadow-medium dark:border-brand-400 dark:bg-brand-500;
+  }
+  .udt-mode-btn:active {
+    transform: scale(0.96);
+  }
+  .udt-icon-btn {
+    @apply flex h-9 w-9 items-center justify-center rounded-lg border border-border-light bg-white/40 text-txt-muted transition-all duration-200 hover:border-brand-400 hover:bg-brand-50 hover:text-brand-600 dark:border-border-dark dark:bg-white/5 dark:hover:bg-brand-900/20 dark:hover:text-brand-300;
+    min-height: 36px;
+    min-width: 36px;
+  }
+  .udt-icon-btn:active {
+    transform: scale(0.92);
+  }
+  .udt-icon-btn.copied {
+    @apply border-green-500 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400;
+  }
+  .udt-output-hidden {
+    display: none;
+  }
+  .udt-toast-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 20px);
+  }
+  #udt-toast:not(.udt-toast-hidden),
+  #udt-error-toast:not(.udt-toast-hidden) {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+  @media (max-width: 358px) {
+    .udt-mode-btn {
+      padding: 0.5rem 0.25rem;
+    }
+    .udt-mode-btn span {
+      font-size: 0.6875rem;
+    }
+  }
+</style>
+
+<script is:inline>
+(function () {
+  var flipMap = {
+    'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ','i':'ᴉ','j':'ɾ',
+    'k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ʇ',
+    'u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z',
+    'A':'∀','B':'ᗺ','C':'Ɔ','D':'ᗡ','E':'Ǝ','F':'ᖷ','G':'⅁','H':'H','I':'I','J':'ſ',
+    'K':'ʞ','L':'˥','M':'W','N':'N','O':'O','P':'Ԁ','Q':'Ò','R':'ᴚ','S':'S','T':'┴',
+    'U':'∩','V':'Λ','W':'M','X':'X','Y':'⅄','Z':'Z',
+    '0':'0','1':'Ɩ','2':'ᄅ','3':'Ɛ','4':'ㄣ','5':'ϛ','6':'9','7':'ㄥ','8':'8','9':'6',
+    '.':'˙',',':'\'','\'':',','"':'„','!':'¡','?':'¿','(':')',')':'(','[':']',']':'[',
+    '{':'}','}':'{','<':'>','>':'<','&':'⅋','_':'‾','`':'˙',
+    ';':'؛','^':'v','~':'~','@':'@','#':'#','$':'$','%':'%','*':'*','+':'+',
+    '=':'=','-':'-','/':'/','\\':'\\','|':'|','©':'ɔ','®':'ᴚ','€':'ǝ','£':'£','¥':'¥',
+    ' ':' ','\n':'\n','\t':'\t'
+  };
+
+  var input = document.getElementById('udt-input');
+  var output = document.getElementById('udt-output');
+  var emptyState = document.getElementById('udt-empty-state');
+  var statsBar = document.getElementById('udt-output-stats-bar');
+  var inputStats = document.getElementById('udt-input-stats');
+  var outputStats = document.getElementById('udt-output-stats');
+  var modeLabel = document.getElementById('udt-mode-label');
+  var copyBtn = document.getElementById('udt-copy');
+  var clearBtn = document.getElementById('udt-clear');
+  var swapBtn = document.getElementById('udt-swap');
+  var downloadBtn = document.getElementById('udt-download');
+  var sampleBtn = document.getElementById('udt-sample');
+  var modeBtns = document.querySelectorAll('.udt-mode-btn');
+  var toast = document.getElementById('udt-toast');
+  var toastMsg = document.getElementById('udt-toast-msg');
+  var errorToast = document.getElementById('udt-error-toast');
+  var errorMsg = document.getElementById('udt-error-msg');
+  var currentMode = 'both';
+
+  function flipChar(c) {
+    return flipMap[c] !== undefined ? flipMap[c] : c;
+  }
+
+  function flipText(text) {
+    var result = '';
+    for (var i = 0; i < text.length; i++) {
+      result += flipChar(text[i]);
+    }
+    return result;
+  }
+
+  function reverseText(text) {
+    return text.split('').reverse().join('');
+  }
+
+  function processText(text, mode) {
+    if (mode === 'flip') return flipText(text);
+    if (mode === 'reverse') return reverseText(text);
+    return reverseText(flipText(text));
+  }
+
+  function countWords(text) {
+    var trimmed = text.trim();
+    if (!trimmed) return 0;
+    return trimmed.split(/\s+/).length;
+  }
+
+  function showToast(msg, isError) {
+    var el = isError ? errorToast : toast;
+    var msgEl = isError ? errorMsg : toastMsg;
+    msgEl.textContent = msg;
+    el.classList.remove('udt-toast-hidden');
+    setTimeout(function () { el.classList.add('udt-toast-hidden'); }, 2200);
+  }
+
+  function updateOutput() {
+    var text = input.value;
+    inputStats.textContent = text.length + ' characters · ' + countWords(text) + ' words';
+
+    if (!text.trim()) {
+      emptyState.classList.remove('udt-output-hidden');
+      output.classList.add('udt-output-hidden');
+      statsBar.classList.add('udt-output-hidden');
+      output.value = '';
+      return;
+    }
+
+    try {
+      var result = processText(text, currentMode);
+      output.value = result;
+      emptyState.classList.add('udt-output-hidden');
+      output.classList.remove('udt-output-hidden');
+      statsBar.classList.remove('udt-output-hidden');
+      outputStats.textContent = result.length + ' characters · ' + countWords(result) + ' words';
+    } catch (e) {
+      showToast('Error processing text', true);
+    }
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    modeBtns.forEach(function (btn) {
+      var btnMode = btn.getAttribute('data-mode');
+      if (btnMode === mode) {
+        btn.classList.add('active');
+        btn.setAttribute('aria-checked', 'true');
+      } else {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-checked', 'false');
+      }
+    });
+    var labels = { both: 'Both mode', flip: 'Flip only', reverse: 'Reverse only' };
+    modeLabel.textContent = labels[mode] || 'Both mode';
+    updateOutput();
+  }
+
+  modeBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setMode(btn.getAttribute('data-mode'));
+    });
+  });
+
+  input.addEventListener('input', updateOutput);
+
+  copyBtn.addEventListener('click', function () {
+    if (!output.value) {
+      showToast('Nothing to copy yet', true);
+      return;
+    }
+    navigator.clipboard.writeText(output.value).then(function () {
+      copyBtn.classList.add('copied');
+      showToast('Copied to clipboard!');
+      setTimeout(function () { copyBtn.classList.remove('copied'); }, 2000);
+    }).catch(function () {
+      showToast('Failed to copy', true);
+    });
+  });
+
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    updateOutput();
+    input.focus();
+  });
+
+  swapBtn.addEventListener('click', function () {
+    if (!output.value) {
+      showToast('Nothing to swap', true);
+      return;
+    }
+    input.value = output.value;
+    updateOutput();
+    input.focus();
+  });
+
+  downloadBtn.addEventListener('click', function () {
+    if (!output.value) {
+      showToast('Nothing to download', true);
+      return;
+    }
+    var blob = new Blob([output.value], { type: 'text/plain' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'upside-down-text.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('File downloaded!');
+  });
+
+  sampleBtn.addEventListener('click', function () {
+    input.value = "Hello World!\nThis is upside down text.\nTry it yourself!";
+    updateOutput();
+    input.focus();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      copyBtn.click();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      clearBtn.click();
+    } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'S' || e.key === 's')) {
+      e.preventDefault();
+      swapBtn.click();
+    } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'L' || e.key === 'l')) {
+      e.preventDefault();
+      sampleBtn.click();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === '1') {
+      e.preventDefault();
+      setMode('both');
+    } else if ((e.ctrlKey || e.metaKey) && e.key === '2') {
+      e.preventDefault();
+      setMode('flip');
+    } else if ((e.ctrlKey || e.metaKey) && e.key === '3') {
+      e.preventDefault();
+      setMode('reverse');
+    }
+  });
+
+  updateOutput();
+})();
+</script>

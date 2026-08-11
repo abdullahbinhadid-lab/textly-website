@@ -1,0 +1,219 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="text-repeater">
+  <div class="space-y-4">
+    <div class="card-glass p-4 sm:p-6">
+      <h2 class="mb-4 text-h4 font-bold">Text Repeater</h2>
+
+      <div class="space-y-3">
+        <div>
+          <label for="tr-input" class="mb-1.5 block text-small font-semibold text-txt-muted">Text to Repeat</label>
+          <textarea id="tr-input" class="tool-textarea min-h-[100px] w-full" placeholder="Type text to repeat..." aria-label="Text to repeat"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="tr-count" class="mb-1.5 block text-small font-semibold text-txt-muted">Repeat Count</label>
+            <input id="tr-count" type="number" class="tool-input min-h-[48px] w-full" value="5" min="1" max="10000" aria-label="Repeat count" />
+          </div>
+          <div>
+            <label for="tr-separator" class="mb-1.5 block text-small font-semibold text-txt-muted">Separator</label>
+            <select id="tr-separator" class="tool-input min-h-[48px] w-full" aria-label="Separator">
+              <option value="newline">New line</option>
+              <option value=" ">Space</option>
+              <option value=", ">Comma</option>
+              <option value=" | ">Pipe</option>
+              <option value=" - ">Dash</option>
+              <option value="custom">Custom...</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="tr-custom-sep-wrap" class="hidden">
+          <label for="tr-custom-sep" class="mb-1.5 block text-small font-semibold text-txt-muted">Custom Separator</label>
+          <input id="tr-custom-sep" type="text" class="tool-input min-h-[48px] w-full" placeholder="Enter custom separator..." aria-label="Custom separator" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="tr-prefix" class="mb-1.5 block text-small font-semibold text-txt-muted">Prefix per repeat</label>
+            <input id="tr-prefix" type="text" class="tool-input min-h-[48px] w-full" placeholder="Optional..." aria-label="Prefix per repeat" />
+          </div>
+          <div>
+            <label for="tr-suffix" class="mb-1.5 block text-small font-semibold text-txt-muted">Suffix per repeat</label>
+            <input id="tr-suffix" type="text" class="tool-input min-h-[48px] w-full" placeholder="Optional..." aria-label="Suffix per repeat" />
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="tr-number" class="accent-brand-500" />
+            <span>Number each</span>
+          </label>
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="tr-shuffle" class="accent-brand-500" />
+            <span>Shuffle order</span>
+          </label>
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="tr-limit" class="accent-brand-500" />
+            <span>Limit output</span>
+          </label>
+          <input id="tr-limit-val" type="number" class="tool-input min-h-[40px] w-28 px-3 py-2 text-small" value="10000" min="1" placeholder="Max chars" aria-label="Max output characters" />
+        </div>
+
+        <div class="rounded-xl bg-surface-light-alt/50 px-4 py-3 text-small text-txt-muted dark:bg-surface-dark-alt/50">
+          <span>Tip: Use <code class="rounded bg-brand-100 px-1 dark:bg-brand-900/30">{'{n}'}</code> in your text for an incrementing counter, <code class="rounded bg-brand-100 px-1 dark:bg-brand-900/30">{'{n:10}'}</code> to start from 10.</span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button id="tr-generate" class="btn-primary px-5 py-2.5 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 2l4 4-4 4"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 11v-1a4 4 0 0 1 4-4h14"/><path stroke-linecap="round" stroke-linejoin="round" d="m7 22-4-4 4-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>
+            Generate
+            <kbd class="ml-1 hidden rounded bg-white/20 px-1.5 py-0.5 text-tiny sm:inline">Ctrl+Enter</kbd>
+          </button>
+          <button id="tr-clear" class="btn-ghost px-5 py-2.5 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h3 class="text-body font-semibold">Result</h3>
+        <div class="flex items-center gap-2">
+          <span id="tr-stats" class="text-small text-txt-muted"></span>
+          <button id="tr-copy" class="btn-secondary px-4 py-2 text-small" data-copy-target="tr-output">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <button id="tr-download" class="btn-ghost px-4 py-2 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 10l5 5 5-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 15V3"/></svg>
+            Download
+          </button>
+        </div>
+      </div>
+      <textarea id="tr-output" class="tool-textarea min-h-[180px] w-full" readonly placeholder="Repeated text will appear here..." aria-label="Output text"></textarea>
+    </div>
+  </div>
+
+  <ToolSections slug="text-repeater" />
+</ToolLayout>
+
+<script>
+(function() {
+  const input = document.getElementById('tr-input') as HTMLTextAreaElement;
+  const count = document.getElementById('tr-count') as HTMLInputElement;
+  const separator = document.getElementById('tr-separator') as HTMLSelectElement;
+  const customSepWrap = document.getElementById('tr-custom-sep-wrap') as HTMLElement;
+  const customSep = document.getElementById('tr-custom-sep') as HTMLInputElement;
+  const prefix = document.getElementById('tr-prefix') as HTMLInputElement;
+  const suffix = document.getElementById('tr-suffix') as HTMLInputElement;
+  const number = document.getElementById('tr-number') as HTMLInputElement;
+  const shuffle = document.getElementById('tr-shuffle') as HTMLInputElement;
+  const limit = document.getElementById('tr-limit') as HTMLInputElement;
+  const limitVal = document.getElementById('tr-limit-val') as HTMLInputElement;
+  const output = document.getElementById('tr-output') as HTMLTextAreaElement;
+  const generateBtn = document.getElementById('tr-generate') as HTMLButtonElement;
+  const clearBtn = document.getElementById('tr-clear') as HTMLButtonElement;
+  const copyBtn = document.getElementById('tr-copy') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('tr-download') as HTMLButtonElement;
+  const stats = document.getElementById('tr-stats') as HTMLElement;
+
+  function getSeparator(): string {
+    if (separator.value === 'custom') return customSep.value;
+    if (separator.value === 'newline') return '\n';
+    return separator.value;
+  }
+
+  function processCounter(text: string, n: number): string {
+    return text.replace(/\{n:\d+\}/g, (match) => {
+      const start = parseInt(match.slice(3, -1));
+      return String(n + start - 1);
+    }).replace(/\{n\}/g, String(n));
+  }
+
+  function doGenerate() {
+    const text = input.value;
+    if (!text) { output.value = ''; stats.textContent = ''; return; }
+    const n = Math.min(Math.max(parseInt(count.value) || 1, 1), 10000);
+    const sep = getSeparator();
+    const pfx = prefix.value;
+    const sfx = suffix.value;
+    const doNumber = number.checked;
+    const doShuffle = shuffle.checked;
+    const doLimit = limit.checked;
+    const maxChars = parseInt(limitVal.value) || 10000;
+
+    let items: string[] = [];
+    for (let i = 1; i <= n; i++) {
+      let item = processCounter(text, i);
+      let p = processCounter(pfx, i);
+      let s = processCounter(sfx, i);
+      if (doNumber) item = i + '. ' + p + item + s;
+      else item = p + item + s;
+      items.push(item);
+    }
+
+    if (doShuffle) {
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+    }
+
+    let result = items.join(sep);
+    if (doLimit && result.length > maxChars) {
+      result = result.slice(0, maxChars) + '\n... [truncated at ' + maxChars + ' chars]';
+    }
+
+    output.value = result;
+    const charCount = result.length;
+    const wordCount = result.trim().split(/\s+/).filter(Boolean).length;
+    const lineCount = result.split('\n').length;
+    stats.textContent = charCount + ' chars · ' + wordCount + ' words · ' + lineCount + ' lines';
+  }
+
+  function doClear() {
+    input.value = '';
+    output.value = '';
+    stats.textContent = '';
+  }
+
+  function doDownload() {
+    if (!output.value) return;
+    const blob = new Blob([output.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'repeated-text.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  separator.addEventListener('change', () => {
+    customSepWrap.classList.toggle('hidden', separator.value !== 'custom');
+    doGenerate();
+  });
+  input.addEventListener('input', doGenerate);
+  count.addEventListener('input', doGenerate);
+  customSep.addEventListener('input', doGenerate);
+  prefix.addEventListener('input', doGenerate);
+  suffix.addEventListener('input', doGenerate);
+  number.addEventListener('change', doGenerate);
+  shuffle.addEventListener('change', doGenerate);
+  limit.addEventListener('change', doGenerate);
+  limitVal.addEventListener('input', doGenerate);
+  generateBtn.addEventListener('click', doGenerate);
+  clearBtn.addEventListener('click', doClear);
+  downloadBtn.addEventListener('click', doDownload);
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); doGenerate(); }
+  });
+})();
+</script>

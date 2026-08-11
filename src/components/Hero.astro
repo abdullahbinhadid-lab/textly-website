@@ -1,0 +1,317 @@
+---
+
+export interface Props {
+  title?: string;
+  subtitle?: string;
+  showStats?: boolean;
+}
+
+const {
+  title = 'Free Text Tools for Everyone',
+  subtitle = '33 powerful, privacy-first text tools that run entirely in your browser. No signup, no uploads, no tracking. Just paste your text and go.',
+  showStats = true,
+} = Astro.props;
+
+const titleChars = Array.from(title).map((char, i) => ({
+  char: char === ' ' ? '\u00A0' : char,
+  delay: (i * 0.025).toFixed(3),
+  isGradient: i > title.lastIndexOf(' '),
+}));
+
+const chips = [
+  { icon: '📝', name: 'Word Counter', top: '14%', left: '7%', delay: '0s', duration: '8s', depth: 1 },
+  { icon: '🔤', name: 'Case Converter', top: '22%', left: '82%', delay: '1s', duration: '10s', depth: 1.5 },
+  { icon: '🔍', name: 'Find & Replace', top: '58%', left: '4%', delay: '2s', duration: '9s', depth: 1.2 },
+  { icon: '🔊', name: 'Text to Speech', top: '68%', left: '85%', delay: '0.5s', duration: '11s', depth: 0.8 },
+  { icon: '✨', name: 'Fancy Text', top: '8%', left: '68%', delay: '1.5s', duration: '7s', depth: 1.3 },
+  { icon: '🔗', name: 'Slug Generator', top: '78%', left: '38%', delay: '2.5s', duration: '12s', depth: 0.6 },
+];
+
+const stats = [
+  { value: 33, suffix: '', label: 'Free Tools', gradient: 'bg-brand-gradient' },
+  { value: 0, suffix: '', label: 'Server Uploads', gradient: 'bg-accent-gradient' },
+  { value: 100, suffix: '%', label: 'Client-Side', gradient: 'bg-brand-gradient' },
+];
+
+const demos = [
+  { icon: '📝', tool: 'Word Counter', input: 'The quick brown fox jumps', output: '5 words · 26 characters' },
+  { icon: '🔤', tool: 'Case Converter', input: 'hello world', output: 'HELLO WORLD' },
+  { icon: '🔄', tool: 'Text Reverser', input: 'Textly Rocks', output: 'skcoR yltxeT' },
+  { icon: '🧹', tool: 'Remove Line Breaks', input: 'Line 1 ↵ Line 2 ↵ Line 3', output: 'Line 1 Line 2 Line 3' },
+  { icon: '🔗', tool: 'Slug Generator', input: 'Free Text Tools Online!', output: 'free-text-tools-online' },
+  { icon: '✨', tool: 'Fancy Text Generator', input: 'Textly', output: '𝕋𝕖𝕩𝕥𝕝𝕪' },
+];
+---
+
+<section id="hero" class="relative overflow-hidden pt-20 pb-16 sm:pt-28 sm:pb-24" data-hero>
+  <!-- ═══ BACKGROUND LAYERS ═══ -->
+
+  <!-- Layer 1: Aurora orbs with parallax -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true" data-parallax="0.02">
+    <div class="absolute left-[3%] top-[8%] h-[28rem] w-[28rem] rounded-full bg-brand-500/20 blur-[80px] animate-aurora-1 dark:bg-brand-500/10"></div>
+    <div class="absolute right-[5%] top-[3%] h-[32rem] w-[32rem] rounded-full bg-accent-500/18 blur-[90px] animate-aurora-2 dark:bg-accent-500/8"></div>
+    <div class="absolute left-[35%] bottom-[-5%] h-[24rem] w-[24rem] rounded-full bg-cyan-500/15 blur-[70px] animate-aurora-3 dark:bg-cyan-500/6"></div>
+  </div>
+
+  <!-- Layer 2: Grid pattern with radial mask -->
+  <div class="pointer-events-none absolute inset-0 bg-grid-pattern opacity-40 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]" aria-hidden="true"></div>
+
+  <!-- Layer 3: Mouse-following spotlight -->
+  <div class="hero-spotlight pointer-events-none absolute inset-0" aria-hidden="true" id="hero-spotlight"></div>
+
+  <!-- Layer 4: Floating tool chips (desktop only, parallax) -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden hidden lg:block" aria-hidden="true" data-parallax="0.04" id="hero-chips">
+    {chips.map((chip) => (
+      <div
+        class="absolute animate-float-chip opacity-50 dark:opacity-30"
+        style={`top: ${chip.top}; left: ${chip.left}; animation-delay: ${chip.delay}; --chip-duration: ${chip.duration};`}
+        data-depth={chip.depth}
+      >
+        <div class="flex items-center gap-2 rounded-full border border-border-light bg-surface-light/60 px-3 py-1.5 text-small shadow-soft backdrop-blur-md dark:border-border-dark dark:bg-surface-dark/60">
+          <span class="text-base">{chip.icon}</span>
+          <span class="font-medium text-txt-muted">{chip.name}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Layer 5: Film grain texture -->
+  <div class="hero-grain pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
+  <!-- ═══ CONTENT ═══ -->
+  <div class="container-page relative z-10">
+    <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+
+      <!-- Left Column: Text content -->
+      <div class="text-center lg:text-left">
+        <!-- Badge with shine sweep -->
+        <div class="mb-8 flex justify-center lg:justify-start animate-slide-up">
+          <div class="relative overflow-hidden rounded-full">
+            <span class="relative badge-brand">
+              <svg class="h-3.5 w-3.5 text-brand-500 dark:text-brand-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <span>100% Private — All processing happens in your browser</span>
+            </span>
+            <div class="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
+              <div class="absolute inset-y-0 w-1/4 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shine-sweep"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Headline with character-by-character wave reveal -->
+        <h1 class="text-h1 sm:text-display font-extrabold tracking-tight text-balance xs:text-[2rem] [perspective:800px]">
+          {titleChars.map((tc) => (
+            <span class="animate-char-wave" style={`animation-delay: ${tc.delay}s`}>
+              <span class={tc.isGradient ? 'text-gradient' : ''}>{tc.char}</span>
+            </span>
+          ))}
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="mx-auto mt-6 max-w-2xl text-body-lg text-txt-muted text-balance xs:text-small animate-slide-up lg:mx-0" style="animation-delay: 0.5s; opacity: 0;">
+          {subtitle}
+        </p>
+
+        <!-- CTA buttons with magnetic effect -->
+        <div class="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row xs:gap-2 animate-slide-up lg:justify-start" style="animation-delay: 0.7s; opacity: 0;">
+          <a href="#tools" class="btn-primary hero-magnetic w-full px-6 py-3 sm:w-auto group" data-magnetic>
+            <span>Explore All Tools</span>
+            <svg class="h-4 w-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+          </a>
+          <a href="/about" class="btn-secondary hero-magnetic w-full px-6 py-3 sm:w-auto" data-magnetic>
+            Why Textly?
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Column: Live demo + stats -->
+      <div class="flex flex-col items-center gap-8">
+        <!-- Live Demo Card -->
+        <div class="w-full max-w-lg animate-slide-up" style="animation-delay: 0.8s; opacity: 0;">
+          <div class="relative">
+            <div class="absolute -inset-1 rounded-2xl bg-brand-gradient opacity-10 blur-lg"></div>
+            <div class="relative rounded-2xl border border-border-light glass-strong p-5 text-left shadow-medium dark:border-border-dark">
+              <div class="mb-3 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="relative flex h-2 w-2">
+                    <span class="absolute inline-flex h-full w-full rounded-full bg-green-400 animate-live-pulse"></span>
+                    <span class="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                  </span>
+                  <span class="text-tiny font-semibold uppercase tracking-wider text-txt-muted">Live Demo</span>
+                </div>
+                <span class="text-tiny text-txt-muted/60 font-mono" id="hero-demo-counter">1 / 6</span>
+              </div>
+              <div class="animate-demo-in" id="hero-demo-content">
+                <div class="mb-2 flex items-center gap-2">
+                  <span class="text-xl" id="hero-demo-icon">📝</span>
+                  <span class="text-small font-semibold text-txt-light dark:text-txt-dark" id="hero-demo-tool">Word Counter</span>
+                </div>
+                <div class="rounded-lg bg-surface-light-alt/60 px-3 py-2 text-small font-mono text-txt-muted dark:bg-surface-dark-alt/60" id="hero-demo-input">The quick brown fox jumps</div>
+                <div class="mt-2 flex items-center gap-2">
+                  <svg class="h-4 w-4 flex-shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                  <span class="text-small font-mono font-semibold text-gradient" id="hero-demo-output">5 words · 26 characters</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats strip -->
+        {showStats && (
+          <div class="w-full max-w-lg animate-slide-up" style="animation-delay: 0.9s; opacity: 0;" id="hero-stats">
+            <div class="relative rounded-2xl glass-strong p-5 shadow-soft">
+              <div class="absolute -inset-px rounded-2xl hero-gradient-border opacity-30"></div>
+              <div class="relative flex items-center justify-around gap-2 xs:flex-col xs:gap-4">
+                {stats.map((stat, i) => (
+                  <div class="flex items-center gap-3 xs:flex-col xs:text-center group cursor-default">
+                    {i > 0 && <div class="h-10 w-px bg-gradient-to-b from-transparent via-brand-300/40 to-transparent xs:hidden"></div>}
+                    <div class="flex flex-col">
+                      <span class="text-h2 font-extrabold text-gradient leading-none transition-transform duration-300 group-hover:scale-110" data-countup data-target={stat.value} data-suffix={stat.suffix}>0{stat.suffix}</span>
+                      <span class="mt-1 text-tiny text-txt-muted uppercase tracking-wider font-semibold">{stat.label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="mt-16 flex flex-col items-center gap-1 animate-slide-up" style="animation-delay: 1.2s; opacity: 0;">
+      <span class="text-tiny text-txt-muted/60 uppercase tracking-widest font-medium">Scroll to explore</span>
+      <div class="flex h-8 w-5 items-start justify-center rounded-full border border-border-light p-1 dark:border-border-dark">
+        <div class="h-1.5 w-1 rounded-full bg-brand-500 animate-scroll-bounce"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    /* ═════════════════════════════════════════
+       1. MOUSE SPOTLIGHT
+       ═════════════════════════════════════════ */
+    var spotlight = document.getElementById('hero-spotlight');
+    var heroSection = document.querySelector('[data-hero]');
+    if (spotlight && heroSection) {
+      heroSection.addEventListener('mousemove', function (e) {
+        var rect = heroSection.getBoundingClientRect();
+        var x = ((e.clientX - rect.left) / rect.width) * 100;
+        var y = ((e.clientY - rect.top) / rect.height) * 100;
+        spotlight.style.setProperty('--mx', x + '%');
+        spotlight.style.setProperty('--my', y + '%');
+      });
+    }
+
+    /* ═════════════════════════════════════════
+       2. PARALLAX ON SCROLL
+       ═════════════════════════════════════════ */
+    var parallaxEls = document.querySelectorAll('[data-parallax]');
+    function updateParallax() {
+      var scrollY = window.pageYOffset;
+      parallaxEls.forEach(function (el) {
+        var speed = parseFloat(el.getAttribute('data-parallax')) || 0;
+        el.style.transform = 'translateY(' + (scrollY * speed) + 'px)';
+      });
+    }
+    var ticking = false;
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        requestAnimationFrame(function () { updateParallax(); ticking = false; });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    /* ═════════════════════════════════════════
+       3. MAGNETIC BUTTONS
+       ═════════════════════════════════════════ */
+    var magneticBtns = document.querySelectorAll('[data-magnetic]');
+    magneticBtns.forEach(function (btn) {
+      btn.addEventListener('mousemove', function (e) {
+        var rect = btn.getBoundingClientRect();
+        var x = e.clientX - rect.left - rect.width / 2;
+        var y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = 'translate(' + (x * 0.15) + 'px, ' + (y * 0.2) + 'px)';
+      });
+      btn.addEventListener('mouseleave', function () {
+        btn.style.transform = 'translate(0, 0)';
+      });
+    });
+
+    /* ═════════════════════════════════════════
+       4. LIVE DEMO CAROUSEL
+       ═════════════════════════════════════════ */
+    var demos = [
+      { icon: '📝', tool: 'Word Counter', input: 'The quick brown fox jumps', output: '5 words · 26 characters' },
+      { icon: '🔤', tool: 'Case Converter', input: 'hello world', output: 'HELLO WORLD' },
+      { icon: '🔄', tool: 'Text Reverser', input: 'Textly Rocks', output: 'skcoR yltxeT' },
+      { icon: '🧹', tool: 'Remove Line Breaks', input: 'Line 1 ↵ Line 2 ↵ Line 3', output: 'Line 1 Line 2 Line 3' },
+      { icon: '🔗', tool: 'Slug Generator', input: 'Free Text Tools Online!', output: 'free-text-tools-online' },
+      { icon: '✨', tool: 'Fancy Text Generator', input: 'Textly', output: '𝕋𝕖𝕩𝕥𝕝𝕪' },
+    ];
+    var demoIdx = 0;
+    var demoContent = document.getElementById('hero-demo-content');
+    var demoIcon = document.getElementById('hero-demo-icon');
+    var demoTool = document.getElementById('hero-demo-tool');
+    var demoInput = document.getElementById('hero-demo-input');
+    var demoOutput = document.getElementById('hero-demo-output');
+    var demoCounter = document.getElementById('hero-demo-counter');
+
+    function cycleDemo() {
+      demoIdx = (demoIdx + 1) % demos.length;
+      var d = demos[demoIdx];
+      if (demoContent) {
+        demoContent.classList.remove('animate-demo-in');
+        void demoContent.offsetWidth;
+        demoContent.classList.add('animate-demo-in');
+      }
+      if (demoIcon) demoIcon.textContent = d.icon;
+      if (demoTool) demoTool.textContent = d.tool;
+      if (demoInput) demoInput.textContent = d.input;
+      if (demoOutput) demoOutput.textContent = d.output;
+      if (demoCounter) demoCounter.textContent = (demoIdx + 1) + ' / ' + demos.length;
+    }
+    if (demoContent) setInterval(cycleDemo, 3500);
+
+    /* ═════════════════════════════════════════
+       5. COUNT-UP STATS
+       ═════════════════════════════════════════ */
+    var countEls = document.querySelectorAll('[data-countup]');
+    var statsContainer = document.getElementById('hero-stats');
+    var countStarted = false;
+
+    function animateCount(el) {
+      var target = parseInt(el.getAttribute('data-target'), 10);
+      var suffix = el.getAttribute('data-suffix') || '';
+      var duration = 1500;
+      var startTime = null;
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    if (countEls.length > 0 && 'IntersectionObserver' in window) {
+      var countObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting && !countStarted) {
+            countStarted = true;
+            countEls.forEach(function (el) { animateCount(el); });
+            countObserver.disconnect();
+          }
+        });
+      }, { threshold: 0.3 });
+      countEls.forEach(function (el) { countObserver.observe(el); });
+    } else {
+      countEls.forEach(function (el) {
+        el.textContent = el.getAttribute('data-target') + (el.getAttribute('data-suffix') || '');
+      });
+    }
+
+  })();
+</script>

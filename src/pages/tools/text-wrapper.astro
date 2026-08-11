@@ -1,0 +1,612 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="text-wrapper">
+  <div class="tw-tool">
+    <!-- Input Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4 relative overflow-hidden">
+      <div class="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-emerald-500/10 blur-3xl"></div>
+      <div class="relative z-10">
+        <div class="flex items-center justify-between mb-3">
+          <label for="tw-input" class="text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h15a3 3 0 1 1 0 6h-4"/><path stroke-linecap="round" stroke-linejoin="round" d="m15 16-2 2 2 2"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 18h7"/></svg>
+            Input Text
+          </label>
+          <div class="flex items-center gap-2">
+            <span id="tw-char-count" class="text-tiny text-txt-muted font-mono">0 chars</span>
+            <button id="tw-clear-btn" class="btn-ghost px-3 py-1.5 text-tiny rounded-lg" title="Clear text">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Clear
+            </button>
+          </div>
+        </div>
+        <textarea id="tw-input" class="tool-textarea min-h-[140px] w-full" placeholder="Type or paste text to wrap here..." aria-label="Input text to wrap" autocomplete="off" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <!-- Wrap Mode Buttons -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+          Wrap Mode
+        </h3>
+        <span class="text-tiny text-txt-muted hidden sm:inline">12 modes</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5" id="tw-buttons">
+        <button class="tw-btn active" data-mode="width" title="Wrap at fixed width">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <span class="tw-btn-label">Fixed Width</span>
+        </button>
+        <button class="tw-btn" data-mode="word" title="Wrap at word boundaries">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h6M4 12h12M4 18h8"/></svg>
+          <span class="tw-btn-label">Word Wrap</span>
+        </button>
+        <button class="tw-btn" data-mode="quotes" title="Wrap each line in quotes">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h10v10H7z"/></svg>
+          <span class="tw-btn-label">Line in Quotes</span>
+        </button>
+        <button class="tw-btn" data-mode="brackets" title="Wrap in square brackets">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/></svg>
+          <span class="tw-btn-label">Square Brackets</span>
+        </button>
+        <button class="tw-btn" data-mode="parens" title="Wrap in parentheses">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3C5 7 5 17 8 21M16 3c3 4 3 14 0 18"/></svg>
+          <span class="tw-btn-label">Parentheses</span>
+        </button>
+        <button class="tw-btn" data-mode="braces" title="Wrap in curly braces">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3c-2 0-3 1-3 3v3c0 1-1 2-3 2 2 0 3 1 3 2v3c0 2 1 3 3 3M16 3c2 0 3 1 3 3v3c0 1 1 2 3 2-2 0-3 1-3 2v3c0 2-1 3-3 3"/></svg>
+          <span class="tw-btn-label">Curly Braces</span>
+        </button>
+        <button class="tw-btn" data-mode="tags" title="Wrap in HTML/XML tags">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/></svg>
+          <span class="tw-btn-label">HTML Tags</span>
+        </button>
+        <button class="tw-btn" data-mode="markdown" title="Wrap as markdown code block">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>
+          <span class="tw-btn-label">Markdown Code</span>
+        </button>
+        <button class="tw-btn" data-mode="box" title="Wrap in ASCII box drawing">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          <span class="tw-btn-label">ASCII Box</span>
+        </button>
+        <button class="tw-btn" data-mode="comment" title="Wrap as code comments">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 12h14M5 16h6"/></svg>
+          <span class="tw-btn-label">Code Comment</span>
+        </button>
+        <button class="tw-btn" data-mode="border" title="Add decorative border">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v16H4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 8h8v8H8z"/></svg>
+          <span class="tw-btn-label">Decorative Border</span>
+        </button>
+        <button class="tw-btn" data-mode="custom" title="Wrap with custom prefix/suffix">
+          <svg class="tw-btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path stroke-linecap="round" stroke-linejoin="round" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span class="tw-btn-label">Custom Wrap</span>
+        </button>
+      </div>
+      <!-- Mode-specific inputs -->
+      <div id="tw-width-wrap" class="mt-3">
+        <label class="text-tiny font-semibold text-txt-muted mb-1 block">Wrap width (characters):</label>
+        <input id="tw-width" type="number" min="1" max="1000" value="80" class="tool-textarea w-full py-2 px-3 text-small" />
+      </div>
+      <div id="tw-tag-wrap" class="mt-3 hidden">
+        <label class="text-tiny font-semibold text-txt-muted mb-1 block">Tag name:</label>
+        <input id="tw-tag-name" type="text" class="tool-textarea w-full py-2 px-3 text-small" placeholder="e.g. div, span, p..." value="div" />
+      </div>
+      <div id="tw-comment-wrap" class="mt-3 hidden">
+        <label class="text-tiny font-semibold text-txt-muted mb-1 block">Comment style:</label>
+        <select id="tw-comment-style" class="tool-textarea w-full py-2 px-3 text-small">
+          <option value="//">// (C/Java/JS)</option>
+          <option value="#"># (Python/Ruby)</option>
+          <option value="--">-- (SQL/Lua)</option>
+          <option value="/* */">/* */ (C block)</option>
+          <option value="<!-- -->">&lt;!-- --&gt; (HTML)</option>
+        </select>
+      </div>
+      <div id="tw-custom-wrap" class="mt-3 hidden">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-tiny font-semibold text-txt-muted mb-1 block">Prefix:</label>
+            <input id="tw-custom-prefix" type="text" class="tool-textarea w-full py-2 px-3 text-small" placeholder="Prefix..." value="<<" />
+          </div>
+          <div>
+            <label class="text-tiny font-semibold text-txt-muted mb-1 block">Suffix:</label>
+            <input id="tw-custom-suffix" type="text" class="tool-textarea w-full py-2 px-3 text-small" placeholder="Suffix..." value=">>" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options Panel -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <h3 class="text-body font-semibold mb-3 flex items-center gap-2">
+        <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+        Options
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="tw-opt-preserve" checked class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Preserve existing newlines</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="tw-opt-trim" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Trim each line</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="tw-opt-indent" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Indent wrapped lines</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="tw-opt-break" checked class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Break long words</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="tw-opt-each" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Wrap each line separately</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-surface-light-alt/50 px-3 py-2.5 dark:bg-surface-dark-alt/50">
+          <input type="checkbox" id="tw-opt-escape" class="accent-brand-500" />
+          <span class="text-small text-txt-light dark:text-txt-dark">Escape HTML in content</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Wrapped Result
+        </h3>
+        <div class="flex items-center gap-2">
+          <span id="tw-status" class="text-tiny text-txt-muted"></span>
+          <button id="tw-copy-btn" class="btn-primary px-4 py-2 text-small rounded-xl" disabled title="Copy result (Ctrl+Shift+C)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+      <div id="tw-empty" class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-light-alt text-brand-400 dark:bg-surface-dark-alt dark:text-brand-500">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h15a3 3 0 1 1 0 6h-4"/><path stroke-linecap="round" stroke-linejoin="round" d="m15 16-2 2 2 2"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 18h7"/></svg>
+        </div>
+        <p class="text-small text-txt-muted">Enter text above and select a wrap mode to see the result</p>
+      </div>
+      <div id="tw-result-wrap" class="hidden">
+        <div id="tw-result" class="tool-textarea min-h-[160px] max-h-[400px] overflow-y-auto w-full bg-surface-light-alt/50 dark:bg-surface-dark-alt/50 font-mono text-small leading-relaxed whitespace-pre-wrap break-words cursor-text" role="textbox" aria-label="Wrapped text result" tabindex="0"></div>
+        <div class="mt-3 flex items-center justify-between text-tiny text-txt-muted">
+          <span id="tw-result-count"></span>
+          <span id="tw-active-mode" class="badge-brand"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <h3 class="text-body font-semibold mb-3 flex items-center gap-2">
+        <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 16v-5M12 16V7M17 16v-3"/></svg>
+        Wrap Stats
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Input Lines</div>
+          <div id="tw-stat-input" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Output Lines</div>
+          <div id="tw-stat-output" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Max Line Width</div>
+          <div id="tw-stat-width" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">Result Length</div>
+          <div id="tw-stat-length" class="text-body font-bold text-brand-600 dark:text-brand-300">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts help -->
+    <div class="card-glass p-4 mb-4">
+      <details>
+        <summary class="cursor-pointer text-small font-semibold text-txt-muted flex items-center gap-2 list-none">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+          Keyboard Shortcuts
+          <svg class="h-4 w-4 transition-transform ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-tiny text-txt-muted">
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Copy result</span><kbd class="kbd">Ctrl+Shift+C</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Clear text</span><kbd class="kbd">Ctrl+Shift+K</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Focus input</span><kbd class="kbd">Ctrl+I</kbd></div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50"><span>Toggle preserve newlines</span><kbd class="kbd">Ctrl+P</kbd></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <ToolSections slug="text-wrapper" />
+</ToolLayout>
+
+<style>
+  .tw-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 8px; border-radius: 12px; border: 1px solid var(--color-border);
+    background: var(--color-surface); cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); min-height: 64px;
+    position: relative; overflow: hidden;
+  }
+  .tw-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--color-brand-gradient); opacity: 0;
+    transition: opacity 0.25s ease; z-index: 0;
+  }
+  .tw-btn > * { position: relative; z-index: 1; }
+  .tw-btn:hover {
+    border-color: var(--color-brand); transform: translateY(-2px);
+    box-shadow: 0 4px 16px -4px rgba(124, 58, 237, 0.2);
+  }
+  .tw-btn:active { transform: translateY(0) scale(0.98); }
+  .tw-btn.active::before { opacity: 1; }
+  .tw-btn.active { color: #fff; border-color: transparent; }
+  .tw-btn.active .tw-btn-icon, .tw-btn.active .tw-btn-label { color: #fff; stroke: #fff; }
+  .tw-btn-icon { width: 20px; height: 20px; color: var(--color-brand); }
+  .tw-btn-label { font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); text-align: center; line-height: 1.2; }
+  .tw-btn:hover .tw-btn-label { color: var(--color-text); }
+  .dark .tw-btn { background: var(--color-surface); }
+  .dark .tw-btn-icon { color: var(--color-brand); }
+  .kbd {
+    display: inline-flex; align-items: center; padding: 2px 8px;
+    border-radius: 6px; border: 1px solid var(--color-border);
+    background: var(--color-surface-alt); font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem; font-weight: 600; color: var(--color-text);
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::marker { content: ''; }
+  @media (max-width: 358px) {
+    .tw-btn { padding: 10px 6px; min-height: 56px; }
+    .tw-btn-icon { width: 18px; height: 18px; }
+    .tw-btn-label { font-size: 0.6875rem; }
+  }
+</style>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('tw-input');
+  var charCount = document.getElementById('tw-char-count');
+  var clearBtn = document.getElementById('tw-clear-btn');
+  var copyBtn = document.getElementById('tw-copy-btn');
+  var emptyState = document.getElementById('tw-empty');
+  var resultWrap = document.getElementById('tw-result-wrap');
+  var resultEl = document.getElementById('tw-result');
+  var resultCount = document.getElementById('tw-result-count');
+  var activeModeEl = document.getElementById('tw-active-mode');
+  var statusEl = document.getElementById('tw-status');
+  var buttons = document.querySelectorAll('.tw-btn');
+  var widthInput = document.getElementById('tw-width');
+  var widthWrap = document.getElementById('tw-width-wrap');
+  var tagWrap = document.getElementById('tw-tag-wrap');
+  var tagName = document.getElementById('tw-tag-name');
+  var commentWrap = document.getElementById('tw-comment-wrap');
+  var commentStyle = document.getElementById('tw-comment-style');
+  var customWrap = document.getElementById('tw-custom-wrap');
+  var customPrefix = document.getElementById('tw-custom-prefix');
+  var customSuffix = document.getElementById('tw-custom-suffix');
+  var optPreserve = document.getElementById('tw-opt-preserve');
+  var optTrim = document.getElementById('tw-opt-trim');
+  var optIndent = document.getElementById('tw-opt-indent');
+  var optBreak = document.getElementById('tw-opt-break');
+  var optEach = document.getElementById('tw-opt-each');
+  var optEscape = document.getElementById('tw-opt-escape');
+  var statInput = document.getElementById('tw-stat-input');
+  var statOutput = document.getElementById('tw-stat-output');
+  var statWidth = document.getElementById('tw-stat-width');
+  var statLength = document.getElementById('tw-stat-length');
+  var currentResult = '';
+  var activeBtn = document.querySelector('.tw-btn.active');
+  var activeMode = 'width';
+
+  var modeLabels = {
+    width: 'Fixed Width', word: 'Word Wrap', quotes: 'Line in Quotes',
+    brackets: 'Square Brackets', parens: 'Parentheses', braces: 'Curly Braces',
+    tags: 'HTML Tags', markdown: 'Markdown Code', box: 'ASCII Box',
+    comment: 'Code Comment', border: 'Decorative Border', custom: 'Custom Wrap'
+  };
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function wrapWidth(text, width) {
+    width = Math.max(1, width);
+    var lines = [];
+    var paragraphs = optPreserve.checked ? text.split('\n') : [text.replace(/\n/g, ' ')];
+    paragraphs.forEach(function (para) {
+      if (para === '') { lines.push(''); return; }
+      var words = para.split(' ');
+      var current = '';
+      words.forEach(function (word) {
+        if (current === '') {
+          current = word;
+        } else if (current.length + 1 + word.length <= width) {
+          current += ' ' + word;
+        } else {
+          lines.push(current);
+          current = word;
+        }
+        if (optBreak.checked && word.length > width && current === word) {
+          while (current.length > width) {
+            lines.push(current.substring(0, width));
+            current = current.substring(width);
+          }
+        }
+      });
+      if (current) lines.push(current);
+    });
+    return lines.join('\n');
+  }
+
+  function wrapWord(text, width) {
+    return wrapWidth(text, width);
+  }
+
+  function wrapEachLine(text, prefix, suffix) {
+    var lines = text.split('\n');
+    if (optTrim.checked) lines = lines.map(function (l) { return l.trim(); });
+    return lines.map(function (line) {
+      return prefix + line + suffix;
+    }).join('\n');
+  }
+
+  function wrapWhole(text, prefix, suffix) {
+    return prefix + text + suffix;
+  }
+
+  function wrapTags(text) {
+    var tag = tagName.value.trim() || 'div';
+    var content = optEscape.checked ? escapeHtml(text) : text;
+    return '<' + tag + '>\n' + content + '\n</' + tag + '>';
+  }
+
+  function wrapMarkdown(text) {
+    return '```\n' + text + '\n```';
+  }
+
+  function wrapBox(text) {
+    var lines = text.split('\n');
+    var maxLen = 0;
+    lines.forEach(function (l) {
+      if (l.length > maxLen) maxLen = l.length;
+    });
+    var top = '+' + Array(maxLen + 3).join('-') + '+';
+    var result = top + '\n';
+    lines.forEach(function (l) {
+      result += '| ' + l + Array(maxLen - l.length + 1).join(' ') + ' |\n';
+    });
+    result += top;
+    return result;
+  }
+
+  function wrapComment(text) {
+    var style = commentStyle.value;
+    var lines = text.split('\n');
+    if (optTrim.checked) lines = lines.map(function (l) { return l.trim(); });
+    if (style === '/* */') {
+      return '/*\n' + lines.map(function (l) { return ' * ' + l; }).join('\n') + '\n */';
+    } else if (style === '<!-- -->') {
+      return '<!--\n' + lines.join('\n') + '\n-->';
+    } else {
+      return lines.map(function (l) { return style + ' ' + l; }).join('\n');
+    }
+  }
+
+  function wrapBorder(text) {
+    var lines = text.split('\n');
+    var maxLen = 0;
+    lines.forEach(function (l) {
+      if (l.length > maxLen) maxLen = l.length;
+    });
+    var border = Array(maxLen + 3).join('=');
+    var result = border + '\n';
+    lines.forEach(function (l) {
+      result += l + '\n';
+    });
+    result += border;
+    return result;
+  }
+
+  function wrapCustom(text) {
+    var prefix = customPrefix.value;
+    var suffix = customSuffix.value;
+    if (optEach.checked) {
+      return wrapEachLine(text, prefix, suffix);
+    } else {
+      return wrapWhole(text, prefix, suffix);
+    }
+  }
+
+  function process() {
+    var text = input.value;
+    if (!text.trim()) {
+      clearResult();
+      return;
+    }
+
+    var result = '';
+    var inputLines = text.split('\n').length;
+
+    switch (activeMode) {
+      case 'width':
+        result = wrapWidth(text, parseInt(widthInput.value) || 80);
+        break;
+      case 'word':
+        result = wrapWord(text, parseInt(widthInput.value) || 80);
+        break;
+      case 'quotes':
+        if (optEach.checked) {
+          result = wrapEachLine(text, '"', '"');
+        } else {
+          result = wrapWhole(text, '"', '"');
+        }
+        break;
+      case 'brackets':
+        if (optEach.checked) {
+          result = wrapEachLine(text, '[', ']');
+        } else {
+          result = wrapWhole(text, '[', ']');
+        }
+        break;
+      case 'parens':
+        if (optEach.checked) {
+          result = wrapEachLine(text, '(', ')');
+        } else {
+          result = wrapWhole(text, '(', ')');
+        }
+        break;
+      case 'braces':
+        if (optEach.checked) {
+          result = wrapEachLine(text, '{', '}');
+        } else {
+          result = wrapWhole(text, '{', '}');
+        }
+        break;
+      case 'tags':
+        result = wrapTags(text);
+        break;
+      case 'markdown':
+        result = wrapMarkdown(text);
+        break;
+      case 'box':
+        result = wrapBox(text);
+        break;
+      case 'comment':
+        result = wrapComment(text);
+        break;
+      case 'border':
+        result = wrapBorder(text);
+        break;
+      case 'custom':
+        result = wrapCustom(text);
+        break;
+      default:
+        result = text;
+    }
+
+    if (optIndent.checked) {
+      result = result.split('\n').map(function (l) { return '  ' + l; }).join('\n');
+    }
+
+    currentResult = result;
+    resultEl.textContent = result;
+    emptyState.classList.add('hidden');
+    resultWrap.classList.remove('hidden');
+    resultWrap.classList.add('animate-slide-up');
+    var outputLines = result.split('\n').length;
+    var maxLineWidth = 0;
+    result.split('\n').forEach(function (l) {
+      if (l.length > maxLineWidth) maxLineWidth = l.length;
+    });
+    resultCount.textContent = outputLines + ' lines, ' + result.length + ' chars';
+    activeModeEl.textContent = modeLabels[activeMode] || '';
+    copyBtn.disabled = false;
+    statusEl.textContent = 'Wrapped';
+    statusEl.classList.add('text-green-600', 'dark:text-green-400');
+    statInput.textContent = inputLines;
+    statOutput.textContent = outputLines;
+    statWidth.textContent = maxLineWidth;
+    statLength.textContent = result.length;
+    setTimeout(function () { resultWrap.classList.remove('animate-slide-up'); }, 500);
+  }
+
+  function clearResult() {
+    currentResult = '';
+    resultEl.textContent = '';
+    emptyState.classList.remove('hidden');
+    resultWrap.classList.add('hidden');
+    copyBtn.disabled = true;
+    statusEl.textContent = '';
+    activeModeEl.textContent = '';
+    statInput.textContent = '0';
+    statOutput.textContent = '0';
+    statWidth.textContent = '0';
+    statLength.textContent = '0';
+  }
+
+  function updateCharCount() {
+    charCount.textContent = input.value.length + ' chars';
+  }
+
+  function updateModeUI(mode) {
+    widthWrap.classList.toggle('hidden', mode !== 'width' && mode !== 'word');
+    tagWrap.classList.toggle('hidden', mode !== 'tags');
+    commentWrap.classList.toggle('hidden', mode !== 'comment');
+    customWrap.classList.toggle('hidden', mode !== 'custom');
+  }
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (activeBtn) activeBtn.classList.remove('active');
+      btn.classList.add('active');
+      activeBtn = btn;
+      activeMode = btn.getAttribute('data-mode');
+      updateModeUI(activeMode);
+      process();
+    });
+  });
+
+  [widthInput, tagName, commentStyle, customPrefix, customSuffix].forEach(function (el) {
+    el.addEventListener('input', process);
+    el.addEventListener('change', process);
+  });
+
+  [optPreserve, optTrim, optIndent, optBreak, optEach, optEscape].forEach(function (opt) {
+    opt.addEventListener('change', process);
+  });
+
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    updateCharCount();
+    clearResult();
+    input.focus();
+  });
+
+  copyBtn.addEventListener('click', function () {
+    if (!currentResult) return;
+    navigator.clipboard.writeText(currentResult).then(function () {
+      var orig = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Copied!</span>';
+      copyBtn.classList.add('!bg-green-500');
+      setTimeout(function () {
+        copyBtn.innerHTML = orig;
+        copyBtn.classList.remove('!bg-green-500');
+      }, 2000);
+    });
+  });
+
+  input.addEventListener('input', function () {
+    updateCharCount();
+    process();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+      e.preventDefault();
+      if (!copyBtn.disabled) copyBtn.click();
+    } else if (e.ctrlKey && e.shiftKey && e.key === 'K') {
+      e.preventDefault();
+      clearBtn.click();
+    } else if (e.ctrlKey && e.key === 'i') {
+      e.preventDefault();
+      input.focus();
+    } else if (e.ctrlKey && e.key === 'p') {
+      e.preventDefault();
+      optPreserve.checked = !optPreserve.checked;
+      optPreserve.dispatchEvent(new Event('change'));
+    }
+  });
+
+  updateCharCount();
+  updateModeUI(activeMode);
+})();
+</script>

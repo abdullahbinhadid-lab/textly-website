@@ -1,0 +1,120 @@
+---
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import CTA from '../../components/CTA.astro';
+import FAQ from '../../components/FAQ.astro';
+import { tools, toolCategories } from '../../data/tools';
+
+const categorySlugs: Record<string, string> = {
+  'Counting': 'counting',
+  'Transform': 'transform',
+  'Clean': 'clean',
+  'Edit': 'edit',
+  'Generate': 'generate',
+  'Audio': 'audio',
+  'Compare': 'compare',
+  'SEO': 'seo',
+  'Organize': 'organize',
+  'Convert': 'convert',
+  'Analyze': 'analyze',
+  'Extract': 'extract',
+  'Split': 'split',
+  'Join': 'join',
+  'Format': 'format',
+};
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: 'Tools', item: new URL('/tools', Astro.site).href },
+  ],
+};
+---
+
+<BaseLayout
+  title="All Text Tools — 33 Free Online Tools | Textly"
+  description="Browse all 33 free online text tools: word counter, case converter, text to speech, readability checker, keyword density analyzer, and more. 100% client-side, privacy-first."
+  canonical="/tools"
+  schema={schema}
+  hideContactForm={true}
+>
+  <div class="container-page py-8 sm:py-12">
+    <nav class="mb-6 flex items-center gap-2 text-small text-txt-muted" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-brand-600 dark:hover:text-brand-300">Home</a>
+      <span>/</span>
+      <span class="text-txt-light dark:text-txt-dark">Tools</span>
+    </nav>
+
+    <SectionHeading
+      eyebrow={`${tools.length} Tools`}
+      title="All Text Tools"
+      subtitle="Every tool runs 100% in your browser. No data uploaded, no signup required. Browse by category or scroll through all tools below."
+    />
+
+    <div class="mb-8 flex flex-wrap items-center justify-center gap-2" id="category-filters">
+      <button class="badge-brand filter-btn active" data-category="all">All ({tools.length})</button>
+      {toolCategories.map((cat) => {
+        const count = tools.filter((t) => t.category === cat).length;
+        const slug = categorySlugs[cat] || cat.toLowerCase().replace(/\s+/g, '-');
+        return (
+          <a href={`/tools/${slug}`} class="badge-neutral filter-link transition-colors hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 dark:hover:text-brand-300">
+            {cat} ({count})
+          </a>
+        );
+      })}
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xs:grid-cols-1" id="tools-grid">
+      {tools.map((tool) => (
+        <div class="tool-item" data-category={tool.category}>
+          <ToolCard tool={tool} />
+        </div>
+      ))}
+    </div>
+
+    <div class="ad-slot mt-8">
+      <span>Advertisement</span>
+    </div>
+
+    <FAQ />
+
+    <CTA
+      title="Can't find what you need?"
+      description="We're always adding new tools. Let us know what you'd like to see next."
+      buttonText="Request a Tool"
+      buttonHref="/contact"
+    />
+  </div>
+
+  <script is:inline>
+    (function () {
+      var filterBtns = document.querySelectorAll('.filter-btn');
+      var toolItems = document.querySelectorAll('.tool-item');
+
+      filterBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var category = btn.getAttribute('data-category');
+
+          filterBtns.forEach(function (b) {
+            b.classList.remove('active', 'badge-brand');
+            b.classList.add('badge-neutral');
+          });
+          btn.classList.remove('badge-neutral');
+          btn.classList.add('active', 'badge-brand');
+
+          toolItems.forEach(function (item) {
+            var itemCat = item.getAttribute('data-category');
+            if (category === 'all' || itemCat === category) {
+              item.style.display = '';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</BaseLayout>

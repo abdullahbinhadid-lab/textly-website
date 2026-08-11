@@ -1,0 +1,447 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="word-frequency-counter">
+  <div id="wfc-app" class="space-y-4">
+    <!-- Input Section -->
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <label for="wfc-input" class="text-body font-semibold">Your Text</label>
+        <div class="flex items-center gap-2">
+          <button id="wfc-paste" class="btn-ghost px-3 py-1.5 text-small" title="Paste from clipboard">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Paste
+          </button>
+          <button id="wfc-clear" class="btn-ghost px-3 py-1.5 text-small" title="Clear text (Ctrl+K)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <textarea id="wfc-input" class="tool-textarea min-h-[180px] xs:min-h-[140px]" placeholder="Paste any text here to count word frequencies, analyze character distribution, and find n-gram patterns..." aria-label="Text input for word frequency analysis"></textarea>
+
+      <!-- Options Bar -->
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <!-- Mode selector -->
+        <div class="flex items-center gap-2">
+          <span class="text-tiny font-semibold text-txt-muted">Mode:</span>
+          <div class="flex rounded-lg border border-border-light dark:border-border-dark overflow-hidden">
+            <button class="wfc-mode-btn active bg-brand-gradient text-white px-3 py-1.5 text-tiny font-semibold" data-mode="word">Words</button>
+            <button class="wfc-mode-btn text-txt-muted px-3 py-1.5 text-tiny font-semibold" data-mode="char">Chars</button>
+            <button class="wfc-mode-btn text-txt-muted px-3 py-1.5 text-tiny font-semibold" data-mode="bigram">Bigrams</button>
+            <button class="wfc-mode-btn text-txt-muted px-3 py-1.5 text-tiny font-semibold" data-mode="trigram">Trigrams</button>
+          </div>
+        </div>
+        <!-- Stop words toggle -->
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="wfc-stopwords" checked class="h-4 w-4 rounded accent-brand-500" />
+          <span class="text-tiny text-txt-muted">Exclude stop words</span>
+        </label>
+        <!-- Case sensitivity -->
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="wfc-case" class="h-4 w-4 rounded accent-brand-500" />
+          <span class="text-tiny text-txt-muted">Case sensitive</span>
+        </label>
+        <button id="wfc-analyze" class="btn-primary ml-auto px-5 py-2.5 text-small" title="Analyze (Ctrl+Enter)">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+          Analyze
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="wfc-empty" class="flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center px-4">
+        <div class="mb-4 flex justify-center">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+          </div>
+        </div>
+        <p class="text-body font-semibold text-txt-light dark:text-txt-dark">Ready to Analyze</p>
+        <p class="mt-1 text-small text-txt-muted">Paste your text and click "Analyze" to see word frequency, character distribution, and n-gram patterns.</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="wfc-loading" class="hidden flex min-h-[200px] items-center justify-center rounded-2xl border border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center">
+        <div class="mb-4 flex justify-center">
+          <div class="h-12 w-12 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500 dark:border-brand-800 dark:border-t-brand-400"></div>
+        </div>
+        <p class="text-small text-txt-muted">Counting frequencies...</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="wfc-results" class="hidden space-y-4">
+      <!-- Summary Stats -->
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="card-glass p-3 text-center">
+          <div id="wfc-total" class="text-2xl font-bold text-brand-500">0</div>
+          <div id="wfc-total-label" class="text-tiny text-txt-muted mt-1">Total Words</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="wfc-unique" class="text-2xl font-bold text-accent-500">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Unique</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="wfc-diversity" class="text-2xl font-bold text-cyan-500">0%</div>
+          <div class="text-tiny text-txt-muted mt-1">Diversity</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="wfc-avg-freq" class="text-2xl font-bold text-brand-500">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Avg Frequency</div>
+        </div>
+      </div>
+
+      <!-- Search & Sort Bar -->
+      <div class="card-glass p-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="relative flex-1 min-w-[180px]">
+            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-txt-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="wfc-search" placeholder="Search for a specific word..." class="w-full rounded-xl border border-border-light bg-surface-light py-2 pl-9 pr-3 text-small dark:border-border-dark dark:bg-surface-dark" />
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-tiny text-txt-muted">Sort:</span>
+            <select id="wfc-sort" class="rounded-lg border border-border-light bg-surface-light px-2 py-1.5 text-tiny dark:border-border-dark dark:bg-surface-dark">
+              <option value="freq-desc">Most Frequent</option>
+              <option value="freq-asc">Least Frequent</option>
+              <option value="alpha-asc">A → Z</option>
+              <option value="alpha-desc">Z → A</option>
+              <option value="length-desc">Longest First</option>
+              <option value="length-asc">Shortest First</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-tiny text-txt-muted">Min freq:</span>
+            <input type="number" id="wfc-minfreq" value="1" min="1" class="w-16 rounded-lg border border-border-light bg-surface-light px-2 py-1.5 text-tiny dark:border-border-dark dark:bg-surface-dark" />
+          </div>
+          <button id="wfc-export" class="btn-secondary px-3 py-2 text-tiny" title="Export results">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Bar Chart -->
+      <div class="card-glass p-4 sm:p-6">
+        <h4 class="mb-4 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+          Top 30 — Visual Bar Chart
+        </h4>
+        <div id="wfc-chart" class="space-y-1.5"></div>
+      </div>
+
+      <!-- Frequency Table -->
+      <div class="card-glass p-4 sm:p-6">
+        <h4 class="mb-4 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          Frequency Table
+        </h4>
+        <div class="overflow-x-auto scrollbar-thin">
+          <table class="w-full text-small">
+            <thead>
+              <tr class="border-b border-border-light dark:border-border-dark">
+                <th class="py-2 pr-4 text-left font-semibold text-txt-muted">#</th>
+                <th class="py-2 pr-4 text-left font-semibold text-txt-muted">Word</th>
+                <th class="py-2 pr-4 text-right font-semibold text-txt-muted">Count</th>
+                <th class="py-2 pr-4 text-right font-semibold text-txt-muted">%</th>
+                <th class="py-2 pr-4 text-left font-semibold text-txt-muted">Visual</th>
+              </tr>
+            </thead>
+            <tbody id="wfc-table-body"></tbody>
+          </table>
+        </div>
+        <div id="wfc-no-results" class="hidden py-4 text-center text-small text-txt-muted">No words match your filters.</div>
+      </div>
+
+      <!-- Word Length Distribution -->
+      <div id="wfc-length-dist-section" class="card-glass p-4 sm:p-6">
+        <h4 class="mb-4 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+          Word Length Distribution
+        </h4>
+        <div id="wfc-length-dist" class="flex items-end gap-1 h-32"></div>
+      </div>
+    </div>
+  </div>
+
+  <ToolSections slug="word-frequency-counter" />
+</ToolLayout>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('wfc-input');
+  var analyzeBtn = document.getElementById('wfc-analyze');
+  var clearBtn = document.getElementById('wfc-clear');
+  var pasteBtn = document.getElementById('wfc-paste');
+  var exportBtn = document.getElementById('wfc-export');
+  var searchInput = document.getElementById('wfc-search');
+  var sortSelect = document.getElementById('wfc-sort');
+  var minFreqInput = document.getElementById('wfc-minfreq');
+  var emptyState = document.getElementById('wfc-empty');
+  var loadingState = document.getElementById('wfc-loading');
+  var resultsDiv = document.getElementById('wfc-results');
+  var lengthDistSection = document.getElementById('wfc-length-dist-section');
+
+  var stopWords = 'a about above after again against all am an and any are aren\'t as at be because been before being below between both but by can cannot could couldn\'t did didn\'t do does doesn\'t doing don\'t down during each few for from further had hadn\'t has hasn\'t have haven\'t having he her here hers herself him himself his how i if in into is isn\'t it its itself just ll let me more most my myself no nor not now of off on once only or other our ours ourselves out over own re s same shan\'t she should shouldn\'t so some such t than that the their theirs them themselves then there these they this those through to too under until up ve very was wasn\'t we were weren\'t what when where which while who whom why will with won\'t would wouldn\'t y you your yours yourself yourselves'.split(/\s+/);
+  var stopSet = {};
+  stopWords.forEach(function (w) { stopSet[w] = true; });
+
+  var mode = 'word';
+  var allEntries = [];
+  var totalItems = 0;
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function tokenize(text, caseSensitive) {
+    var raw = text.match(/\b[a-zA-Z0-9']+\b/g) || [];
+    return raw.map(function (w) { return caseSensitive ? w : w.toLowerCase(); });
+  }
+
+  function analyze() {
+    var text = input.value.trim();
+    if (!text) {
+      input.focus();
+      input.classList.add('border-red-400');
+      setTimeout(function () { input.classList.remove('border-red-400'); }, 1500);
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    resultsDiv.classList.add('hidden');
+    loadingState.classList.remove('hidden');
+    loadingState.classList.add('flex');
+
+    setTimeout(function () {
+      loadingState.classList.add('hidden');
+      loadingState.classList.remove('flex');
+      resultsDiv.classList.remove('hidden');
+
+      var caseSensitive = document.getElementById('wfc-case').checked;
+      var filterStop = document.getElementById('wfc-stopwords').checked;
+      var freq = {};
+
+      if (mode === 'char') {
+        var chars = caseSensitive ? text : text.toLowerCase();
+        chars = chars.replace(/[^a-z]/gi, '');
+        totalItems = chars.length;
+        for (var i = 0; i < chars.length; i++) {
+          var c = chars[i];
+          freq[c] = (freq[c] || 0) + 1;
+        }
+        lengthDistSection.classList.add('hidden');
+      } else {
+        var tokens = tokenize(text, caseSensitive);
+        var n = mode === 'bigram' ? 2 : mode === 'trigram' ? 3 : 1;
+
+        if (mode === 'word') {
+          totalItems = tokens.length;
+          tokens.forEach(function (w) {
+            if (filterStop && stopSet[w.toLowerCase()]) return;
+            freq[w] = (freq[w] || 0) + 1;
+          });
+        } else {
+          var grams = [];
+          for (var j = 0; j <= tokens.length - n; j++) {
+            var gram = tokens.slice(j, j + n).join(' ');
+            if (filterStop && tokens.slice(j, j + n).some(function (w) { return stopSet[w.toLowerCase()]; })) continue;
+            grams.push(gram);
+          }
+          totalItems = grams.length;
+          grams.forEach(function (g) { freq[g] = (freq[g] || 0) + 1; });
+        }
+
+        if (mode === 'word') {
+          lengthDistSection.classList.remove('hidden');
+          renderLengthDist(freq);
+        } else {
+          lengthDistSection.classList.add('hidden');
+        }
+      }
+
+      allEntries = Object.keys(freq).map(function (k) { return { word: k, count: freq[k] }; });
+      var unique = allEntries.length;
+      var diversity = totalItems > 0 ? Math.round((unique / totalItems) * 100) : 0;
+      var avgFreq = unique > 0 ? (totalItems / unique).toFixed(1) : 0;
+
+      var labels = { word: 'Total Words', char: 'Total Chars', bigram: 'Total Bigrams', trigram: 'Total Trigrams' };
+      document.getElementById('wfc-total').textContent = totalItems.toLocaleString();
+      document.getElementById('wfc-total-label').textContent = labels[mode];
+      document.getElementById('wfc-unique').textContent = unique.toLocaleString();
+      document.getElementById('wfc-diversity').textContent = diversity + '%';
+      document.getElementById('wfc-avg-freq').textContent = avgFreq;
+
+      renderResults();
+    }, 400);
+  }
+
+  function sortEntries(entries) {
+    var sort = sortSelect.value;
+    var sorted = entries.slice();
+    switch (sort) {
+      case 'freq-desc': sorted.sort(function (a, b) { return b.count - a.count; }); break;
+      case 'freq-asc': sorted.sort(function (a, b) { return a.count - b.count; }); break;
+      case 'alpha-asc': sorted.sort(function (a, b) { return a.word.localeCompare(b.word); }); break;
+      case 'alpha-desc': sorted.sort(function (a, b) { return b.word.localeCompare(a.word); }); break;
+      case 'length-desc': sorted.sort(function (a, b) { return b.word.length - a.word.length || b.count - a.count; }); break;
+      case 'length-asc': sorted.sort(function (a, b) { return a.word.length - b.word.length || b.count - a.count; }); break;
+    }
+    return sorted;
+  }
+
+  function renderResults() {
+    var search = searchInput.value.toLowerCase().trim();
+    var minFreq = parseInt(minFreqInput.value) || 1;
+    var filtered = allEntries.filter(function (e) {
+      return e.count >= minFreq && (!search || e.word.toLowerCase().indexOf(search) !== -1);
+    });
+    var sorted = sortEntries(filtered);
+
+    renderChart(sorted.slice(0, 30));
+    renderTable(sorted.slice(0, 200), filtered.length === 0);
+  }
+
+  function renderChart(entries) {
+    var el = document.getElementById('wfc-chart');
+    el.innerHTML = '';
+    if (entries.length === 0) {
+      el.innerHTML = '<p class="text-small text-txt-muted text-center py-4">No data to display.</p>';
+      return;
+    }
+    var maxCount = entries[0].count;
+    entries.forEach(function (e) {
+      var pct = (e.count / maxCount) * 100;
+      var row = document.createElement('div');
+      row.className = 'flex items-center gap-2';
+      row.innerHTML =
+        '<span class="w-28 shrink-0 truncate text-tiny font-medium" title="' + escapeHtml(e.word) + '">' + escapeHtml(e.word) + '</span>' +
+        '<div class="h-5 flex-1 overflow-hidden rounded-md bg-border-light/50 dark:bg-border-dark/50">' +
+        '<div class="h-full rounded-md bg-brand-gradient transition-all duration-700" style="width:' + pct + '%"></div></div>' +
+        '<span class="w-10 shrink-0 text-right text-tiny font-semibold text-brand-500">' + e.count + '</span>';
+      el.appendChild(row);
+    });
+  }
+
+  function renderTable(entries, noResults) {
+    var tbody = document.getElementById('wfc-table-body');
+    var noResultsEl = document.getElementById('wfc-no-results');
+    tbody.innerHTML = '';
+    if (noResults) {
+      noResultsEl.classList.remove('hidden');
+      return;
+    }
+    noResultsEl.classList.add('hidden');
+    var maxCount = entries.length > 0 ? entries[0].count : 1;
+    entries.forEach(function (e, i) {
+      var pct = ((e.count / totalItems) * 100).toFixed(2);
+      var barPct = (e.count / maxCount) * 100;
+      var tr = document.createElement('tr');
+      tr.className = 'border-b border-border-light/50 dark:border-border-dark/50 transition-colors hover:bg-brand-50/50 dark:hover:bg-brand-900/10';
+      tr.innerHTML =
+        '<td class="py-2 pr-4 text-tiny text-txt-muted">' + (i + 1) + '</td>' +
+        '<td class="py-2 pr-4 font-medium">' + escapeHtml(e.word) + '</td>' +
+        '<td class="py-2 pr-4 text-right">' + e.count + '</td>' +
+        '<td class="py-2 pr-4 text-right font-semibold text-brand-500">' + pct + '%</td>' +
+        '<td class="py-2 pr-4"><div class="h-2 w-24 overflow-hidden rounded-full bg-border-light/50 dark:bg-border-dark/50"><div class="h-full rounded-full bg-brand-gradient" style="width:' + barPct + '%"></div></div></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderLengthDist(freq) {
+    var dist = {};
+    Object.keys(freq).forEach(function (w) {
+      var len = w.length;
+      dist[len] = (dist[len] || 0) + freq[w];
+    });
+    var maxLen = 15;
+    var maxCount = 0;
+    for (var i = 1; i <= maxLen; i++) {
+      if (dist[i] && dist[i] > maxCount) maxCount = dist[i];
+    }
+    var el = document.getElementById('wfc-length-dist');
+    el.innerHTML = '';
+    for (var len = 1; len <= maxLen; len++) {
+      var count = dist[len] || 0;
+      var h = maxCount > 0 ? (count / maxCount) * 100 : 0;
+      var col = document.createElement('div');
+      col.className = 'flex flex-1 flex-col items-center gap-1';
+      col.innerHTML =
+        '<span class="text-tiny font-semibold text-brand-500">' + (count > 0 ? count : '') + '</span>' +
+        '<div class="w-full rounded-t-md bg-brand-gradient transition-all duration-700" style="height:' + Math.max(2, h) + '%"></div>' +
+        '<span class="text-tiny text-txt-muted">' + len + '</span>';
+      el.appendChild(col);
+    }
+  }
+
+  function exportResults() {
+    if (allEntries.length === 0) return;
+    var format = 'csv';
+    var content = 'Word,Count,Percentage(%)\n';
+    var sorted = sortEntries(allEntries);
+    sorted.forEach(function (e) {
+      var pct = ((e.count / totalItems) * 100).toFixed(2);
+      content += '"' + e.word.replace(/"/g, '""') + '",' + e.count + ',' + pct + '\n';
+    });
+    var blob = new Blob([content], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'word-frequency.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  var modeBtns = document.querySelectorAll('.wfc-mode-btn');
+  modeBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      modeBtns.forEach(function (b) {
+        b.classList.remove('active', 'bg-brand-gradient', 'text-white');
+        b.classList.add('text-txt-muted');
+      });
+      this.classList.add('active', 'bg-brand-gradient', 'text-white');
+      this.classList.remove('text-txt-muted');
+      mode = this.getAttribute('data-mode');
+      if (input.value.trim()) analyze();
+    });
+  });
+
+  analyzeBtn.addEventListener('click', analyze);
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    resultsDiv.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    input.focus();
+  });
+  pasteBtn.addEventListener('click', function () {
+    navigator.clipboard.readText().then(function (text) {
+      input.value = text;
+      input.focus();
+    }).catch(function () { input.focus(); });
+  });
+  exportBtn.addEventListener('click', exportResults);
+  searchInput.addEventListener('input', renderResults);
+  sortSelect.addEventListener('change', renderResults);
+  minFreqInput.addEventListener('input', renderResults);
+
+  ['wfc-stopwords', 'wfc-case'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', function () { if (input.value.trim()) analyze(); });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      analyze();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      clearBtn.click();
+    }
+  });
+})();
+</script>

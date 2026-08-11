@@ -1,0 +1,545 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="privacy-policy-scanner">
+  <div id="pps-app" class="space-y-4">
+    <!-- Input Section -->
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <label for="pps-input" class="text-body font-semibold">Privacy Policy Text</label>
+        <div class="flex items-center gap-2">
+          <button id="pps-paste" class="btn-ghost px-3 py-1.5 text-small" title="Paste from clipboard (Ctrl+V)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Paste
+          </button>
+          <button id="pps-clear" class="btn-ghost px-3 py-1.5 text-small" title="Clear text (Ctrl+K)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <textarea id="pps-input" class="tool-textarea min-h-[200px] xs:min-h-[160px]" placeholder="Paste your privacy policy text here..." aria-label="Privacy policy text input"></textarea>
+      <div class="mt-3 flex items-center justify-between gap-2">
+        <span id="pps-char-count" class="text-tiny text-txt-muted">0 characters</span>
+        <button id="pps-scan" class="btn-primary px-6 py-3 text-body" title="Scan compliance (Ctrl+Enter)">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          Scan Compliance
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="pps-empty" class="flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center px-4">
+        <div class="mb-4 flex justify-center">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+        </div>
+        <p class="text-body font-semibold text-txt-light dark:text-txt-dark">Ready to Scan</p>
+        <p class="mt-1 text-small text-txt-muted">Paste your privacy policy and click "Scan Compliance" to check GDPR, CCPA, and COPPA coverage.</p>
+        <div class="mt-4 flex flex-wrap justify-center gap-2">
+          <span class="badge-brand">GDPR</span>
+          <span class="badge-accent">CCPA</span>
+          <span class="badge-neutral">COPPA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="pps-loading" class="hidden flex min-h-[200px] items-center justify-center rounded-2xl border border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center">
+        <div class="mb-4 flex justify-center">
+          <div class="h-12 w-12 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500 dark:border-brand-800 dark:border-t-brand-400"></div>
+        </div>
+        <p class="text-small text-txt-muted">Scanning compliance...</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="pps-results" class="hidden space-y-4">
+      <!-- Compliance Score -->
+      <div class="card-glass p-4 sm:p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h3 class="text-h4 font-bold">Compliance Score</h3>
+          <button id="pps-export" class="btn-secondary px-3 py-1.5 text-small" title="Export report">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            Export Report
+          </button>
+        </div>
+        <div class="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+          <div class="relative flex h-32 w-32 shrink-0 items-center justify-center">
+            <svg class="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="10" class="text-border-light dark:text-border-dark" />
+              <circle id="pps-score-arc" cx="60" cy="60" r="52" fill="none" stroke="url(#pps-grad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition: stroke-dashoffset 1s ease-in-out" />
+              <defs>
+                <linearGradient id="pps-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7c3aed" />
+                  <stop offset="100%" stop-color="#06b6d4" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="absolute flex flex-col items-center">
+              <span id="pps-score-num" class="text-3xl font-bold text-gradient">0</span>
+              <span class="text-tiny text-txt-muted">/ 100</span>
+            </div>
+          </div>
+          <div class="flex-1 space-y-2">
+            <div id="pps-score-label" class="text-body font-semibold"></div>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="rounded-xl border border-border-light p-3 text-center dark:border-border-dark">
+                <div id="pps-gdpr-score" class="text-h4 font-bold text-brand-500">0%</div>
+                <div class="text-tiny text-txt-muted mt-1">GDPR</div>
+              </div>
+              <div class="rounded-xl border border-border-light p-3 text-center dark:border-border-dark">
+                <div id="pps-ccpa-score" class="text-h4 font-bold text-accent-500">0%</div>
+                <div class="text-tiny text-txt-muted mt-1">CCPA</div>
+              </div>
+              <div class="rounded-xl border border-border-light p-3 text-center dark:border-border-dark">
+                <div id="pps-coppa-score" class="text-h4 font-bold text-cyan-500">0%</div>
+                <div class="text-tiny text-txt-muted mt-1">COPPA</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regulation Details -->
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div class="card-glass p-4">
+          <div class="mb-3 flex items-center gap-2">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <h4 class="text-body font-semibold">GDPR</h4>
+          </div>
+          <ul id="pps-gdpr-list" class="space-y-1.5 text-small"></ul>
+        </div>
+        <div class="card-glass p-4">
+          <div class="mb-3 flex items-center gap-2">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <h4 class="text-body font-semibold">CCPA</h4>
+          </div>
+          <ul id="pps-ccpa-list" class="space-y-1.5 text-small"></ul>
+        </div>
+        <div class="card-glass p-4">
+          <div class="mb-3 flex items-center gap-2">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            </span>
+            <h4 class="text-body font-semibold">COPPA</h4>
+          </div>
+          <ul id="pps-coppa-list" class="space-y-1.5 text-small"></ul>
+        </div>
+      </div>
+
+      <!-- Data Collection & User Rights -->
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div class="card-glass p-4">
+          <h4 class="mb-3 text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+            Data Collection Inventory
+          </h4>
+          <div id="pps-data-types" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div class="card-glass p-4">
+          <h4 class="mb-3 text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-10 10.01-3-3"/></svg>
+            User Rights Summary
+          </h4>
+          <div id="pps-user-rights" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+
+      <!-- Third-Party Sharing -->
+      <div class="card-glass p-4">
+        <h4 class="mb-3 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+          Third-Party Sharing Analysis
+        </h4>
+        <div id="pps-third-party" class="text-small text-txt-muted"></div>
+      </div>
+
+      <!-- Readability -->
+      <div class="card-glass p-4">
+        <h4 class="mb-3 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 5v13a2 2 0 0 0 2 2h5V7a2 2 0 0 0-2-2H3z"/><path d="M21 5v13a2 2 0 0 1-2 2h-5V7a2 2 0 0 1 2-2h5z"/></svg>
+          Readability Assessment
+        </h4>
+        <div id="pps-readability" class="text-small"></div>
+      </div>
+
+      <!-- Highlighted Text -->
+      <div class="card-glass p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <h4 class="text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            Highlighted Text
+          </h4>
+          <button id="pps-toggle-highlight" class="btn-ghost px-3 py-1.5 text-small">Toggle Highlight</button>
+        </div>
+        <div id="pps-highlighted" class="max-h-[300px] overflow-y-auto scrollbar-thin rounded-xl bg-surface-light-alt/50 p-3 text-small leading-relaxed dark:bg-surface-dark-alt/50"></div>
+      </div>
+    </div>
+  </div>
+
+  <ToolSections slug="privacy-policy-scanner" />
+</ToolLayout>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('pps-input');
+  var scanBtn = document.getElementById('pps-scan');
+  var clearBtn = document.getElementById('pps-clear');
+  var pasteBtn = document.getElementById('pps-paste');
+  var exportBtn = document.getElementById('pps-export');
+  var emptyState = document.getElementById('pps-empty');
+  var loadingState = document.getElementById('pps-loading');
+  var resultsDiv = document.getElementById('pps-results');
+  var charCount = document.getElementById('pps-char-count');
+  var highlightToggle = document.getElementById('pps-toggle-highlight');
+  var highlightedDiv = document.getElementById('pps-highlighted');
+  var showHighlight = true;
+
+  var gdprChecks = [
+    { keywords: ['consent', 'agree', 'permission'], label: 'Consent mechanism' },
+    { keywords: ['right to access', 'access your data', 'data access'], label: 'Right to access' },
+    { keywords: ['right to erasure', 'right to be forgotten', 'deletion', 'delete your data'], label: 'Right to erasure' },
+    { keywords: ['right to rectification', 'correct', 'amend'], label: 'Right to rectification' },
+    { keywords: ['data portability', 'portable'], label: 'Data portability' },
+    { keywords: ['right to object', 'object to processing'], label: 'Right to object' },
+    { keywords: ['lawful basis', 'legal basis', 'legitimate interest'], label: 'Lawful basis for processing' },
+    { keywords: ['data retention', 'retain', 'how long we keep', 'storage period'], label: 'Data retention policy' },
+    { keywords: ['data protection officer', 'DPO'], label: 'Data Protection Officer' },
+    { keywords: ['automated decision', 'profiling'], label: 'Automated decision-making disclosure' },
+  ];
+
+  var ccpaChecks = [
+    { keywords: ['right to know', 'know what', 'categories of personal'], label: 'Right to know' },
+    { keywords: ['right to delete', 'delete your', 'request deletion'], label: 'Right to delete' },
+    { keywords: ['opt-out', 'opt out', 'do not sell', 'sale of personal'], label: 'Right to opt-out of sale' },
+    { keywords: ['non-discrimination', 'not discriminate', 'equal service'], label: 'Non-discrimination' },
+    { keywords: ['categories of personal information', 'categories of data'], label: 'Categories of personal info' },
+    { keywords: ['sources of personal information', 'sources of data'], label: 'Sources of personal info' },
+    { keywords: ['business purpose', 'commercial purpose'], label: 'Business purpose disclosure' },
+    { keywords: ['notice at collection', 'collection notice'], label: 'Notice at collection' },
+    { keywords: ['authorized agent', 'agent'], label: 'Authorized agent' },
+    { keywords: ['financial incentive', 'price or service difference'], label: 'Financial incentive disclosure' },
+  ];
+
+  var coppaChecks = [
+    { keywords: ['under 13', 'children under', 'child', 'minor'], label: 'Children under 13 provision' },
+    { keywords: ['parental consent', 'verifiable parental', 'parent or guardian'], label: 'Parental consent mechanism' },
+    { keywords: ['parental access', 'parent review', 'parent right'], label: 'Parental access rights' },
+    { keywords: ['post information', 'post content', 'publicly visible'], label: 'Public posting disclosure' },
+    { keywords: ['reasonable means', 'age verification'], label: 'Age verification method' },
+    { keywords: ['delete child', 'remove child data'], label: 'Right to delete children\'s data' },
+  ];
+
+  var dataTypes = [
+    'name', 'email', 'phone', 'address', 'ip address', 'location', 'geolocation',
+    'device', 'browser', 'cookie', 'pixel', 'tracking', 'identifier',
+    'payment', 'credit card', 'billing', 'financial', 'purchase',
+    'demographic', 'age', 'gender', 'date of birth', 'birthday',
+    'photo', 'image', 'profile picture', 'social media',
+    'health', 'medical', 'biometric', 'genetic',
+    'browsing', 'search history', 'usage data', 'log data',
+    'sms', 'message', 'communication', 'contact list',
+  ];
+
+  var userRights = [
+    'access', 'delete', 'deletion', 'correct', 'rectification', 'amend',
+    'portability', 'object', 'opt-out', 'opt out', 'withdraw consent',
+    'restrict', 'restriction', 'complain', 'lodge a complaint',
+  ];
+
+  var thirdPartyKeywords = [
+    'third party', 'third-party', 'service provider', 'partner', 'affiliate',
+    'advertiser', 'advertising', 'analytics', 'google analytics', 'facebook',
+    'share with', 'disclose to', 'sell to', 'transfer to',
+  ];
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function countSyllables(word) {
+    word = word.toLowerCase().replace(/[^a-z]/g, '');
+    if (word.length <= 3) return 1;
+    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+    word = word.replace(/^y/, '');
+    var matches = word.match(/[aeiouy]{1,2}/g);
+    return matches ? matches.length : 1;
+  }
+
+  function fleschReadingEase(text) {
+    var sentences = text.split(/[.!?]+/).filter(function (s) { return s.trim().length > 0; });
+    var words = text.match(/\b\w+\b/g) || [];
+    if (sentences.length === 0 || words.length === 0) return 0;
+    var syllables = words.reduce(function (acc, w) { return acc + countSyllables(w); }, 0);
+    return 206.835 - 1.015 * (words.length / sentences.length) - 84.6 * (syllables / words.length);
+  }
+
+  function easeLabel(score) {
+    if (score >= 90) return 'Very Easy (5th grade)';
+    if (score >= 80) return 'Easy (6th grade)';
+    if (score >= 70) return 'Fairly Easy (7th grade)';
+    if (score >= 60) return 'Standard (8th–9th grade)';
+    if (score >= 50) return 'Fairly Difficult (10th–12th grade)';
+    if (score >= 30) return 'Difficult (College)';
+    return 'Very Confusing (Graduate)';
+  }
+
+  function checkRegulation(text, checks) {
+    var lower = text.toLowerCase();
+    var found = [];
+    var missing = [];
+    checks.forEach(function (c) {
+      var isFound = c.keywords.some(function (kw) { return lower.indexOf(kw) !== -1; });
+      if (isFound) { found.push(c.label); }
+      else { missing.push(c.label); }
+    });
+    return { found: found, missing: missing, score: Math.round((found.length / checks.length) * 100) };
+  }
+
+  function extractDataTypes(text) {
+    var lower = text.toLowerCase();
+    var found = [];
+    dataTypes.forEach(function (dt) {
+      if (lower.indexOf(dt) !== -1 && found.indexOf(dt) === -1) found.push(dt);
+    });
+    return found;
+  }
+
+  function extractUserRights(text) {
+    var lower = text.toLowerCase();
+    var found = [];
+    userRights.forEach(function (r) {
+      if (lower.indexOf(r) !== -1) {
+        var label = r.charAt(0).toUpperCase() + r.slice(1);
+        if (found.indexOf(label) === -1) found.push(label);
+      }
+    });
+    return found;
+  }
+
+  function extractThirdParty(text) {
+    var lower = text.toLowerCase();
+    var found = [];
+    thirdPartyKeywords.forEach(function (kw) {
+      if (lower.indexOf(kw) !== -1 && found.indexOf(kw) === -1) found.push(kw);
+    });
+    return found;
+  }
+
+  function highlightText(text) {
+    var allKeywords = ['consent', 'gdpr', 'ccpa', 'coppa', 'right to access', 'right to delete',
+      'right to erasure', 'data portability', 'opt-out', 'do not sell', 'cookie', 'tracking',
+      'third party', 'third-party', 'children', 'under 13', 'parental consent',
+      'data retention', 'lawful basis', 'data protection officer'];
+    var html = escapeHtml(text);
+    allKeywords.forEach(function (kw) {
+      var re = new RegExp('(' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      html = html.replace(re, '<mark class="rounded px-1 bg-brand-200/60 text-brand-800 dark:bg-brand-800/40 dark:text-brand-200">$1</mark>');
+    });
+    return html;
+  }
+
+  function renderList(el, found, missing) {
+    el.innerHTML = '';
+    found.forEach(function (item) {
+      var li = document.createElement('li');
+      li.className = 'flex items-start gap-2 text-txt-light dark:text-txt-dark';
+      li.innerHTML = '<svg class="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>' + escapeHtml(item) + '</span>';
+      el.appendChild(li);
+    });
+    missing.forEach(function (item) {
+      var li = document.createElement('li');
+      li.className = 'flex items-start gap-2 text-txt-muted';
+      li.innerHTML = '<svg class="mt-0.5 h-4 w-4 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span>' + escapeHtml(item) + '</span>';
+      el.appendChild(li);
+    });
+  }
+
+  function renderTags(el, items, badgeClass) {
+    el.innerHTML = '';
+    if (items.length === 0) {
+      el.innerHTML = '<span class="text-small text-txt-muted">None detected</span>';
+      return;
+    }
+    items.forEach(function (item) {
+      var tag = document.createElement('span');
+      tag.className = badgeClass;
+      tag.textContent = item;
+      el.appendChild(tag);
+    });
+  }
+
+  function animateScore(el, target) {
+    var current = 0;
+    var step = Math.max(1, Math.ceil(target / 30));
+    var timer = setInterval(function () {
+      current += step;
+      if (current >= target) { current = target; clearInterval(timer); }
+      el.textContent = current;
+    }, 30);
+  }
+
+  function performScan() {
+    var text = input.value.trim();
+    if (!text) {
+      input.focus();
+      input.classList.add('border-red-400');
+      setTimeout(function () { input.classList.remove('border-red-400'); }, 1500);
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    resultsDiv.classList.add('hidden');
+    loadingState.classList.remove('hidden');
+    loadingState.classList.add('flex');
+
+    setTimeout(function () {
+      loadingState.classList.add('hidden');
+      loadingState.classList.remove('flex');
+      resultsDiv.classList.remove('hidden');
+
+      var gdpr = checkRegulation(text, gdprChecks);
+      var ccpa = checkRegulation(text, ccpaChecks);
+      var coppa = checkRegulation(text, coppaChecks);
+      var overall = Math.round((gdpr.score + ccpa.score + coppa.score) / 3);
+
+      animateScore(document.getElementById('pps-score-num'), overall);
+      var arc = document.getElementById('pps-score-arc');
+      arc.style.strokeDashoffset = 326.7 - (326.7 * overall / 100);
+
+      var scoreLabel = document.getElementById('pps-score-label');
+      if (overall >= 80) { scoreLabel.innerHTML = '<span class="text-green-600 dark:text-green-400">Excellent compliance coverage</span>'; }
+      else if (overall >= 60) { scoreLabel.innerHTML = '<span class="text-yellow-600 dark:text-yellow-400">Good coverage — some gaps to address</span>'; }
+      else if (overall >= 40) { scoreLabel.innerHTML = '<span class="text-orange-600 dark:text-orange-400">Moderate — several important clauses missing</span>'; }
+      else { scoreLabel.innerHTML = '<span class="text-red-600 dark:text-red-400">Poor — major compliance gaps detected</span>'; }
+
+      document.getElementById('pps-gdpr-score').textContent = gdpr.score + '%';
+      document.getElementById('pps-ccpa-score').textContent = ccpa.score + '%';
+      document.getElementById('pps-coppa-score').textContent = coppa.score + '%';
+
+      renderList(document.getElementById('pps-gdpr-list'), gdpr.found, gdpr.missing);
+      renderList(document.getElementById('pps-ccpa-list'), ccpa.found, ccpa.missing);
+      renderList(document.getElementById('pps-coppa-list'), coppa.found, coppa.missing);
+
+      var dt = extractDataTypes(text);
+      renderTags(document.getElementById('pps-data-types'), dt, 'badge-neutral');
+
+      var rights = extractUserRights(text);
+      renderTags(document.getElementById('pps-user-rights'), rights, 'badge-brand');
+
+      var tp = extractThirdParty(text);
+      var tpEl = document.getElementById('pps-third-party');
+      if (tp.length > 0) {
+        tpEl.innerHTML = '<p class="mb-2 text-txt-light dark:text-txt-dark">Detected third-party sharing references:</p>';
+        var tpTags = document.createElement('div');
+        tpTags.className = 'flex flex-wrap gap-2';
+        tp.forEach(function (kw) {
+          var tag = document.createElement('span');
+          tag.className = 'badge-accent';
+          tag.textContent = kw;
+          tpTags.appendChild(tag);
+        });
+        tpEl.appendChild(tpTags);
+      } else {
+        tpEl.textContent = 'No third-party sharing references detected.';
+      }
+
+      var ease = fleschReadingEase(text);
+      var easeEl = document.getElementById('pps-readability');
+      var easeColor = ease >= 60 ? 'text-green-500' : ease >= 40 ? 'text-yellow-500' : 'text-red-500';
+      easeEl.innerHTML = '<div class="flex items-center gap-3"><span class="text-2xl font-bold ' + easeColor + '">' + Math.round(ease) + '</span><div><div class="font-semibold ' + easeColor + '">' + easeLabel(ease) + '</div><div class="text-tiny text-txt-muted">Flesch Reading Ease — privacy policies should aim for 60+ for general audience readability.</div></div></div>';
+
+      highlightedDiv.innerHTML = showHighlight ? highlightText(text) : escapeHtml(text);
+    }, 600);
+  }
+
+  function exportReport() {
+    var text = input.value.trim();
+    if (!text) return;
+    var gdpr = checkRegulation(text, gdprChecks);
+    var ccpa = checkRegulation(text, ccpaChecks);
+    var coppa = checkRegulation(text, coppaChecks);
+    var overall = Math.round((gdpr.score + ccpa.score + coppa.score) / 3);
+    var dt = extractDataTypes(text);
+    var rights = extractUserRights(text);
+    var tp = extractThirdParty(text);
+    var ease = fleschReadingEase(text);
+
+    var report = 'PRIVACY POLICY COMPLIANCE REPORT\n';
+    report += 'Generated: ' + new Date().toLocaleString() + '\n';
+    report += '========================================\n\n';
+    report += 'OVERALL SCORE: ' + overall + '/100\n\n';
+    report += 'GDPR Score: ' + gdpr.score + '%\n';
+    report += '  Found: ' + gdpr.found.join(', ') + '\n';
+    report += '  Missing: ' + gdpr.missing.join(', ') + '\n\n';
+    report += 'CCPA Score: ' + ccpa.score + '%\n';
+    report += '  Found: ' + ccpa.found.join(', ') + '\n';
+    report += '  Missing: ' + ccpa.missing.join(', ') + '\n\n';
+    report += 'COPPA Score: ' + coppa.score + '%\n';
+    report += '  Found: ' + coppa.found.join(', ') + '\n';
+    report += '  Missing: ' + coppa.missing.join(', ') + '\n\n';
+    report += 'Data Types Collected: ' + dt.join(', ') + '\n\n';
+    report += 'User Rights Mentioned: ' + rights.join(', ') + '\n\n';
+    report += 'Third-Party Sharing: ' + tp.join(', ') + '\n\n';
+    report += 'Readability (Flesch): ' + Math.round(ease) + ' — ' + easeLabel(ease) + '\n';
+
+    var blob = new Blob([report], { type: 'text/plain' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'compliance-report.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  input.addEventListener('input', function () {
+    charCount.textContent = input.value.length.toLocaleString() + ' characters';
+  });
+
+  scanBtn.addEventListener('click', performScan);
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    charCount.textContent = '0 characters';
+    resultsDiv.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    input.focus();
+  });
+  pasteBtn.addEventListener('click', function () {
+    navigator.clipboard.readText().then(function (text) {
+      input.value = text;
+      charCount.textContent = text.length.toLocaleString() + ' characters';
+      input.focus();
+    }).catch(function () { input.focus(); });
+  });
+  exportBtn.addEventListener('click', exportReport);
+  highlightToggle.addEventListener('click', function () {
+    showHighlight = !showHighlight;
+    var text = input.value.trim();
+    if (text) {
+      highlightedDiv.innerHTML = showHighlight ? highlightText(text) : escapeHtml(text);
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      performScan();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      clearBtn.click();
+    }
+  });
+})();
+</script>

@@ -1,0 +1,502 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="readability-checker">
+  <div id="rc-app" class="space-y-4">
+    <!-- Input Section -->
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <label for="rc-input" class="text-body font-semibold">Your Text</label>
+        <div class="flex items-center gap-2">
+          <button id="rc-paste" class="btn-ghost px-3 py-1.5 text-small" title="Paste from clipboard">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Paste
+          </button>
+          <button id="rc-clear" class="btn-ghost px-3 py-1.5 text-small" title="Clear text (Ctrl+K)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <textarea id="rc-input" class="tool-textarea min-h-[200px] xs:min-h-[160px]" placeholder="Paste or type your text here to analyze readability..." aria-label="Text input for readability analysis"></textarea>
+      <div class="mt-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-3 text-tiny text-txt-muted">
+          <span id="rc-word-count">0 words</span>
+          <span id="rc-sentence-count">0 sentences</span>
+        </div>
+        <button id="rc-analyze" class="btn-primary px-6 py-3 text-body" title="Analyze readability (Ctrl+Enter)">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="m12 14 4 4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+          Analyze Readability
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="rc-empty" class="flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center px-4">
+        <div class="mb-4 flex justify-center">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="m12 14 4 4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+          </div>
+        </div>
+        <p class="text-body font-semibold text-txt-light dark:text-txt-dark">Ready to Analyze</p>
+        <p class="mt-1 text-small text-txt-muted">Paste your text and click "Analyze Readability" to get 7 readability scores instantly.</p>
+        <div class="mt-4 flex flex-wrap justify-center gap-2">
+          <span class="badge-brand">Flesch Reading Ease</span>
+          <span class="badge-brand">Flesch-Kincaid</span>
+          <span class="badge-brand">Gunning Fog</span>
+          <span class="badge-brand">SMOG</span>
+          <span class="badge-brand">Coleman-Liau</span>
+          <span class="badge-brand">ARI</span>
+          <span class="badge-brand">Dale-Chall</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="rc-loading" class="hidden flex min-h-[200px] items-center justify-center rounded-2xl border border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center">
+        <div class="mb-4 flex justify-center">
+          <div class="h-12 w-12 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500 dark:border-brand-800 dark:border-t-brand-400"></div>
+        </div>
+        <p class="text-small text-txt-muted">Analyzing readability...</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="rc-results" class="hidden space-y-4">
+      <!-- Score Cards Grid -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Flesch Reading Ease -->
+        <div class="card-glass p-4 transition-all hover:shadow-medium">
+          <div class="mb-2 flex items-center justify-between">
+            <h4 class="text-small font-semibold">Flesch Reading Ease</h4>
+            <span id="rc-flesch-label" class="badge-neutral text-tiny"></span>
+          </div>
+          <div class="flex items-end gap-2">
+            <span id="rc-flesch-score" class="text-3xl font-bold text-gradient">0</span>
+            <span class="text-tiny text-txt-muted pb-1">/ 100</span>
+          </div>
+          <div class="mt-2 h-2 overflow-hidden rounded-full bg-border-light dark:bg-border-dark">
+            <div id="rc-flesch-bar" class="h-full rounded-full bg-brand-gradient transition-all duration-1000" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Flesch-Kincaid Grade -->
+        <div class="card-glass p-4 transition-all hover:shadow-medium">
+          <div class="mb-2 flex items-center justify-between">
+            <h4 class="text-small font-semibold">Flesch-Kincaid Grade</h4>
+            <span class="badge-neutral text-tiny">Grade Level</span>
+          </div>
+          <div class="flex items-end gap-2">
+            <span id="rc-fk-score" class="text-3xl font-bold text-gradient">0</span>
+            <span class="text-tiny text-txt-muted pb-1">grade</span>
+          </div>
+          <div class="mt-2 text-tiny text-txt-muted" id="rc-fk-desc"></div>
+        </div>
+
+        <!-- Gunning Fog -->
+        <div class="card-glass p-4 transition-all hover:shadow-medium">
+          <div class="mb-2 flex items-center justify-between">
+            <h4 class="text-small font-semibold">Gunning Fog Index</h4>
+            <span class="badge-neutral text-tiny">Grade Level</span>
+          </div>
+          <div class="flex items-end gap-2">
+            <span id="rc-fog-score" class="text-3xl font-bold text-gradient">0</span>
+            <span class="text-tiny text-txt-muted pb-1">years</span>
+          </div>
+          <div class="mt-2 text-tiny text-txt-muted" id="rc-fog-desc"></div>
+        </div>
+
+        <!-- SMOG Index -->
+        <div class="card-glass p-4 transition-all hover:shadow-medium">
+          <div class="mb-2 flex items-center justify-between">
+            <h4 class="text-small font-semibold">SMOG Index</h4>
+            <span class="badge-neutral text-tiny">Grade Level</span>
+          </div>
+          <div class="flex items-end gap-2">
+            <span id="rc-smog-score" class="text-3xl font-bold text-gradient">0</span>
+            <span class="text-tiny text-txt-muted pb-1">grade</span>
+          </div>
+          <div class="mt-2 text-tiny text-txt-muted" id="rc-smog-desc"></div>
+        </div>
+
+        <!-- Coleman-Liau -->
+        <div class="card-glass p-4 transition-all hover:shadow-medium">
+          <div class="mb-2 flex items-center justify-between">
+            <h4 class="text-small font-semibold">Coleman-Liau Index</h4>
+            <span class="badge-neutral text-tiny">Grade Level</span>
+          </div>
+          <div class="flex items-end gap-2">
+            <span id="rc-cl-score" class="text-3xl font-bold text-gradient">0</span>
+            <span class="text-tiny text-txt-muted pb-1">grade</span>
+          </div>
+          <div class="mt-2 text-tiny text-txt-muted" id="rc-cl-desc"></div>
+        </div>
+
+        <!-- ARI -->
+        <div class="card-glass p-4 transition-all hover:shadow-medium">
+          <div class="mb-2 flex items-center justify-between">
+            <h4 class="text-small font-semibold">Automated Readability</h4>
+            <span class="badge-neutral text-tiny">Grade Level</span>
+          </div>
+          <div class="flex items-end gap-2">
+            <span id="rc-ari-score" class="text-3xl font-bold text-gradient">0</span>
+            <span class="text-tiny text-txt-muted pb-1">grade</span>
+          </div>
+          <div class="mt-2 text-tiny text-txt-muted" id="rc-ari-desc"></div>
+        </div>
+      </div>
+
+      <!-- Dale-Chall Score -->
+      <div class="card-glass p-4 sm:p-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h4 class="text-body font-semibold">Dale-Chall Readability Score</h4>
+            <p class="mt-1 text-small text-txt-muted">Vocabulary-based readability using familiar words list</p>
+          </div>
+          <div class="flex items-end gap-2">
+            <span id="rc-dc-score" class="text-4xl font-bold text-gradient">0</span>
+            <span class="text-tiny text-txt-muted pb-2">grade: <span id="rc-dc-grade">0</span></span>
+          </div>
+        </div>
+        <div class="mt-3 text-small" id="rc-dc-desc"></div>
+      </div>
+
+      <!-- Grade Level Visualizer -->
+      <div class="card-glass p-4 sm:p-6">
+        <h4 class="mb-4 text-body font-semibold">Grade Level Visualizer</h4>
+        <div class="space-y-2" id="rc-grade-viz"></div>
+      </div>
+
+      <!-- Text Statistics -->
+      <div class="card-glass p-4 sm:p-6">
+        <h4 class="mb-4 text-body font-semibold">Text Statistics</h4>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div class="rounded-xl bg-surface-light-alt/50 p-3 text-center dark:bg-surface-dark-alt/50">
+            <div id="rc-stat-words" class="text-2xl font-bold text-brand-500">0</div>
+            <div class="text-tiny text-txt-muted mt-1">Words</div>
+          </div>
+          <div class="rounded-xl bg-surface-light-alt/50 p-3 text-center dark:bg-surface-dark-alt/50">
+            <div id="rc-stat-sentences" class="text-2xl font-bold text-brand-500">0</div>
+            <div class="text-tiny text-txt-muted mt-1">Sentences</div>
+          </div>
+          <div class="rounded-xl bg-surface-light-alt/50 p-3 text-center dark:bg-surface-dark-alt/50">
+            <div id="rc-stat-syllables" class="text-2xl font-bold text-brand-500">0</div>
+            <div class="text-tiny text-txt-muted mt-1">Syllables</div>
+          </div>
+          <div class="rounded-xl bg-surface-light-alt/50 p-3 text-center dark:bg-surface-dark-alt/50">
+            <div id="rc-stat-complex" class="text-2xl font-bold text-brand-500">0</div>
+            <div class="text-tiny text-txt-muted mt-1">Complex Words</div>
+          </div>
+          <div class="rounded-xl bg-surface-light-alt/50 p-3 text-center dark:bg-surface-dark-alt/50">
+            <div id="rc-stat-chars" class="text-2xl font-bold text-brand-500">0</div>
+            <div class="text-tiny text-txt-muted mt-1">Characters</div>
+          </div>
+          <div class="rounded-xl bg-surface-light-alt/50 p-3 text-center dark:bg-surface-dark-alt/50">
+            <div id="rc-stat-paragraphs" class="text-2xl font-bold text-brand-500">0</div>
+            <div class="text-tiny text-txt-muted mt-1">Paragraphs</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reading Time & Complexity -->
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div class="card-glass p-4 sm:p-6">
+          <h4 class="mb-4 text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Reading Time Estimate
+          </h4>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50">
+              <span class="text-small text-txt-muted">Slow (100 wpm)</span>
+              <span id="rc-time-slow" class="text-body font-semibold text-brand-500">0s</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50">
+              <span class="text-small text-txt-muted">Average (200 wpm)</span>
+              <span id="rc-time-avg" class="text-body font-semibold text-brand-500">0s</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50">
+              <span class="text-small text-txt-muted">Fast (300 wpm)</span>
+              <span id="rc-time-fast" class="text-body font-semibold text-brand-500">0s</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-glass p-4 sm:p-6">
+          <h4 class="mb-4 text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+            Sentence Complexity
+          </h4>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50">
+              <span class="text-small text-txt-muted">Avg words / sentence</span>
+              <span id="rc-avg-wps" class="text-body font-semibold text-accent-500">0</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50">
+              <span class="text-small text-txt-muted">Longest sentence</span>
+              <span id="rc-longest-sent" class="text-body font-semibold text-accent-500">0 words</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50">
+              <span class="text-small text-txt-muted">Complex word %</span>
+              <span id="rc-complex-pct" class="text-body font-semibold text-accent-500">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Improvement Suggestions -->
+      <div class="card-glass p-4 sm:p-6">
+        <h4 class="mb-4 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+          Improvement Suggestions
+        </h4>
+        <div id="rc-suggestions" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <ToolSections slug="readability-checker" />
+</ToolLayout>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('rc-input');
+  var analyzeBtn = document.getElementById('rc-analyze');
+  var clearBtn = document.getElementById('rc-clear');
+  var pasteBtn = document.getElementById('rc-paste');
+  var emptyState = document.getElementById('rc-empty');
+  var loadingState = document.getElementById('rc-loading');
+  var resultsDiv = document.getElementById('rc-results');
+  var wordCount = document.getElementById('rc-word-count');
+  var sentenceCount = document.getElementById('rc-sentence-count');
+
+  var daleChallEasyWords = 'a able about above accepted according account across act action active activity actual actually add address admit after again against age ago agree ahead air all allow almost alone along already also although always am among amount an and another answer any anyone anything appear apply area are aren\'t area areas aren\'t arm arms army around arrive arrived art as ask asked asking at away back bad be bear beat beautiful because become becomes bed been before began begin beginning behind being believed bell belong best better between beyond big body book books both bottom box boy boys bring brought build built busy but buy by call called came can cannot can\'t car care careful carefully carry case cases cause certain certainly change changed clear clearly close cloth clothes coat code cold college color come comes coming common community companies company complete completely condition conditions consider continued control cool copy correct cost could couldn\'t country course covered cry cut dance dark data day days dead dear death decide decided deep describe designed detail determined developed did didn\'t die different difficult directly distance do does doesn\'t dog dogs doing done don\'t door down draw drawn dress drink drive driven drop dropped dry due during each early east easy eat eaten edge education effect effort eight either else end ended english enough enter entire especially even evening ever every everyone everything example examples except exist expect expected experience eye eyes face fact facts fall family far farm farmers fast father fear feel feeling feet felt field fields fight figure fill filled final finally find fine fire first fish five flat floor flow flower flowers fly following food foot for force form forms forward found four free friend friends from front full fully fun function fun funny game garden general get gets give given gives glass go goes going gold gone good got government great green ground group groups grow grown guard guess guide gun had hair half hand hands happen happened happy hard has hat have having he head heard heart heat held help her here high hill him himself his history hit hold holding home hope horse horses hot hotel hour hours house how however human hundred idea ideas if important in included including increase increased indeed industry information inside instead interest interested interesting into is island issues it its itself job jobs join just keep kept key kill kind king knew know known knowledge land language large last late later laugh law laws lay lead learn learned least leave led left less let letter letters level life light like likely line lines list listen little live lived living long look looked looking loose lose loss lost lot love low lower made main major make makes making man many march mark market married matter may maybe me mean meant measure men might might mile miles mind mine minute minutes miss modern moment money month months moon more morning most mother mountain move moved movement much music must my name near need needed needs never new news next night nine no none nor north not nothing notice noticed now number numbers object objects observed of off offer offered office officers often oh oil old on once one only open opened opportunity order ordered other others our out outside over own page pages paid pair paper papers parents part parted parts passed past pattern pay people perhaps person picked picture piece pieces place placed plain plan plane planet plants play played point points police policy poor population position possible post power present president press pretty problem problems process produced program programs prove proved provide public pull pushed put question questions quite rain raised range rate rather reach read reader ready real really reason reasons received recent record red region remain remember remove removed report reported research rest result return returned rich right river road rock role room rooms round rule run running said same sat save saw say says school schools science sea season seat second see seem seemed self sell send sent sentence sentences set seven several shall she short shot should show shown side sides sight silver simple simply since sing sir sister sit sitting six size sky sleep slowly small smile snow so social society some someone something sometimes son song soon sort sound source south space speak special spent spoken sport spread spring square stand standard start started state states stay step steps still stone stood stop stopped store story straight street streets strong structure study stuff style subject such suddenly summer sun super support sure surface system table take taken talk talked tall taught tell terms test than thank that the their them then there these they thing things think this those though thought thousand three through throw thrown time times tiny tip title to today together told tomorrow too took top toward town trade tree trees tried trouble true trust try trying turn turned twelve twenty two type types under understand unit until up upon us use used user users using usually valley very village voice vote walked wall want wanted warm was wasn\'t water way ways we wear week weeks well went were west western what when where whether which while white who whole whom whose why wide wife wild will wind window winter wish with within without woman women won wonder wonderful word words work worked workers world would write written wrong wrote year years yes yet young you your yours yourself youth zone';
+
+  var easyWordSet = {};
+  daleChallEasyWords.split(/\s+/).forEach(function (w) { easyWordSet[w.toLowerCase()] = true; });
+
+  function countSyllables(word) {
+    word = word.toLowerCase().replace(/[^a-z]/g, '');
+    if (word.length <= 3) return 1;
+    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+    word = word.replace(/^y/, '');
+    var matches = word.match(/[aeiouy]{1,2}/g);
+    return matches ? matches.length : 1;
+  }
+
+  function isComplex(word) {
+    return countSyllables(word) >= 3;
+  }
+
+  function easeLabel(score) {
+    if (score >= 90) return 'Very Easy';
+    if (score >= 80) return 'Easy';
+    if (score >= 70) return 'Fairly Easy';
+    if (score >= 60) return 'Standard';
+    if (score >= 50) return 'Fairly Difficult';
+    if (score >= 30) return 'Difficult';
+    return 'Very Confusing';
+  }
+
+  function gradeDesc(grade) {
+    if (grade <= 6) return 'Elementary school level';
+    if (grade <= 8) return 'Middle school level';
+    if (grade <= 12) return 'High school level';
+    if (grade <= 16) return 'College level';
+    return 'Graduate / Professional level';
+  }
+
+  function formatTime(seconds) {
+    if (seconds < 60) return Math.round(seconds) + 's';
+    var m = Math.floor(seconds / 60);
+    var s = Math.round(seconds % 60);
+    return m + 'm ' + s + 's';
+  }
+
+  function animateNum(el, target, decimals) {
+    var current = 0;
+    var step = target / 30;
+    var timer = setInterval(function () {
+      current += step;
+      if (current >= target) { current = target; clearInterval(timer); }
+      el.textContent = decimals ? current.toFixed(decimals) : Math.round(current);
+    }, 25);
+  }
+
+  function performAnalysis() {
+    var text = input.value.trim();
+    if (!text) {
+      input.focus();
+      input.classList.add('border-red-400');
+      setTimeout(function () { input.classList.remove('border-red-400'); }, 1500);
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    resultsDiv.classList.add('hidden');
+    loadingState.classList.remove('hidden');
+    loadingState.classList.add('flex');
+
+    setTimeout(function () {
+      loadingState.classList.add('hidden');
+      loadingState.classList.remove('flex');
+      resultsDiv.classList.remove('hidden');
+
+      var sentences = text.split(/[.!?]+/).filter(function (s) { return s.trim().length > 0; });
+      var words = text.match(/\b\w+\b/g) || [];
+      var paragraphs = text.split(/\n\s*\n/).filter(function (p) { return p.trim().length > 0; });
+      var chars = text.replace(/\s/g, '').length;
+      var syllables = words.reduce(function (acc, w) { return acc + countSyllables(w); }, 0);
+      var complexWords = words.filter(isComplex);
+      var sentLengths = sentences.map(function (s) { return (s.match(/\b\w+\b/g) || []).length; });
+      var avgWps = words.length / sentences.length;
+      var longestSent = Math.max.apply(null, sentLengths.concat([0]));
+      var complexPct = Math.round((complexWords.length / words.length) * 100);
+
+      var flesch = 206.835 - 1.015 * avgWps - 84.6 * (syllables / words.length);
+      var fk = 0.39 * avgWps + 11.8 * (syllables / words.length) - 15.59;
+      var fog = 0.4 * (avgWps + 100 * (complexWords.length / words.length));
+      var polysyllabic = words.filter(function (w) { return countSyllables(w) >= 3; }).length;
+      var smog = 1.043 * Math.sqrt(polysyllabic * (30 / sentences.length)) + 3.1291;
+      var cl = 0.0588 * (chars / words.length * 100) - 0.296 * (sentences.length / words.length * 100) - 15.8;
+      var ari = 4.71 * (chars / words.length) + 0.5 * avgWps - 21.43;
+      var unfamiliar = words.filter(function (w) { return !easyWordSet[w.toLowerCase()]; }).length;
+      var dc = 0.1579 * ((unfamiliar / words.length) * 100) + 0.0496 * avgWps;
+      var dcGrade = Math.max(0, dc);
+      if ((unfamiliar / words.length) > 0.05) dcGrade += 3.6365;
+
+      flesch = Math.max(0, Math.min(100, flesch));
+
+      animateNum(document.getElementById('rc-flesch-score'), Math.round(flesch), 0);
+      document.getElementById('rc-flesch-label').textContent = easeLabel(flesch);
+      document.getElementById('rc-flesch-bar').style.width = flesch + '%';
+
+      animateNum(document.getElementById('rc-fk-score'), Math.max(0, fk), 1);
+      document.getElementById('rc-fk-desc').textContent = gradeDesc(fk);
+
+      animateNum(document.getElementById('rc-fog-score'), Math.max(0, fog), 1);
+      document.getElementById('rc-fog-desc').textContent = gradeDesc(fog);
+
+      animateNum(document.getElementById('rc-smog-score'), Math.max(0, smog), 1);
+      document.getElementById('rc-smog-desc').textContent = gradeDesc(smog);
+
+      animateNum(document.getElementById('rc-cl-score'), Math.max(0, cl), 1);
+      document.getElementById('rc-cl-desc').textContent = gradeDesc(cl);
+
+      animateNum(document.getElementById('rc-ari-score'), Math.max(0, ari), 1);
+      document.getElementById('rc-ari-desc').textContent = gradeDesc(ari);
+
+      animateNum(document.getElementById('rc-dc-score'), Math.max(0, dc), 1);
+      document.getElementById('rc-dc-grade').textContent = Math.round(dcGrade);
+      document.getElementById('rc-dc-desc').innerHTML = '<span class="' + (dcGrade <= 8 ? 'text-green-500' : dcGrade <= 12 ? 'text-yellow-500' : 'text-red-500') + '">' + gradeDesc(dcGrade) + '</span>';
+
+      var grades = [
+        { name: 'Flesch-Kincaid', value: Math.max(0, fk) },
+        { name: 'Gunning Fog', value: Math.max(0, fog) },
+        { name: 'SMOG', value: Math.max(0, smog) },
+        { name: 'Coleman-Liau', value: Math.max(0, cl) },
+        { name: 'ARI', value: Math.max(0, ari) },
+        { name: 'Dale-Chall', value: dcGrade },
+      ];
+      var vizEl = document.getElementById('rc-grade-viz');
+      vizEl.innerHTML = '';
+      var maxGrade = 20;
+      grades.forEach(function (g) {
+        var pct = Math.min(100, (g.value / maxGrade) * 100);
+        var color = g.value <= 8 ? 'bg-green-500' : g.value <= 12 ? 'bg-yellow-500' : 'bg-red-500';
+        var row = document.createElement('div');
+        row.className = 'flex items-center gap-3';
+        row.innerHTML = '<span class="w-28 shrink-0 text-tiny text-txt-muted">' + g.name + '</span>' +
+          '<div class="h-3 flex-1 overflow-hidden rounded-full bg-border-light dark:bg-border-dark">' +
+          '<div class="h-full rounded-full ' + color + ' transition-all duration-1000" style="width:' + pct + '%"></div></div>' +
+          '<span class="w-12 shrink-0 text-right text-small font-semibold">' + g.value.toFixed(1) + '</span>';
+        vizEl.appendChild(row);
+      });
+
+      document.getElementById('rc-stat-words').textContent = words.length.toLocaleString();
+      document.getElementById('rc-stat-sentences').textContent = sentences.length.toLocaleString();
+      document.getElementById('rc-stat-syllables').textContent = syllables.toLocaleString();
+      document.getElementById('rc-stat-complex').textContent = complexWords.length.toLocaleString();
+      document.getElementById('rc-stat-chars').textContent = chars.toLocaleString();
+      document.getElementById('rc-stat-paragraphs').textContent = paragraphs.length.toLocaleString();
+
+      document.getElementById('rc-time-slow').textContent = formatTime(words.length / 100 * 60);
+      document.getElementById('rc-time-avg').textContent = formatTime(words.length / 200 * 60);
+      document.getElementById('rc-time-fast').textContent = formatTime(words.length / 300 * 60);
+
+      document.getElementById('rc-avg-wps').textContent = avgWps.toFixed(1);
+      document.getElementById('rc-longest-sent').textContent = longestSent + ' words';
+      document.getElementById('rc-complex-pct').textContent = complexPct + '%';
+
+      var suggestions = [];
+      if (avgWps > 20) suggestions.push({ icon: 'list', text: 'Your sentences are quite long (avg ' + avgWps.toFixed(1) + ' words). Try breaking them into shorter sentences for better readability.' });
+      if (complexPct > 15) suggestions.push({ icon: 'hash', text: 'Complex words make up ' + complexPct + '% of your text. Consider using simpler alternatives where possible.' });
+      if (flesch < 50) suggestions.push({ icon: 'book-open', text: 'Your Flesch Reading Ease score is ' + Math.round(flesch) + '. Aim for 60+ for general audience content.' });
+      if (fk > 12) suggestions.push({ icon: 'gauge', text: 'Your Flesch-Kincaid grade level is ' + fk.toFixed(1) + '. Most web content should target grade 7-8.' });
+      if (longestSent > 40) suggestions.push({ icon: 'alert', text: 'Your longest sentence has ' + longestSent + ' words. Consider splitting it for clarity.' });
+      if (suggestions.length === 0) suggestions.push({ icon: 'check-circle', text: 'Great job! Your text readability scores are within good ranges for general audience content.' });
+      if (suggestions.length < 3) {
+        if (sentences.length < 3) suggestions.push({ icon: 'info', text: 'Add more text for a more accurate readability analysis. Minimum 3+ sentences recommended.' });
+        if (paragraphs.length > 0 && words.length / paragraphs.length < 30) suggestions.push({ icon: 'pencil', text: 'Your paragraphs are short. Consider combining related ideas for better flow.' });
+      }
+
+      var suggEl = document.getElementById('rc-suggestions');
+      suggEl.innerHTML = '';
+      suggestions.forEach(function (s) {
+        var div = document.createElement('div');
+        div.className = 'flex items-start gap-3 rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50';
+        var iconSvg = {
+          'list': '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+          'hash': '<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
+          'book-open': '<path d="M12 7v14M3 5v13a2 2 0 0 0 2 2h5V7a2 2 0 0 0-2-2H3zM21 5v13a2 2 0 0 1-2 2h-5V7a2 2 0 0 1 2-2h5z"/>',
+          'gauge': '<path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 0 4 4M3.34 19a10 10 0 1 1 17.32 0"/>',
+          'alert': '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>',
+          'check-circle': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14m5.93 1.14-10 10.01-3-3"/>',
+          'info': '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+          'pencil': '<path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+        };
+        div.innerHTML = '<svg class="mt-0.5 h-5 w-5 shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">' + (iconSvg[s.icon] || iconSvg['info']) + '</svg><span class="text-small text-txt-light dark:text-txt-dark">' + s.text + '</span>';
+        suggEl.appendChild(div);
+      });
+    }, 500);
+  }
+
+  function updateCounts() {
+    var text = input.value;
+    var words = (text.match(/\b\w+\b/g) || []).length;
+    var sentences = text.split(/[.!?]+/).filter(function (s) { return s.trim().length > 0; }).length;
+    wordCount.textContent = words + ' words';
+    sentenceCount.textContent = sentences + ' sentences';
+  }
+
+  input.addEventListener('input', updateCounts);
+  analyzeBtn.addEventListener('click', performAnalysis);
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    updateCounts();
+    resultsDiv.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    input.focus();
+  });
+  pasteBtn.addEventListener('click', function () {
+    navigator.clipboard.readText().then(function (text) {
+      input.value = text;
+      updateCounts();
+      input.focus();
+    }).catch(function () { input.focus(); });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      performAnalysis();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      clearBtn.click();
+    }
+  });
+})();
+</script>

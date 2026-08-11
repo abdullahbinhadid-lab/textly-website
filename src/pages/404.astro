@@ -1,0 +1,32 @@
+---
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 — Page Not Found | Textly"
+  description="The page you're looking for doesn't exist."
+  noindex={true}
+  contactVariant="compact"
+  contactTitle="Can't find what you're looking for?"
+  contactDescription="Let us know what you were trying to find and we'll help you out."
+  contactButtonText="Contact Us"
+>
+  <div class="relative overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div class="absolute left-[15%] top-[20%] h-72 w-72 rounded-full bg-brand-500/15 blur-3xl animate-float dark:bg-brand-500/8"></div>
+      <div class="absolute right-[15%] bottom-[10%] h-64 w-64 rounded-full bg-accent-500/15 blur-3xl animate-float-slow dark:bg-accent-500/8"></div>
+    </div>
+    <div class="container-page relative z-10 flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
+      <div class="text-8xl font-extrabold text-gradient xs:text-6xl">404</div>
+      <h1 class="mt-4 text-h2 font-bold xs:text-h3">Page Not Found</h1>
+      <p class="mt-3 max-w-md text-body text-txt-muted xs:text-small">
+        The page you're looking for doesn't exist or has been moved. Let's get you back on track.
+      </p>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row xs:w-full">
+        <a href="/" class="btn-primary px-6 py-3 xs:w-full">Go Home</a>
+        <a href="/#tools" class="btn-secondary px-6 py-3 xs:w-full">Browse Tools</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

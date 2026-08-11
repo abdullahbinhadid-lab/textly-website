@@ -1,0 +1,319 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="find-and-replace">
+  <div class="space-y-4">
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-4 flex items-center justify-between gap-2">
+        <h2 class="text-h4 font-bold">Find &amp; Replace</h2>
+        <div class="flex items-center gap-2">
+          <span id="fr-match-count" class="badge-neutral hidden"></span>
+          <button id="fr-undo" class="btn-ghost px-3 py-2 text-small" title="Undo (Ctrl+Z)" disabled>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v6h6"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
+          </button>
+          <button id="fr-redo" class="btn-ghost px-3 py-2 text-small" title="Redo (Ctrl+Shift+Z)" disabled>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7v6h-6"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label for="fr-input" class="mb-1.5 block text-small font-semibold text-txt-muted">Your Text</label>
+          <textarea id="fr-input" class="tool-textarea min-h-[140px] w-full" placeholder="Paste or type your text here..." aria-label="Input text"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label for="fr-find" class="mb-1.5 block text-small font-semibold text-txt-muted">Find</label>
+            <div class="relative">
+              <input id="fr-find" type="text" class="tool-input min-h-[48px] w-full pr-10" placeholder="Text to find..." aria-label="Find text" />
+              <button id="fr-swap" class="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-txt-muted hover:text-brand-500 transition-colors" title="Swap Find & Replace" aria-label="Swap find and replace">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label for="fr-replace" class="mb-1.5 block text-small font-semibold text-txt-muted">Replace with</label>
+            <input id="fr-replace" type="text" class="tool-input min-h-[48px] w-full" placeholder="Replacement text..." aria-label="Replace text" />
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="fr-case-sensitive" class="accent-brand-500" />
+            <span>Case sensitive</span>
+          </label>
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="fr-whole-word" class="accent-brand-500" />
+            <span>Whole word</span>
+          </label>
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="fr-regex" class="accent-brand-500" />
+            <span>Regex</span>
+          </label>
+          <label class="flex items-center gap-2 rounded-xl border border-border-light bg-surface-light px-3 py-2 text-small cursor-pointer transition-all hover:border-brand-300 dark:border-border-dark dark:bg-surface-dark">
+            <input type="checkbox" id="fr-multiline" class="accent-brand-500" />
+            <span>Multiline</span>
+          </label>
+        </div>
+
+        <div id="fr-error" class="hidden rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-small text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+          <div class="flex items-center gap-2">
+            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 16h.01"/></svg>
+            <span id="fr-error-msg"></span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button id="fr-replace-all" class="btn-primary px-5 py-2.5 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Replace All
+            <kbd class="ml-1 hidden rounded bg-white/20 px-1.5 py-0.5 text-tiny sm:inline">Ctrl+Enter</kbd>
+          </button>
+          <button id="fr-replace-next" class="btn-secondary px-5 py-2.5 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/><path stroke-linecap="round" stroke-linejoin="round" d="m12 5 7 7-7 7"/></svg>
+            Replace Next
+          </button>
+          <button id="fr-clear" class="btn-ghost px-5 py-2.5 text-small">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="fr-preview-container" class="card-glass hidden p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <h3 class="text-body font-semibold">Match Preview</h3>
+        <span id="fr-preview-count" class="badge-brand"></span>
+      </div>
+      <div id="fr-preview" class="max-h-[300px] overflow-y-auto scrollbar-thin rounded-xl border border-border-light bg-surface-light-alt/50 p-3 text-small dark:border-border-dark dark:bg-surface-dark-alt/50"></div>
+    </div>
+
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h3 class="text-body font-semibold">Result</h3>
+        <button id="fr-copy" class="btn-secondary px-4 py-2 text-small" data-copy-target="fr-output">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <textarea id="fr-output" class="tool-textarea min-h-[140px] w-full" readonly placeholder="Result will appear here..." aria-label="Output text"></textarea>
+      <div id="fr-stats" class="mt-3 hidden text-small text-txt-muted"></div>
+    </div>
+  </div>
+
+  <ToolSections slug="find-and-replace" />
+</ToolLayout>
+
+<script>
+(function() {
+  const input = document.getElementById('fr-input') as HTMLTextAreaElement;
+  const find = document.getElementById('fr-find') as HTMLInputElement;
+  const replace = document.getElementById('fr-replace') as HTMLInputElement;
+  const output = document.getElementById('fr-output') as HTMLTextAreaElement;
+  const caseSensitive = document.getElementById('fr-case-sensitive') as HTMLInputElement;
+  const wholeWord = document.getElementById('fr-whole-word') as HTMLInputElement;
+  const regex = document.getElementById('fr-regex') as HTMLInputElement;
+  const multiline = document.getElementById('fr-multiline') as HTMLInputElement;
+  const replaceAllBtn = document.getElementById('fr-replace-all') as HTMLButtonElement;
+  const replaceNextBtn = document.getElementById('fr-replace-next') as HTMLButtonElement;
+  const clearBtn = document.getElementById('fr-clear') as HTMLButtonElement;
+  const copyBtn = document.getElementById('fr-copy') as HTMLButtonElement;
+  const swapBtn = document.getElementById('fr-swap') as HTMLButtonElement;
+  const undoBtn = document.getElementById('fr-undo') as HTMLButtonElement;
+  const redoBtn = document.getElementById('fr-redo') as HTMLButtonElement;
+  const matchCount = document.getElementById('fr-match-count') as HTMLElement;
+  const previewContainer = document.getElementById('fr-preview-container') as HTMLElement;
+  const preview = document.getElementById('fr-preview') as HTMLElement;
+  const previewCount = document.getElementById('fr-preview-count') as HTMLElement;
+  const errorEl = document.getElementById('fr-error') as HTMLElement;
+  const errorMsg = document.getElementById('fr-error-msg') as HTMLElement;
+  const stats = document.getElementById('fr-stats') as HTMLElement;
+
+  let history: string[] = [];
+  let redoStack: string[] = [];
+  let currentMatchIndex = 0;
+  let matches: { start: number; end: number; text: string }[] = [];
+
+  function showError(msg: string) {
+    errorMsg.textContent = msg;
+    errorEl.classList.remove('hidden');
+  }
+  function hideError() {
+    errorEl.classList.add('hidden');
+  }
+
+  function buildRegex(): RegExp | null {
+    const pattern = find.value;
+    if (!pattern) return null;
+    let flags = 'g';
+    if (!caseSensitive.checked) flags += 'i';
+    if (multiline.checked) flags += 'm';
+    try {
+      let source = pattern;
+      if (regex.checked) {
+        return new RegExp(source, flags);
+      }
+      source = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (wholeWord.checked) source = '\\b' + source + '\\b';
+      return new RegExp(source, flags);
+    } catch (e: any) {
+      showError('Invalid regex: ' + e.message);
+      return null;
+    }
+  }
+
+  function findMatches() {
+    const text = input.value;
+    const re = buildRegex();
+    matches = [];
+    if (!re || !text) {
+      matchCount.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      return;
+    }
+    hideError();
+    let m: RegExpExecArray | null;
+    re.lastIndex = 0;
+    while ((m = re.exec(text)) !== null) {
+      matches.push({ start: m.index, end: m.index + m[0].length, text: m[0] });
+      if (m.index === re.lastIndex) re.lastIndex++;
+    }
+    if (matches.length > 0) {
+      matchCount.textContent = matches.length + ' match' + (matches.length !== 1 ? 'es' : '');
+      matchCount.classList.remove('hidden');
+      matchCount.classList.add('animate-count');
+      showPreview(text);
+    } else {
+      matchCount.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+    }
+    return matches;
+  }
+
+  function showPreview(text: string) {
+    previewContainer.classList.remove('hidden');
+    previewCount.textContent = matches.length + ' found';
+    let html = '';
+    let lastEnd = 0;
+    for (const match of matches) {
+      html += escapeHtml(text.slice(lastEnd, match.start));
+      html += '<mark class="rounded px-0.5 bg-brand-200 text-brand-800 dark:bg-brand-800/50 dark:text-brand-200">' + escapeHtml(match.text) + '</mark>';
+      lastEnd = match.end;
+    }
+    html += escapeHtml(text.slice(lastEnd));
+    preview.innerHTML = html;
+  }
+
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function doReplaceAll() {
+    const text = input.value;
+    if (!text || !find.value) return;
+    const re = buildRegex();
+    if (!re) return;
+    hideError();
+    history.push(text);
+    redoStack = [];
+    updateUndoRedo();
+    const result = text.replace(re, replace.value);
+    const count = matches.length;
+    input.value = result;
+    output.value = result;
+    stats.classList.remove('hidden');
+    stats.innerHTML = '<span class="badge-success">Replaced ' + count + ' occurrence' + (count !== 1 ? 's' : '') + '</span>';
+    findMatches();
+  }
+
+  function doReplaceNext() {
+    const text = input.value;
+    if (!text || !find.value || matches.length === 0) return;
+    const re = buildRegex();
+    if (!re) return;
+    hideError();
+    if (currentMatchIndex >= matches.length) currentMatchIndex = 0;
+    const match = matches[currentMatchIndex];
+    history.push(text);
+    redoStack = [];
+    updateUndoRedo();
+    const result = text.slice(0, match.start) + replace.value + text.slice(match.end);
+    input.value = result;
+    output.value = result;
+    stats.classList.remove('hidden');
+    stats.innerHTML = '<span class="badge-success">Replaced occurrence ' + (currentMatchIndex + 1) + ' of ' + matches.length + '</span>';
+    currentMatchIndex++;
+    findMatches();
+  }
+
+  function doUndo() {
+    if (history.length === 0) return;
+    redoStack.push(input.value);
+    input.value = history.pop()!;
+    output.value = input.value;
+    findMatches();
+    updateUndoRedo();
+  }
+
+  function doRedo() {
+    if (redoStack.length === 0) return;
+    history.push(input.value);
+    input.value = redoStack.pop()!;
+    output.value = input.value;
+    findMatches();
+    updateUndoRedo();
+  }
+
+  function updateUndoRedo() {
+    undoBtn.disabled = history.length === 0;
+    redoBtn.disabled = redoStack.length === 0;
+  }
+
+  function doClear() {
+    input.value = '';
+    find.value = '';
+    replace.value = '';
+    output.value = '';
+    matchCount.classList.add('hidden');
+    previewContainer.classList.add('hidden');
+    stats.classList.add('hidden');
+    hideError();
+    history = [];
+    redoStack = [];
+    updateUndoRedo();
+  }
+
+  function doSwap() {
+    const tmp = find.value;
+    find.value = replace.value;
+    replace.value = tmp;
+    findMatches();
+  }
+
+  input.addEventListener('input', () => { output.value = input.value; findMatches(); });
+  find.addEventListener('input', findMatches);
+  replace.addEventListener('input', findMatches);
+  caseSensitive.addEventListener('change', findMatches);
+  wholeWord.addEventListener('change', findMatches);
+  regex.addEventListener('change', findMatches);
+  multiline.addEventListener('change', findMatches);
+  replaceAllBtn.addEventListener('click', doReplaceAll);
+  replaceNextBtn.addEventListener('click', doReplaceNext);
+  clearBtn.addEventListener('click', doClear);
+  swapBtn.addEventListener('click', doSwap);
+  undoBtn.addEventListener('click', doUndo);
+  redoBtn.addEventListener('click', doRedo);
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); doReplaceAll(); }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'R' || e.key === 'r')) { e.preventDefault(); doReplaceNext(); }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); doUndo(); }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); doRedo(); }
+  });
+})();
+</script>

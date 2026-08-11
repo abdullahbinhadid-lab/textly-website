@@ -1,0 +1,199 @@
+---
+
+import Logo from './Logo.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/tools', label: 'Tools' },
+  { href: '/guides', label: 'Guides' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/faq', label: 'FAQ' },
+];
+
+const aboutDropdown = [
+  { href: '/about', label: 'About Us', desc: 'Learn about Textly' },
+  { href: '/contact', label: 'Contact Us', desc: 'Get in touch with us' },
+  { href: '/recommend-a-tool', label: 'Recommend a Tool', desc: 'Suggest a new tool' },
+];
+
+const currentPath = Astro.url.pathname;
+const isAboutActive = aboutDropdown.some((link) => currentPath === link.href);
+---
+
+<div class="bg-brand-gradient text-white text-center py-1.5 px-4 text-tiny font-medium relative z-[60]">
+  <span class="inline-flex items-center gap-1.5">
+    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    All Textly tools are 100% free — no sign-up, no limits, no catch.
+  </span>
+</div>
+
+<header
+  id="site-header"
+  class="sticky top-0 z-50 border-b border-white/10 bg-white/70 backdrop-blur-xl transition-all dark:bg-surface-dark/70 dark:border-white/5"
+>
+  <div class="container-page">
+    <div class="flex h-16 items-center justify-between gap-4">
+      <Logo size="md" />
+
+      <nav class="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class={`rounded-lg px-3 py-2 text-small font-medium transition-colors hover:bg-surface-light-alt hover:text-brand-600 dark:hover:bg-surface-dark-alt dark:hover:text-brand-300 ${
+              currentPath === link.href
+                ? 'text-brand-600 dark:text-brand-300'
+                : 'text-txt-light dark:text-txt-dark'
+            }`}
+            aria-current={currentPath === link.href ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        ))}
+        <div class="relative group">
+          <button
+            type="button"
+            class={`flex items-center gap-1 rounded-lg px-3 py-2 text-small font-medium transition-colors hover:bg-surface-light-alt hover:text-brand-600 dark:hover:bg-surface-dark-alt dark:hover:text-brand-300 ${
+              isAboutActive
+                ? 'text-brand-600 dark:text-brand-300'
+                : 'text-txt-light dark:text-txt-dark'
+            }`}
+            aria-expanded="false"
+            aria-haspopup="true"
+          >
+            About
+            <svg class="h-4 w-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="invisible absolute left-0 top-full pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+            <div class="w-60 rounded-2xl border border-border-light bg-surface-light p-2 shadow-large dark:border-border-dark dark:bg-surface-dark">
+              {aboutDropdown.map((link) => (
+                <a
+                  href={link.href}
+                  class={`block rounded-xl px-3 py-2.5 transition-colors ${
+                    currentPath === link.href
+                      ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300'
+                      : 'text-txt-light hover:bg-surface-light-alt hover:text-brand-600 dark:text-txt-dark dark:hover:bg-surface-dark-alt dark:hover:text-brand-300'
+                  }`}
+                >
+                  <span class="block font-medium text-small">{link.label}</span>
+                  <span class="block text-tiny text-txt-muted mt-0.5">{link.desc}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <a href="/donate" class="hidden btn-primary px-4 py-2 text-small sm:inline-flex">
+          Donate
+        </a>
+        <a href="/tools" class="hidden btn-primary px-4 py-2 text-small sm:inline-flex">
+          All Tools
+        </a>
+        <ThemeToggle />
+        <button
+          id="mobile-menu-toggle"
+          class="flex h-10 w-10 items-center justify-center rounded-xl border border-border-light bg-surface-light text-txt-light transition-all hover:border-brand-400 md:hidden dark:border-border-dark dark:bg-surface-dark dark:text-txt-dark"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+          type="button"
+        >
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="mobile-menu"
+    class="fixed inset-y-0 right-0 z-50 hidden w-72 max-w-[85vw] flex-col border-l border-white/10 bg-white/90 p-6 shadow-large backdrop-blur-xl animate-slide-in-right md:hidden dark:bg-surface-dark/90 dark:border-white/5"
+  >
+    <div class="flex items-center justify-between mb-8">
+      <Logo size="sm" />
+      <button
+        id="mobile-menu-close"
+        class="flex h-10 w-10 items-center justify-center rounded-xl border border-border-light text-txt-light dark:border-border-dark dark:text-txt-dark"
+        aria-label="Close menu"
+        type="button"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <nav class="flex flex-col gap-2" aria-label="Mobile navigation">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class={`rounded-xl px-4 py-3 text-body font-medium transition-colors ${
+            currentPath === link.href
+              ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300'
+              : 'text-txt-light hover:bg-surface-light-alt dark:text-txt-dark dark:hover:bg-surface-dark-alt'
+          }`}
+        >
+          {link.label}
+        </a>
+      ))}
+      <div class="px-4 pt-3 pb-1 text-tiny font-semibold uppercase tracking-wider text-txt-muted">About</div>
+      {aboutDropdown.map((link) => (
+        <a
+          href={link.href}
+          class={`rounded-xl px-4 py-3 text-body font-medium transition-colors ${
+            currentPath === link.href
+              ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300'
+              : 'text-txt-light hover:bg-surface-light-alt dark:text-txt-dark dark:hover:bg-surface-dark-alt'
+          }`}
+        >
+          {link.label}
+        </a>
+      ))}
+      <a href="/donate" class="btn-primary mt-4 w-full">
+        Donate
+      </a>
+      <a href="/tools" class="btn-secondary mt-2 w-full">
+        Browse All Tools
+      </a>
+    </nav>
+  </div>
+
+  <div id="mobile-menu-overlay" class="fixed inset-0 z-40 hidden bg-black/40 backdrop-blur-sm md:hidden"></div>
+</header>
+
+<script is:inline>
+  (function () {
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const close = document.getElementById('mobile-menu-close');
+    const menu = document.getElementById('mobile-menu');
+    const overlay = document.getElementById('mobile-menu-overlay');
+
+    function openMenu() {
+      if (menu && overlay) {
+        menu.classList.remove('hidden');
+        menu.classList.add('flex');
+        overlay.classList.remove('hidden');
+        if (toggle) toggle.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeMenu() {
+      if (menu && overlay) {
+        menu.classList.add('hidden');
+        menu.classList.remove('flex');
+        overlay.classList.add('hidden');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+    }
+
+    if (toggle) toggle.addEventListener('click', openMenu);
+    if (close) close.addEventListener('click', closeMenu);
+    if (overlay) overlay.addEventListener('click', closeMenu);
+  })();
+</script>

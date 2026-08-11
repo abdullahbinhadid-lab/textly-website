@@ -1,0 +1,596 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="morse-code-translator">
+  <!-- Interactive Tool Section -->
+  <section id="tool" class="reveal">
+    <div class="card-glass p-5 sm:p-6">
+      <!-- Direction Toggle -->
+      <div class="mb-4 flex items-center gap-3">
+        <label class="toggle-chip" title="Toggle between text-to-morse and morse-to-text">
+          <input type="checkbox" id="morse-direction" class="sr-only" />
+          <span class="toggle-dot"></span>
+          <span class="text-tiny font-medium" id="morse-dir-label">Text → Morse</span>
+        </label>
+        <button id="morse-swap" class="btn-ghost px-3 py-1.5 text-tiny" title="Swap direction (Ctrl+S)">
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 8h14l-3-3"/><path d="M3 8l3 3"/><path d="M21 16H7l3 3"/><path d="M21 16l-3-3"/></svg>
+          Swap
+        </button>
+        <label class="toggle-chip" title="Auto-detect input direction">
+          <input type="checkbox" id="morse-autodetect" class="sr-only" checked />
+          <span class="toggle-dot"></span>
+          <span class="text-tiny font-medium">Auto-Detect</span>
+        </label>
+      </div>
+
+      <!-- Separator Selector -->
+      <div class="mb-4 flex items-center gap-2">
+        <span class="text-tiny font-semibold text-txt-muted">Letter Separator:</span>
+        <div class="flex gap-1.5" role="radiogroup" aria-label="Letter separator">
+          <button class="sep-btn active" data-sep="/" title="Slash separator">/</button>
+          <button class="sep-btn" data-sep="|" title="Pipe separator">|</button>
+          <button class="sep-btn" data-sep=" " title="Space separator">Space</button>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="mb-4">
+        <div class="mb-2 flex items-center justify-between">
+          <label for="morse-input" class="text-small font-semibold text-txt-light dark:text-txt-dark" id="morse-input-label">
+            Input Text
+          </label>
+          <div class="flex items-center gap-2">
+            <button id="morse-sample" class="btn-ghost px-3 py-1.5 text-tiny" title="Load sample text">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              Sample
+            </button>
+            <button id="morse-clear" class="btn-ghost px-3 py-1.5 text-tiny" title="Clear all (Ctrl+K)">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Clear
+            </button>
+          </div>
+        </div>
+        <textarea
+          id="morse-input"
+          class="tool-textarea min-h-[100px] w-full"
+          placeholder="Type text to encode as Morse code..."
+          aria-label="Input text or morse code"
+          spellcheck="false"
+        ></textarea>
+        <div class="mt-1.5 flex items-center gap-3 text-tiny text-txt-muted" aria-live="polite">
+          <span><span id="morse-char-count">0</span> chars</span>
+          <span id="morse-info"></span>
+        </div>
+      </div>
+
+      <!-- Output Area -->
+      <div class="mb-4">
+        <div class="mb-2 flex items-center justify-between">
+          <label for="morse-output" class="text-small font-semibold text-txt-light dark:text-txt-dark" id="morse-output-label">
+            Morse Code Output
+          </label>
+          <div class="flex items-center gap-2">
+            <span id="morse-status" class="text-tiny text-txt-muted" aria-live="polite"></span>
+            <button id="morse-copy" class="btn-ghost px-3 py-1.5 text-tiny" title="Copy result (Ctrl+Shift+C)" disabled>
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="morse-empty" class="flex min-h-[100px] flex-col items-center justify-center rounded-xl border border-dashed border-border-light bg-surface-light-alt/40 dark:border-border-dark dark:bg-surface-dark-alt/40">
+          <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white opacity-50">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>
+          </div>
+          <p class="text-small font-medium text-txt-muted">Enter text or Morse code to translate</p>
+          <p class="mt-0.5 text-tiny text-txt-muted/70">Auto-detects direction automatically</p>
+        </div>
+
+        <textarea
+          id="morse-output"
+          class="tool-textarea min-h-[100px] w-full hidden"
+          readonly
+          aria-label="Morse code output"
+          spellcheck="false"
+        ></textarea>
+
+        <!-- Error State -->
+        <div id="morse-error" class="hidden rounded-xl border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+          <div class="flex items-center gap-2 text-small font-medium text-red-600 dark:text-red-400">
+            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            <span id="morse-error-msg">Invalid Morse code input.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio Playback Controls -->
+      <div class="mb-4 rounded-xl border border-border-light bg-surface-light-alt/50 p-4 dark:border-border-dark dark:bg-surface-dark-alt/50">
+        <div class="mb-3 flex items-center justify-between">
+          <span class="text-small font-semibold text-txt-light dark:text-txt-dark">Audio Playback</span>
+          <button id="morse-play" class="btn-primary px-4 py-2 text-tiny" disabled title="Play Morse audio (Ctrl+P)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            Play
+          </button>
+        </div>
+        <div class="flex items-center gap-3">
+          <label for="wpm-slider" class="text-tiny font-medium text-txt-muted whitespace-nowrap">Speed:</label>
+          <input type="range" id="wpm-slider" min="5" max="40" value="15" class="morse-slider flex-1" aria-label="Words per minute" />
+          <span class="text-tiny font-mono font-semibold text-brand-500 dark:text-brand-400 whitespace-nowrap"><span id="wpm-value">15</span> WPM</span>
+        </div>
+        <!-- Visual Signal Indicator -->
+        <div class="mt-3 flex items-center gap-3">
+          <span class="text-tiny font-medium text-txt-muted whitespace-nowrap">Signal:</span>
+          <div id="signal-light" class="signal-light"></div>
+          <span id="signal-label" class="text-tiny font-mono text-txt-muted">Ready</span>
+        </div>
+      </div>
+
+      <!-- Character-by-Character Display -->
+      <div id="morse-breakdown" class="mb-4 hidden">
+        <p class="mb-2 text-tiny font-semibold text-txt-muted">Character Mapping</p>
+        <div id="morse-breakdown-grid" class="flex flex-wrap gap-1.5 max-h-[180px] overflow-y-auto scrollbar-thin"></div>
+      </div>
+
+      <!-- Morse Code Reference Chart -->
+      <div class="mb-4">
+        <button id="chart-toggle" class="flex w-full items-center justify-between rounded-xl border border-border-light bg-surface-light-alt/50 px-4 py-3 text-small font-semibold text-txt-light dark:border-border-dark dark:bg-surface-dark-alt/50 dark:text-txt-dark" aria-expanded="false">
+          <span>Morse Code Reference Chart</span>
+          <svg class="h-4 w-4 transition-transform" id="chart-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="chart-content" class="hidden mt-2 rounded-xl border border-border-light bg-surface-light-alt/30 p-4 dark:border-border-dark dark:bg-surface-dark-alt/30">
+          <div id="chart-grid" class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2"></div>
+        </div>
+      </div>
+
+      <!-- Keyboard Shortcuts -->
+      <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-border-light pt-3 text-tiny text-txt-muted dark:border-border-dark">
+        <span class="font-medium">Shortcuts:</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Enter</kbd> Translate</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">P</kbd> Play</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">S</kbd> Swap</span>
+        <span><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">K</kbd> Clear</span>
+      </div>
+    </div>
+  </section>
+
+  <ToolSections slug="morse-code-translator" />
+
+  <style>
+    .toggle-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      border: 1.5px solid var(--color-border);
+      background: var(--color-surface);
+      cursor: pointer; transition: all 0.2s ease; user-select: none;
+    }
+    .toggle-chip:hover { border-color: var(--color-brand); }
+    .toggle-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid var(--color-border);
+      transition: all 0.2s ease; flex-shrink: 0;
+    }
+    .toggle-chip input:checked ~ .toggle-dot {
+      background: var(--color-brand); border-color: var(--color-brand);
+      box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+    }
+    .toggle-chip:has(input:checked) {
+      border-color: var(--color-brand);
+      background: rgba(124, 58, 237, 0.06);
+    }
+    .dark .toggle-chip:has(input:checked) { background: rgba(167, 139, 250, 0.08); }
+    .sep-btn {
+      padding: 4px 12px; border-radius: 8px;
+      border: 1.5px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      cursor: pointer; transition: all 0.2s ease;
+      font-size: 0.75rem; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+      min-height: 32px;
+    }
+    .sep-btn:hover { border-color: var(--color-brand); color: var(--color-brand); }
+    .sep-btn.active {
+      border-color: var(--color-brand); color: var(--color-brand);
+      background: rgba(124, 58, 237, 0.08);
+    }
+    .dark .sep-btn.active { background: rgba(167, 139, 250, 0.1); }
+    .kbd {
+      display: inline-block; padding: 1px 5px;
+      border-radius: 4px; border: 1px solid var(--color-border);
+      background: var(--color-surface-alt);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+    }
+    #morse-copy:disabled { opacity: 0.4; cursor: not-allowed; }
+    #morse-play:disabled { opacity: 0.4; cursor: not-allowed; }
+    #morse-copy.copied { color: #16a34a !important; }
+    .dark #morse-copy.copied { color: #4ade80 !important; }
+    .morse-slider {
+      -webkit-appearance: none; appearance: none;
+      height: 6px; border-radius: 3px;
+      background: var(--color-border); outline: none;
+    }
+    .morse-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--color-brand); cursor: pointer;
+      box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+      transition: transform 0.15s ease;
+    }
+    .morse-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .morse-slider::-moz-range-thumb {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--color-brand); cursor: pointer; border: none;
+      box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+    }
+    .signal-light {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--color-border);
+      transition: background 0.05s ease, box-shadow 0.05s ease;
+      flex-shrink: 0;
+    }
+    .signal-light.on {
+      background: var(--color-brand);
+      box-shadow: 0 0 12px 3px rgba(124, 58, 237, 0.6);
+    }
+    .dark .signal-light.on {
+      background: var(--color-brand);
+      box-shadow: 0 0 12px 3px rgba(167, 139, 250, 0.6);
+    }
+    .morse-breakdown-item {
+      display: inline-flex; flex-direction: column; align-items: center;
+      padding: 4px 8px; border-radius: 8px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface-alt);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; gap: 2px;
+    }
+    .morse-breakdown-char { font-weight: 700; color: var(--color-brand); }
+    .morse-breakdown-val { color: var(--color-text-muted); font-size: 10px; }
+    .chart-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 8px; border-radius: 6px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      font-size: 11px;
+    }
+    .chart-char { font-weight: 700; color: var(--color-brand); font-family: 'JetBrains Mono', monospace; }
+    .chart-code { color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    #chart-chevron { transition: transform 0.3s ease; }
+    #chart-toggle[aria-expanded="true"] #chart-chevron { transform: rotate(180deg); }
+  </style>
+
+  <script is:inline>
+    (function () {
+      var morseMap = {
+        'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....',
+        'I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.',
+        'Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-',
+        'Y':'-.--','Z':'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-',
+        '5':'.....','6':'-....','7':'--...','8':'---..','9':'----.','.':'.-.-.-',
+        ',':'--..--','?':'..--..','/':'-..-.','-':'-....-','(':'-.--.',')':'-.--.-',
+        '=':'-...-','+':'.-.-.','@':'.--.-.',':':'---...',';':'-.-.-.','!':'-.-.--',
+        '&':'.-...','\'':'.----.','"':'.-..-.','_':'..--.-'
+      };
+      var reverseMap = {};
+      Object.keys(morseMap).forEach(function(k) { reverseMap[morseMap[k]] = k; });
+
+      var input = document.getElementById('morse-input');
+      var output = document.getElementById('morse-output');
+      var emptyState = document.getElementById('morse-empty');
+      var errorState = document.getElementById('morse-error');
+      var errorMsg = document.getElementById('morse-error-msg');
+      var status = document.getElementById('morse-status');
+      var charCount = document.getElementById('morse-char-count');
+      var morseInfo = document.getElementById('morse-info');
+      var copyBtn = document.getElementById('morse-copy');
+      var playBtn = document.getElementById('morse-play');
+      var dirToggle = document.getElementById('morse-direction');
+      var autoDetect = document.getElementById('morse-autodetect');
+      var dirLabel = document.getElementById('morse-dir-label');
+      var inputLabel = document.getElementById('morse-input-label');
+      var outputLabel = document.getElementById('morse-output-label');
+      var breakdown = document.getElementById('morse-breakdown');
+      var breakdownGrid = document.getElementById('morse-breakdown-grid');
+      var sepBtns = document.querySelectorAll('.sep-btn');
+      var wpmSlider = document.getElementById('wpm-slider');
+      var wpmValue = document.getElementById('wpm-value');
+      var signalLight = document.getElementById('signal-light');
+      var signalLabel = document.getElementById('signal-label');
+      var chartToggle = document.getElementById('chart-toggle');
+      var chartContent = document.getElementById('chart-content');
+      var chartGrid = document.getElementById('chart-grid');
+      var currentSep = '/';
+      var isDecoding = false;
+      var audioCtx = null;
+      var playing = false;
+
+      function isMorseInput(text) {
+        var stripped = text.replace(/[\s/|]/g, '');
+        return /^[.\-]+$/i.test(stripped) && stripped.length > 0;
+      }
+
+      function textToMorse(text) {
+        var sep = currentSep === ' ' ? ' ' : ' ' + currentSep + ' ';
+        var words = text.toUpperCase().split(/\s+/).filter(function(w) { return w.length; });
+        return words.map(function(word) {
+          return word.split('').map(function(ch) {
+            return morseMap[ch] || '';
+          }).filter(function(m) { return m.length; }).join(sep);
+        }).filter(function(w) { return w.length; }).join('  /  ');
+      }
+
+      function morseToText(morse) {
+        var wordSep = /(\s\/\s|\s\|\s|\s{2,}|\/\/)/;
+        var words = morse.trim().split(wordSep).filter(function(w) {
+          return w.length && !wordSep.test(w);
+        });
+        return words.map(function(word) {
+          var letters = word.split(/[/\s|]+/).filter(function(l) { return l.length; });
+          return letters.map(function(l) {
+            var normalized = l.replace(/\*/g, '.').replace(/—/g, '-');
+            return reverseMap[normalized] || '?';
+          }).join('');
+        }).join(' ');
+      }
+
+      function translate() {
+        var text = input.value;
+        if (!text.trim()) {
+          emptyState.classList.remove('hidden');
+          output.classList.add('hidden');
+          errorState.classList.add('hidden');
+          breakdown.classList.add('hidden');
+          copyBtn.disabled = true;
+          playBtn.disabled = true;
+          status.textContent = '';
+          return;
+        }
+
+        try {
+          var shouldDecode = isDecoding;
+          if (autoDetect.checked) {
+            shouldDecode = isMorseInput(text);
+            dirToggle.checked = shouldDecode;
+            isDecoding = shouldDecode;
+            updateLabels();
+          }
+
+          var result;
+          if (shouldDecode) {
+            result = morseToText(text);
+            morseInfo.textContent = 'Decoding Morse → Text';
+          } else {
+            result = textToMorse(text);
+            morseInfo.textContent = 'Encoding Text → Morse';
+          }
+
+          if (!result.trim()) {
+            throw new Error('No translatable characters found. Supported: A-Z, 0-9, and common punctuation.');
+          }
+
+          output.value = result;
+          emptyState.classList.add('hidden');
+          output.classList.remove('hidden');
+          errorState.classList.add('hidden');
+          copyBtn.disabled = false;
+          playBtn.disabled = shouldDecode ? true : false;
+          status.innerHTML = '<span class="text-green-600 dark:text-green-400">✓ Translated</span>';
+
+          showBreakdown(text, shouldDecode);
+
+        } catch (e) {
+          emptyState.classList.add('hidden');
+          output.classList.add('hidden');
+          errorState.classList.remove('hidden');
+          errorMsg.textContent = e.message || 'Translation failed.';
+          breakdown.classList.add('hidden');
+          copyBtn.disabled = true;
+          playBtn.disabled = true;
+          status.textContent = '';
+        }
+      }
+
+      function showBreakdown(text, decoding) {
+        breakdownGrid.innerHTML = '';
+        if (decoding) {
+          var letters = text.trim().split(/[/\s|]+/).filter(function(l) { return l.length; });
+          letters.forEach(function(l) {
+            var normalized = l.replace(/\*/g, '.').replace(/—/g, '-');
+            var ch = reverseMap[normalized] || '?';
+            var item = document.createElement('div');
+            item.className = 'morse-breakdown-item';
+            item.innerHTML = '<span class="morse-breakdown-char">' + ch + '</span><span class="morse-breakdown-val">' + l + '</span>';
+            breakdownGrid.appendChild(item);
+          });
+        } else {
+          var chars = Array.from(text.toUpperCase());
+          chars.slice(0, 80).forEach(function(ch) {
+            if (ch === ' ') return;
+            var code = morseMap[ch];
+            if (!code) return;
+            var item = document.createElement('div');
+            item.className = 'morse-breakdown-item';
+            item.innerHTML = '<span class="morse-breakdown-char">' + ch + '</span><span class="morse-breakdown-val">' + code + '</span>';
+            breakdownGrid.appendChild(item);
+          });
+        }
+        breakdown.classList.remove('hidden');
+      }
+
+      function updateLabels() {
+        if (isDecoding) {
+          inputLabel.textContent = 'Input (Morse Code)';
+          outputLabel.textContent = 'Decoded Text';
+          dirLabel.textContent = 'Morse → Text';
+          input.placeholder = 'Paste Morse code (dots and dashes)...';
+        } else {
+          inputLabel.textContent = 'Input Text';
+          outputLabel.textContent = 'Morse Code Output';
+          dirLabel.textContent = 'Text → Morse';
+          input.placeholder = 'Type text to encode as Morse code...';
+        }
+      }
+
+      function updateStats() { charCount.textContent = input.value.length; }
+
+      function playMorse() {
+        if (playing || !output.value) return;
+        playing = true;
+        playBtn.disabled = true;
+        playBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Playing...';
+
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        var wpm = parseInt(wpmSlider.value, 10);
+        var unit = 1.2 / wpm;
+        var morse = output.value;
+        var time = audioCtx.currentTime;
+        var dotW = 600;
+        var dashW = 1800;
+
+        signalLabel.textContent = 'Playing...';
+
+        for (var i = 0; i < morse.length; i++) {
+          var ch = morse[i];
+          if (ch === '.') {
+            scheduleBeep(time, dotW, i);
+            time += unit;
+          } else if (ch === '-') {
+            scheduleBeep(time, dashW, i);
+            time += unit * 3;
+          } else if (ch === ' ') {
+            if (morse[i + 1] === ' ' && morse[i + 2] === '/') {
+              time += unit * 7; i += 4;
+            } else if (morse[i + 1] === ' ') {
+              time += unit * 3; i++;
+            } else {
+              time += unit * 3;
+            }
+          } else if (ch === '/' || ch === '|') {
+            time += unit * 3;
+          }
+        }
+
+        var totalDuration = (time - audioCtx.currentTime) * 1000;
+        setTimeout(function() {
+          playing = false;
+          playBtn.disabled = false;
+          playBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg> Play';
+          signalLight.classList.remove('on');
+          signalLabel.textContent = 'Ready';
+        }, totalDuration + 100);
+      }
+
+      function scheduleBeep(startTime, freq, idx) {
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
+        gain.gain.setValueAtTime(0.3, startTime + (idx >= 0 ? 0.1 : 0.3));
+        gain.gain.linearRampToValueAtTime(0, startTime + (idx >= 0 ? 0.12 : 0.32));
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + (idx >= 0 ? 0.12 : 0.32));
+
+        var lightDelay = (startTime - audioCtx.currentTime) * 1000;
+        var lightDuration = (idx >= 0 ? 120 : 320);
+        setTimeout(function() {
+          signalLight.classList.add('on');
+          signalLabel.textContent = idx >= 0 ? 'Dot' : 'Dash';
+          setTimeout(function() {
+            signalLight.classList.remove('on');
+          }, lightDuration);
+        }, Math.max(0, lightDelay));
+      }
+
+      function buildChart() {
+        var keys = Object.keys(morseMap);
+        keys.sort();
+        keys.forEach(function(k) {
+          var item = document.createElement('div');
+          item.className = 'chart-item';
+          item.innerHTML = '<span class="chart-char">' + k + '</span><span class="chart-code">' + morseMap[k] + '</span>';
+          chartGrid.appendChild(item);
+        });
+      }
+
+      sepBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          sepBtns.forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentSep = btn.getAttribute('data-sep');
+          translate();
+        });
+      });
+
+      dirToggle.addEventListener('change', function() {
+        isDecoding = dirToggle.checked;
+        updateLabels();
+        translate();
+      });
+
+      document.getElementById('morse-swap').addEventListener('click', function() {
+        dirToggle.checked = !dirToggle.checked;
+        isDecoding = dirToggle.checked;
+        updateLabels();
+        translate();
+      });
+
+      autoDetect.addEventListener('change', translate);
+
+      input.addEventListener('input', function() { updateStats(); translate(); });
+
+      document.getElementById('morse-clear').addEventListener('click', function() {
+        input.value = ''; output.value = '';
+        updateStats(); translate(); input.focus();
+      });
+
+      document.getElementById('morse-sample').addEventListener('click', function() {
+        if (isDecoding) {
+          input.value = '.... . .-.. .-.. --- / .-- --- .-. .-.. -..';
+        } else {
+          input.value = 'SOS Hello World';
+        }
+        updateStats(); translate();
+      });
+
+      copyBtn.addEventListener('click', function() {
+        if (!output.value) return;
+        navigator.clipboard.writeText(output.value).then(function() {
+          var orig = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(function() { copyBtn.innerHTML = orig; copyBtn.classList.remove('copied'); }, 2000);
+        });
+      });
+
+      playBtn.addEventListener('click', playMorse);
+
+      wpmSlider.addEventListener('input', function() { wpmValue.textContent = wpmSlider.value; });
+
+      chartToggle.addEventListener('click', function() {
+        var expanded = chartToggle.getAttribute('aria-expanded') === 'true';
+        chartToggle.setAttribute('aria-expanded', !expanded);
+        chartContent.classList.toggle('hidden');
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); translate(); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') { e.preventDefault(); if (!playBtn.disabled) playMorse(); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); document.getElementById('morse-swap').click(); }
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'C' || e.key === 'c')) { e.preventDefault(); if (!copyBtn.disabled) copyBtn.click(); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); document.getElementById('morse-clear').click(); }
+      });
+
+      updateLabels();
+      updateStats();
+      buildChart();
+    })();
+  </script>
+</ToolLayout>

@@ -1,0 +1,498 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="keyword-density-analyzer">
+  <div id="kda-app" class="space-y-4">
+    <!-- Input Section -->
+    <div class="card-glass p-4 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <label for="kda-input" class="text-body font-semibold">Your Content</label>
+        <div class="flex items-center gap-2">
+          <button id="kda-paste" class="btn-ghost px-3 py-1.5 text-small" title="Paste from clipboard">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Paste
+          </button>
+          <button id="kda-clear" class="btn-ghost px-3 py-1.5 text-small" title="Clear text (Ctrl+K)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <textarea id="kda-input" class="tool-textarea min-h-[180px] xs:min-h-[140px]" placeholder="Paste your article, blog post, or any content here to analyze keyword density..." aria-label="Content input for keyword density analysis"></textarea>
+
+      <!-- Options Bar -->
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <!-- N-gram selector -->
+        <div class="flex items-center gap-2">
+          <span class="text-tiny font-semibold text-txt-muted">N-gram:</span>
+          <div class="flex rounded-lg border border-border-light dark:border-border-dark overflow-hidden">
+            <button class="kda-ngram-btn active px-3 py-1.5 text-tiny font-semibold" data-ngram="1">1-word</button>
+            <button class="kda-ngram-btn px-3 py-1.5 text-tiny font-semibold" data-ngram="2">2-word</button>
+            <button class="kda-ngram-btn px-3 py-1.5 text-tiny font-semibold" data-ngram="3">3-word</button>
+          </div>
+        </div>
+        <!-- Stop words toggle -->
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="kda-stopwords" checked class="h-4 w-4 rounded accent-brand-500" />
+          <span class="text-tiny text-txt-muted">Filter stop words</span>
+        </label>
+        <!-- Case sensitivity -->
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="kda-case" class="h-4 w-4 rounded accent-brand-500" />
+          <span class="text-tiny text-txt-muted">Case sensitive</span>
+        </label>
+        <!-- Min word length -->
+        <div class="flex items-center gap-2">
+          <span class="text-tiny text-txt-muted">Min length:</span>
+          <input type="number" id="kda-minlen" value="2" min="1" max="20" class="w-14 rounded-lg border border-border-light bg-surface-light px-2 py-1 text-tiny dark:border-border-dark dark:bg-surface-dark" />
+        </div>
+        <button id="kda-analyze" class="btn-primary ml-auto px-5 py-2.5 text-small" title="Analyze (Ctrl+Enter)">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 5L5 19M19 19L5 5"/></svg>
+          Analyze
+        </button>
+      </div>
+
+      <!-- Custom keyword tracking -->
+      <div class="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50">
+        <span class="text-tiny font-semibold text-txt-muted">Track keywords:</span>
+        <input type="text" id="kda-custom-kw" placeholder="Enter keyword, press Enter..." class="flex-1 min-w-[150px] rounded-lg border border-border-light bg-surface-light px-3 py-1.5 text-tiny dark:border-border-dark dark:bg-surface-dark" />
+        <div id="kda-custom-tags" class="flex flex-wrap gap-1.5"></div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="kda-empty" class="flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center px-4">
+        <div class="mb-4 flex justify-center">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 5L5 19M19 19L5 5"/></svg>
+          </div>
+        </div>
+        <p class="text-body font-semibold text-txt-light dark:text-txt-dark">Ready to Analyze</p>
+        <p class="mt-1 text-small text-txt-muted">Paste your content and click "Analyze" to see keyword density rankings, charts, and statistics.</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="kda-loading" class="hidden flex min-h-[200px] items-center justify-center rounded-2xl border border-border-light bg-surface-light-alt/30 dark:border-border-dark dark:bg-surface-dark-alt/30">
+      <div class="text-center">
+        <div class="mb-4 flex justify-center">
+          <div class="h-12 w-12 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500 dark:border-brand-800 dark:border-t-brand-400"></div>
+        </div>
+        <p class="text-small text-txt-muted">Analyzing keywords...</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="kda-results" class="hidden space-y-4">
+      <!-- Summary Stats -->
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="card-glass p-3 text-center">
+          <div id="kda-total-words" class="text-2xl font-bold text-brand-500">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Total Words</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="kda-unique-words" class="text-2xl font-bold text-accent-500">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Unique Keywords</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="kda-diversity" class="text-2xl font-bold text-cyan-500">0%</div>
+          <div class="text-tiny text-txt-muted mt-1">Vocabulary Diversity</div>
+        </div>
+        <div class="card-glass p-3 text-center">
+          <div id="kda-total-keywords" class="text-2xl font-bold text-brand-500">0</div>
+          <div class="text-tiny text-txt-muted mt-1">Total Keywords</div>
+        </div>
+      </div>
+
+      <!-- Custom Keyword Tracking Results -->
+      <div id="kda-custom-results-wrap" class="hidden card-glass p-4 sm:p-6">
+        <h4 class="mb-3 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          Tracked Keywords
+        </h4>
+        <div id="kda-custom-results" class="space-y-2"></div>
+      </div>
+
+      <!-- Distribution Chart -->
+      <div class="card-glass p-4 sm:p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h4 class="text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+            Keyword Distribution (Top 20)
+          </h4>
+          <button id="kda-export" class="btn-secondary px-3 py-1.5 text-small" title="Export as CSV">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            CSV
+          </button>
+        </div>
+        <div id="kda-chart" class="space-y-1.5"></div>
+      </div>
+
+      <!-- Keyword Ranking Table -->
+      <div class="card-glass p-4 sm:p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h4 class="text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            Keyword Ranking
+          </h4>
+          <span class="text-tiny text-txt-muted">Click a keyword to highlight in text</span>
+        </div>
+        <div class="overflow-x-auto scrollbar-thin">
+          <table class="w-full text-small">
+            <thead>
+              <tr class="border-b border-border-light dark:border-border-dark">
+                <th class="py-2 pr-4 text-left font-semibold text-txt-muted">#</th>
+                <th class="py-2 pr-4 text-left font-semibold text-txt-muted">Keyword</th>
+                <th class="py-2 pr-4 text-right font-semibold text-txt-muted">Count</th>
+                <th class="py-2 pr-4 text-right font-semibold text-txt-muted">Density</th>
+              </tr>
+            </thead>
+            <tbody id="kda-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Keyword Cloud -->
+      <div class="card-glass p-4 sm:p-6">
+        <h4 class="mb-4 text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+          Keyword Cloud
+        </h4>
+        <div id="kda-cloud" class="flex flex-wrap items-center gap-2"></div>
+      </div>
+
+      <!-- Highlighted Text -->
+      <div class="card-glass p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <h4 class="text-body font-semibold flex items-center gap-2">
+            <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            Text Preview
+          </h4>
+          <span id="kda-highlight-info" class="text-tiny text-txt-muted"></span>
+        </div>
+        <div id="kda-highlighted" class="max-h-[250px] overflow-y-auto scrollbar-thin rounded-xl bg-surface-light-alt/50 p-3 text-small leading-relaxed dark:bg-surface-dark-alt/50"></div>
+      </div>
+    </div>
+  </div>
+
+  <ToolSections slug="keyword-density-analyzer" />
+</ToolLayout>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('kda-input');
+  var analyzeBtn = document.getElementById('kda-analyze');
+  var clearBtn = document.getElementById('kda-clear');
+  var pasteBtn = document.getElementById('kda-paste');
+  var exportBtn = document.getElementById('kda-export');
+  var emptyState = document.getElementById('kda-empty');
+  var loadingState = document.getElementById('kda-loading');
+  var resultsDiv = document.getElementById('kda-results');
+  var customInput = document.getElementById('kda-custom-kw');
+  var customTags = document.getElementById('kda-custom-tags');
+  var customResultsWrap = document.getElementById('kda-custom-results-wrap');
+  var customResults = document.getElementById('kda-custom-results');
+  var highlightedDiv = document.getElementById('kda-highlighted');
+  var highlightInfo = document.getElementById('kda-highlight-info');
+
+  var stopWords = 'a about above after again against all am an and any are aren\'t as at be because been before being below between both but by can cannot could couldn\'t did didn\'t do does doesn\'t doing don\'t down during each few for from further had hadn\'t has hasn\'t have haven\'t having he her here hers herself him himself his how i if in into is isn\'t it its itself just ll let me more most my myself no nor not now of off on once only or other our ours ourselves out over own re s same shan\'t she should shouldn\'t so some such t than that the their theirs them themselves then there these they this those through to too under until up ve very was wasn\'t we were weren\'t what when where which while who whom why will with won\'t would wouldn\'t y you your yours yourself yourselves'.split(/\s+/);
+  var stopSet = {};
+  stopWords.forEach(function (w) { stopSet[w] = true; });
+
+  var ngram = 1;
+  var customKeywords = [];
+  var currentHighlight = null;
+  var lastResults = null;
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function tokenize(text, caseSensitive) {
+    var raw = text.match(/\b[a-zA-Z0-9']+\b/g) || [];
+    return raw.map(function (w) { return caseSensitive ? w : w.toLowerCase(); });
+  }
+
+  function getNgrams(tokens, n) {
+    var grams = [];
+    for (var i = 0; i <= tokens.length - n; i++) {
+      grams.push(tokens.slice(i, i + n).join(' '));
+    }
+    return grams;
+  }
+
+  function analyze() {
+    var text = input.value.trim();
+    if (!text) {
+      input.focus();
+      input.classList.add('border-red-400');
+      setTimeout(function () { input.classList.remove('border-red-400'); }, 1500);
+      return;
+    }
+
+    var caseSensitive = document.getElementById('kda-case').checked;
+    var filterStop = document.getElementById('kda-stopwords').checked;
+    var minLen = parseInt(document.getElementById('kda-minlen').value) || 1;
+
+    emptyState.classList.add('hidden');
+    resultsDiv.classList.add('hidden');
+    loadingState.classList.remove('hidden');
+    loadingState.classList.add('flex');
+
+    setTimeout(function () {
+      loadingState.classList.add('hidden');
+      loadingState.classList.remove('flex');
+      resultsDiv.classList.remove('hidden');
+
+      var tokens = tokenize(text, caseSensitive);
+      var totalWords = tokens.length;
+
+      var grams = getNgrams(tokens, ngram);
+      var freq = {};
+      grams.forEach(function (g) {
+        var words = g.split(' ');
+        if (filterStop && words.some(function (w) { return stopSet[w.toLowerCase()]; })) return;
+        if (words.some(function (w) { return w.length < minLen; })) return;
+        freq[g] = (freq[g] || 0) + 1;
+      });
+
+      var entries = Object.keys(freq).map(function (k) { return { word: k, count: freq[k] }; });
+      entries.sort(function (a, b) { return b.count - a.count; });
+      var totalKw = entries.reduce(function (acc, e) { return acc + e.count; }, 0);
+      var unique = entries.length;
+      var diversity = totalWords > 0 ? Math.round((unique / totalWords) * 100) : 0;
+
+      lastResults = { entries: entries, totalKw: totalKw, totalWords: totalWords, unique: unique, diversity: diversity };
+
+      document.getElementById('kda-total-words').textContent = totalWords.toLocaleString();
+      document.getElementById('kda-unique-words').textContent = unique.toLocaleString();
+      document.getElementById('kda-diversity').textContent = diversity + '%';
+      document.getElementById('kda-total-keywords').textContent = totalKw.toLocaleString();
+
+      renderChart(entries.slice(0, 20), totalKw);
+      renderTable(entries, totalKw);
+      renderCloud(entries.slice(0, 40), entries[0] ? entries[0].count : 1);
+      renderCustom(text, caseSensitive);
+      renderHighlighted(text, null);
+
+      if (customKeywords.length > 0) {
+        customResultsWrap.classList.remove('hidden');
+      } else {
+        customResultsWrap.classList.add('hidden');
+      }
+    }, 400);
+  }
+
+  function renderChart(entries, total) {
+    var el = document.getElementById('kda-chart');
+    el.innerHTML = '';
+    if (entries.length === 0) {
+      el.innerHTML = '<p class="text-small text-txt-muted text-center py-4">No keywords found with current filters.</p>';
+      return;
+    }
+    var maxCount = entries[0].count;
+    entries.forEach(function (e, i) {
+      var pct = (e.count / maxCount) * 100;
+      var density = ((e.count / total) * 100).toFixed(2);
+      var row = document.createElement('div');
+      row.className = 'flex items-center gap-2 group cursor-pointer';
+      row.setAttribute('data-kw', e.word);
+      row.innerHTML =
+        '<span class="w-32 shrink-0 truncate text-tiny font-medium text-txt-light dark:text-txt-dark" title="' + escapeHtml(e.word) + '">' + escapeHtml(e.word) + '</span>' +
+        '<div class="h-5 flex-1 overflow-hidden rounded-md bg-border-light/50 dark:bg-border-dark/50">' +
+        '<div class="h-full rounded-md bg-brand-gradient transition-all duration-700 group-hover:opacity-80" style="width:' + pct + '%"></div></div>' +
+        '<span class="w-14 shrink-0 text-right text-tiny font-semibold text-brand-500">' + density + '%</span>';
+      row.addEventListener('click', function () {
+        var kw = this.getAttribute('data-kw');
+        toggleHighlight(kw);
+      });
+      el.appendChild(row);
+    });
+  }
+
+  function renderTable(entries, total) {
+    var tbody = document.getElementById('kda-table-body');
+    tbody.innerHTML = '';
+    entries.slice(0, 100).forEach(function (e, i) {
+      var density = ((e.count / total) * 100).toFixed(2);
+      var tr = document.createElement('tr');
+      tr.className = 'border-b border-border-light/50 dark:border-border-dark/50 cursor-pointer transition-colors hover:bg-brand-50/50 dark:hover:bg-brand-900/10';
+      tr.setAttribute('data-kw', e.word);
+      tr.innerHTML =
+        '<td class="py-2 pr-4 text-tiny text-txt-muted">' + (i + 1) + '</td>' +
+        '<td class="py-2 pr-4 font-medium">' + escapeHtml(e.word) + '</td>' +
+        '<td class="py-2 pr-4 text-right">' + e.count + '</td>' +
+        '<td class="py-2 pr-4 text-right font-semibold text-brand-500">' + density + '%</td>';
+      tr.addEventListener('click', function () {
+        toggleHighlight(this.getAttribute('data-kw'));
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderCloud(entries, maxCount) {
+    var el = document.getElementById('kda-cloud');
+    el.innerHTML = '';
+    if (entries.length === 0) {
+      el.innerHTML = '<p class="text-small text-txt-muted">No keywords found.</p>';
+      return;
+    }
+    entries.forEach(function (e) {
+      var ratio = e.count / maxCount;
+      var size = 0.75 + ratio * 1.5;
+      var opacity = 0.5 + ratio * 0.5;
+      var span = document.createElement('span');
+      span.className = 'cursor-pointer rounded-lg px-2 py-1 transition-all hover:scale-110 hover:bg-brand-50 dark:hover:bg-brand-900/20';
+      span.style.fontSize = size + 'rem';
+      span.style.opacity = opacity;
+      span.style.color = ratio > 0.66 ? '#7c3aed' : ratio > 0.33 ? '#6366f1' : '#06b6d4';
+      span.textContent = e.word;
+      span.setAttribute('data-kw', e.word);
+      span.addEventListener('click', function () { toggleHighlight(e.word); });
+      el.appendChild(span);
+    });
+  }
+
+  function renderCustom(text, caseSensitive) {
+    customResults.innerHTML = '';
+    if (customKeywords.length === 0) return;
+    var tokens = tokenize(text, caseSensitive);
+    var allText = caseSensitive ? text : text.toLowerCase();
+    customKeywords.forEach(function (kw) {
+      var searchKw = caseSensitive ? kw : kw.toLowerCase();
+      var count = 0;
+      var re = new RegExp('\\b' + searchKw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
+      var matches = allText.match(re);
+      if (matches) count = matches.length;
+      var density = tokens.length > 0 ? ((count / tokens.length) * 100).toFixed(2) : '0.00';
+      var div = document.createElement('div');
+      div.className = 'flex items-center justify-between rounded-xl bg-surface-light-alt/50 p-3 dark:bg-surface-dark-alt/50';
+      div.innerHTML =
+        '<span class="text-small font-medium">' + escapeHtml(kw) + '</span>' +
+        '<div class="flex items-center gap-4">' +
+        '<span class="text-small text-txt-muted">' + count + ' occurrences</span>' +
+        '<span class="text-small font-semibold text-accent-500">' + density + '%</span>' +
+        '</div>';
+      customResults.appendChild(div);
+    });
+  }
+
+  function toggleHighlight(kw) {
+    if (currentHighlight === kw) {
+      currentHighlight = null;
+      highlightInfo.textContent = '';
+    } else {
+      currentHighlight = kw;
+      highlightInfo.textContent = 'Highlighting: "' + kw + '"';
+    }
+    renderHighlighted(input.value, currentHighlight);
+  }
+
+  function renderHighlighted(text, kw) {
+    if (!kw) {
+      highlightedDiv.innerHTML = escapeHtml(text);
+      return;
+    }
+    var escaped = escapeHtml(text);
+    var kwEscaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    var re = new RegExp('(' + kwEscaped + ')', 'gi');
+    highlightedDiv.innerHTML = escaped.replace(re, '<mark class="rounded bg-brand-300/60 text-brand-900 dark:bg-brand-700/50 dark:text-brand-100">$1</mark>');
+  }
+
+  function exportCSV() {
+    if (!lastResults) return;
+    var csv = 'Keyword,Count,Density(%)\n';
+    lastResults.entries.forEach(function (e) {
+      var density = ((e.count / lastResults.totalKw) * 100).toFixed(2);
+      csv += '"' + e.word.replace(/"/g, '""') + '",' + e.count + ',' + density + '\n';
+    });
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'keyword-density.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function addCustomKeyword(kw) {
+    kw = kw.trim();
+    if (!kw || customKeywords.indexOf(kw) !== -1) return;
+    customKeywords.push(kw);
+    renderCustomTags();
+    customInput.value = '';
+  }
+
+  function renderCustomTags() {
+    customTags.innerHTML = '';
+    customKeywords.forEach(function (kw, i) {
+      var tag = document.createElement('span');
+      tag.className = 'inline-flex items-center gap-1 rounded-full bg-accent-100 px-2 py-0.5 text-tiny font-semibold text-accent-700 dark:bg-accent-900/30 dark:text-accent-300';
+      tag.innerHTML = escapeHtml(kw) + '<button class="ml-1 hover:text-accent-900 dark:hover:text-accent-100" data-idx="' + i + '">×</button>';
+      tag.querySelector('button').addEventListener('click', function () {
+        customKeywords.splice(i, 1);
+        renderCustomTags();
+      });
+      customTags.appendChild(tag);
+    });
+  }
+
+  var ngramBtns = document.querySelectorAll('.kda-ngram-btn');
+  ngramBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      ngramBtns.forEach(function (b) {
+        b.classList.remove('active', 'bg-brand-gradient', 'text-white');
+        b.classList.add('text-txt-muted');
+      });
+      this.classList.add('active', 'bg-brand-gradient', 'text-white');
+      this.classList.remove('text-txt-muted');
+      ngram = parseInt(this.getAttribute('data-ngram'));
+      if (input.value.trim()) analyze();
+    });
+  });
+
+  ngramBtns[0].classList.add('bg-brand-gradient', 'text-white');
+  ngramBtns[0].classList.remove('text-txt-muted');
+
+  ['kda-stopwords', 'kda-case', 'kda-minlen'].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener('change', function () { if (input.value.trim()) analyze(); });
+  });
+
+  analyzeBtn.addEventListener('click', analyze);
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    resultsDiv.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    input.focus();
+  });
+  pasteBtn.addEventListener('click', function () {
+    navigator.clipboard.readText().then(function (text) {
+      input.value = text;
+      input.focus();
+    }).catch(function () { input.focus(); });
+  });
+  exportBtn.addEventListener('click', exportCSV);
+  customInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addCustomKeyword(this.value);
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      analyze();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      clearBtn.click();
+    }
+  });
+})();
+</script>

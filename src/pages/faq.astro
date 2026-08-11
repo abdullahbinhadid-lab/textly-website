@@ -1,0 +1,232 @@
+---
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import CTA from '../components/CTA.astro';
+import { toolFAQs } from '../data/faq-data';
+
+const faqSections = [
+  {
+    title: 'General Questions',
+    items: [
+      {
+        question: 'Are these text tools really free?',
+        answer: 'Yes! All text tools on Textly are 100% free forever. We support the site through display ads — no paid plans, no signup, no hidden costs. You can use every tool as much as you want, for personal or commercial work.',
+      },
+      {
+        question: 'Is my text uploaded to a server?',
+        answer: 'No. Every tool runs entirely in your browser using client-side JavaScript. Your text never leaves your device. This is our privacy-first guarantee. The only exceptions are Text to Speech and Speech to Text, which use your browser\'s Web Speech API — and even then, Textly does not intercept or store that data.',
+      },
+      {
+        question: 'Do I need to create an account?',
+        answer: 'No account required. Just open any tool and start using it immediately. No email, no password, no tracking. We don\'t have user accounts at all.',
+      },
+      {
+        question: 'How many tools does Textly have?',
+        answer: 'Textly currently offers 33 text tools across multiple categories: Counting, Transform, Clean, Edit, Generate, Audio, Compare, SEO, Organize, Convert, Analyze, Split, Join, Format, and Extract. We\'re always adding new tools.',
+      },
+      {
+        question: 'Do the tools work offline?',
+        answer: 'Most tools work offline once the page is loaded. Text to Speech and Speech to Text rely on browser APIs that may require an internet connection depending on your browser. Everything else runs fully offline.',
+      },
+    ],
+  },
+  {
+    title: 'Privacy & Security',
+    items: [
+      {
+        question: 'Which browsers are supported?',
+        answer: 'Textly works on all modern browsers including Chrome, Firefox, Safari, and Edge. For the best experience, we recommend using the latest version of your browser. Internet Explorer is not supported.',
+      },
+      {
+        question: 'Do you use cookies?',
+        answer: 'We use minimal cookies: one first-party localStorage entry for your theme preference (dark/light mode), and third-party cookies from Google AdSense for advertising and Cloudflare for security. We do not use tracking cookies or analytics cookies. See our Cookie Policy for full details.',
+      },
+      {
+        question: 'Do you track my activity?',
+        answer: 'No. We do not use analytics tracking, user profiling, or cross-site tracking. We don\'t know which tools you use, what text you process, or how long you stay. Our hosting provider (Cloudflare) may log standard request data for security, but we don\'t use that for tracking.',
+      },
+      {
+        question: 'Is my text data stored anywhere?',
+        answer: 'Absolutely not. Your text is processed by JavaScript in your browser and is never sent to any server, stored in a database, or saved in cookies. When you close the tab, your text is gone.',
+      },
+    ],
+  },
+  {
+    title: 'Using the Tools',
+    items: [
+      {
+        question: 'Can I use these tools on mobile?',
+        answer: 'Absolutely! Textly is fully responsive and optimized for all screen sizes, including small phones down to 320px width. Every tool works on touch devices with mobile-friendly inputs.',
+      },
+      {
+        question: 'Can I use the tools for commercial purposes?',
+        answer: 'Yes. You can use Textly tools for personal or commercial work with no restrictions. Writers, developers, marketers, students, and businesses all use our tools freely.',
+      },
+      {
+        question: 'Is there a limit on text size?',
+        answer: 'There are no artificial limits imposed by Textly. However, very large text inputs (millions of characters) may slow down your browser since all processing happens client-side. For best performance, we recommend working with text under 500,000 characters at a time.',
+      },
+      {
+        question: 'Do the tools support languages other than English?',
+        answer: 'Yes. Our tools handle Unicode text, so they work with most languages including Chinese, Japanese, Arabic, Hebrew, Cyrillic, and more. Text to Speech and Speech to Text support 50+ languages through the Web Speech API.',
+      },
+      {
+        question: 'Can I use regular expressions with Find and Replace?',
+        answer: 'Yes! Our Find and Replace tool supports full regular expression syntax, case-sensitive matching, and whole-word matching. This makes it powerful for complex text transformations.',
+      },
+    ],
+  },
+  {
+    title: 'Technical & Support',
+    items: [
+      {
+        question: 'How is Textly built?',
+        answer: 'Textly is built with Astro (a modern static site generator), Tailwind CSS for styling, and TypeScript for type safety. The entire site is statically generated — no backend server, no database, no API calls for tool processing. Everything runs in your browser.',
+      },
+      {
+        question: 'What is the Web Speech API?',
+        answer: 'The Web Speech API is a browser-native technology for speech recognition and synthesis. Our Text to Speech tool uses it to convert text to audio, and Speech to Text uses it for dictation. Browser support varies — Chrome and Edge have the best support, while some browsers may require an internet connection for speech processing.',
+      },
+      {
+        question: 'Why do I see different voices in Text to Speech?',
+        answer: 'Available voices depend on your browser and operating system. Chrome offers cloud-based voices for many languages, while Firefox and Safari use system-installed voices. Try different browsers to find the voice that works best for you.',
+      },
+      {
+        question: 'How do I report a bug or request a feature?',
+        answer: 'We\'d love to hear from you! Contact us at info@toolly.site with any bug reports, feature requests, or feedback. You can also use our contact page to send a message.',
+      },
+    ],
+  },
+];
+
+const allFAQItems = faqSections.flatMap((s) => s.items);
+const toolFAQItems = toolFAQs.flatMap((t) => t.faqs);
+const allItems = [...allFAQItems, ...toolFAQItems];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: allItems.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<BaseLayout
+  title="FAQ — Frequently Asked Questions | Textly"
+  description="Answers to common questions about Textly's free text tools: privacy, pricing, browser support, features, and more."
+  canonical="/faq"
+  schema={faqSchema}
+  hideContactForm={true}
+>
+  <div class="container-narrow py-12">
+    <SectionHeading
+      eyebrow="Help Center"
+      title="Frequently Asked Questions"
+      subtitle="Everything you need to know about Textly's free, privacy-first text tools."
+    />
+
+    <div class="space-y-12">
+      {faqSections.map((section) => (
+        <div>
+          <h2 class="text-h3 font-bold mb-6">{section.title}</h2>
+          <div class="columns-1 md:columns-2 gap-4">
+            {section.items.map((item, index) => (
+              <details class="card group overflow-hidden break-inside-avoid" id={`faq-${section.title.replace(/\s+/g, '-').toLowerCase()}-${index}`}>
+                <summary class="flex cursor-pointer items-center justify-between gap-4 p-5 font-semibold text-txt-light dark:text-txt-dark list-none">
+                  <span class="text-body">{item.question}</span>
+                  <svg class="h-5 w-5 shrink-0 text-brand-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </summary>
+                <div class="px-5 pb-5 text-small text-txt-muted leading-relaxed">
+                  {item.answer}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Tool-Specific FAQs -->
+    <div class="mt-16 pt-12 border-t border-surface-light-alt dark:border-surface-dark-alt">
+      <div class="text-center mb-10">
+        <div class="mb-3 flex justify-center">
+          <span class="badge-brand">Tool FAQs</span>
+        </div>
+        <h2 class="text-h2 font-bold tracking-tight xs:text-h3 mb-3">
+          <span class="text-gradient">Frequently Asked Questions by Tool</span>
+        </h2>
+        <p class="text-body text-txt-muted max-w-2xl mx-auto">
+          Browse 9 common questions and answers for each of our {toolFAQs.length} text tools. Find solutions to the most searched issues users face in 2026.
+        </p>
+      </div>
+
+      <!-- Table of Contents -->
+      <div class="card p-6 mb-10">
+        <h3 class="text-small font-bold uppercase tracking-wider text-txt-muted mb-4">Jump to a tool:</h3>
+        <div class="flex flex-wrap gap-2">
+          {toolFAQs.map((tool) => (
+            <a href={`#tool-faq-${tool.slug}`} class="badge-neutral transition-colors hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 dark:hover:text-brand-300">
+              {tool.toolName}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div class="space-y-12">
+        {toolFAQs.map((tool) => (
+          <div id={`tool-faq-${tool.slug}`}>
+            <div class="flex items-center justify-between gap-4 mb-6">
+              <h3 class="text-h3 font-bold">{tool.toolName}</h3>
+              <a href={`/tools/${tool.slug}`} class="text-small text-brand-500 hover:text-brand-600 dark:hover:text-brand-300 shrink-0">
+                Open Tool →
+              </a>
+            </div>
+            <div class="columns-1 md:columns-2 gap-4">
+              {tool.faqs.map((faq, index) => (
+                <details class="card group overflow-hidden break-inside-avoid" id={`faq-${tool.slug}-${index}`}>
+                  <summary class="flex cursor-pointer items-center justify-between gap-4 p-5 font-semibold text-txt-light dark:text-txt-dark list-none">
+                    <span class="text-body">{faq.question}</span>
+                    <svg class="h-5 w-5 shrink-0 text-brand-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                  </summary>
+                  <div class="px-5 pb-5 text-small text-txt-muted leading-relaxed">
+                    {faq.answer}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="card mt-12 p-8 text-center">
+      <h2 class="text-h3 font-bold mb-3">Still have questions?</h2>
+      <p class="text-body text-txt-muted mb-6">
+        We're happy to help. Reach out and we'll get back to you as soon as possible.
+      </p>
+      <a href="/contact" class="btn-primary inline-flex">
+        Contact Us
+        <svg class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </a>
+    </div>
+
+    <CTA
+      title="Ready to supercharge your text workflow?"
+      description="All 33 tools are free, forever. No signup, no uploads, no tracking."
+      buttonText="Browse All Tools"
+      buttonHref="/#tools"
+    />
+  </div>
+</BaseLayout>
+
+<style>
+  details summary::-webkit-details-marker { display: none; }
+  details summary::marker { content: ''; }
+</style>

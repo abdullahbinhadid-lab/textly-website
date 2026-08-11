@@ -1,0 +1,88 @@
+---
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface Props {
+  items?: FAQItem[];
+  title?: string;
+}
+
+const {
+  title = 'Frequently Asked Questions',
+  items = [
+    {
+      question: 'Are these text tools really free?',
+      answer: 'Yes! All 33 text tools on Textly are 100% free forever. We support the site through display ads — no paid plans, no signup, no hidden costs.',
+    },
+    {
+      question: 'Is my text uploaded to a server?',
+      answer: 'No. Every tool runs entirely in your browser using client-side JavaScript. Your text never leaves your device. This is our privacy-first guarantee.',
+    },
+    {
+      question: 'Do I need to create an account?',
+      answer: 'No account required. Just open any tool and start using it immediately. No email, no password, no tracking.',
+    },
+    {
+      question: 'Do the tools work offline?',
+      answer: 'Most tools work offline once the page is loaded. Text to Speech and Speech to Text rely on browser APIs that may require an internet connection depending on your browser.',
+    },
+    {
+      question: 'Which browsers are supported?',
+      answer: 'Textly works on all modern browsers including Chrome, Firefox, Safari, and Edge. For the best experience, we recommend using the latest version of your browser.',
+    },
+    {
+      question: 'Can I use these tools on mobile?',
+      answer: 'Absolutely! Textly is fully responsive and optimized for all screen sizes, including small phones down to 320px width.',
+    },
+  ],
+} = Astro.props;
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<section class="container-narrow my-16 sm:my-20">
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <div class="text-center mb-10">
+    <div class="mb-3 flex justify-center">
+      <span class="badge-brand">FAQ</span>
+    </div>
+    <h2 class="text-h2 font-bold tracking-tight xs:text-h3">
+      <span class="text-gradient">{title}</span>
+    </h2>
+  </div>
+
+  <div class="space-y-3">
+    {items.map((item, index) => (
+      <details class="card group overflow-hidden transition-all hover:shadow-soft open:shadow-soft open:border-brand-300 dark:open:border-brand-700" id={`faq-${index}`}>
+        <summary class="flex cursor-pointer items-center justify-between gap-4 p-5 font-semibold text-txt-light dark:text-txt-dark list-none">
+          <span class="text-body">{item.question}</span>
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-light-alt text-brand-500 transition-all group-open:bg-brand-500 group-open:text-white dark:bg-surface-dark-alt">
+            <svg class="h-4 w-4 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </summary>
+        <div class="px-5 pb-5 text-small text-txt-muted leading-relaxed">
+          {item.answer}
+        </div>
+      </details>
+    ))}
+  </div>
+</section>
+
+<style>
+  details summary::-webkit-details-marker { display: none; }
+  details summary::marker { content: ''; }
+</style>

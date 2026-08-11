@@ -1,0 +1,440 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="case-converter">
+  <div class="cc-tool">
+    <!-- Input Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <label for="cc-input" class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 20h6"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v15"/></svg>
+          Your Text
+        </label>
+        <div class="flex items-center gap-2">
+          <span id="cc-char-count" class="text-tiny text-txt-muted font-mono">0 chars</span>
+          <button id="cc-clear-btn" class="btn-ghost px-3 py-1.5 text-tiny rounded-lg" title="Clear text (Ctrl+Shift+K)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <textarea id="cc-input" class="tool-textarea min-h-[120px] w-full" placeholder="Type or paste your text here..." aria-label="Input text to convert" autocomplete="off" spellcheck="false"></textarea>
+    </div>
+
+    <!-- Case Format Buttons -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 20h6"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v15"/></svg>
+          Choose a Case Format
+        </h3>
+        <span class="text-tiny text-txt-muted hidden sm:inline">Click any button to convert</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5" id="cc-buttons">
+        <button class="cc-btn" data-case="upper" title="Convert to UPPERCASE">
+          <span class="cc-btn-icon">A</span>
+          <span class="cc-btn-label">UPPERCASE</span>
+        </button>
+        <button class="cc-btn" data-case="lower" title="Convert to lowercase">
+          <span class="cc-btn-icon">a</span>
+          <span class="cc-btn-label">lowercase</span>
+        </button>
+        <button class="cc-btn" data-case="title" title="Convert to Title Case">
+          <span class="cc-btn-icon">Aa</span>
+          <span class="cc-btn-label">Title Case</span>
+        </button>
+        <button class="cc-btn" data-case="sentence" title="Convert to Sentence case">
+          <span class="cc-btn-icon">A.</span>
+          <span class="cc-btn-label">Sentence case</span>
+        </button>
+        <button class="cc-btn" data-case="camel" title="Convert to camelCase">
+          <span class="cc-btn-icon">aA</span>
+          <span class="cc-btn-label">camelCase</span>
+        </button>
+        <button class="cc-btn" data-case="pascal" title="Convert to PascalCase">
+          <span class="cc-btn-icon">AA</span>
+          <span class="cc-btn-label">PascalCase</span>
+        </button>
+        <button class="cc-btn" data-case="snake" title="Convert to snake_case">
+          <span class="cc-btn-icon">a_a</span>
+          <span class="cc-btn-label">snake_case</span>
+        </button>
+        <button class="cc-btn" data-case="kebab" title="Convert to kebab-case">
+          <span class="cc-btn-icon">a-a</span>
+          <span class="cc-btn-label">kebab-case</span>
+        </button>
+        <button class="cc-btn" data-case="constant" title="Convert to CONSTANT_CASE">
+          <span class="cc-btn-icon">A_A</span>
+          <span class="cc-btn-label">CONSTANT_CASE</span>
+        </button>
+        <button class="cc-btn" data-case="dot" title="Convert to dot.case">
+          <span class="cc-btn-icon">a.a</span>
+          <span class="cc-btn-label">dot.case</span>
+        </button>
+        <button class="cc-btn" data-case="alternating" title="Convert to aLtErNaTiNg cAsE">
+          <span class="cc-btn-icon">aA</span>
+          <span class="cc-btn-label">aLtErNaTiNg</span>
+        </button>
+        <button class="cc-btn" data-case="inverse" title="Invert case">
+          <span class="cc-btn-icon">Aa</span>
+          <span class="cc-btn-label">InVeRsE</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div class="card-glass p-5 sm:p-6 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-body font-semibold flex items-center gap-2">
+          <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Result
+        </h3>
+        <div class="flex items-center gap-2">
+          <span id="cc-status" class="text-tiny text-txt-muted"></span>
+          <button id="cc-copy-btn" class="btn-primary px-4 py-2 text-small rounded-xl" disabled title="Copy result (Ctrl+Shift+C)">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+      <!-- Empty state -->
+      <div id="cc-empty" class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-light-alt text-brand-400 dark:bg-surface-dark-alt dark:text-brand-500">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 20h6"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v15"/></svg>
+        </div>
+        <p class="text-small text-txt-muted">Enter text above and select a case format to see the result</p>
+      </div>
+      <!-- Result display -->
+      <div id="cc-result-wrap" class="hidden">
+        <div id="cc-result" class="tool-textarea min-h-[120px] w-full bg-surface-light-alt/50 dark:bg-surface-dark-alt/50 font-mono text-small leading-relaxed whitespace-pre-wrap break-words cursor-text" role="textbox" aria-label="Converted text result" tabindex="0"></div>
+        <div class="mt-3 flex items-center justify-between text-tiny text-txt-muted">
+          <span id="cc-result-count"></span>
+          <span id="cc-active-format" class="badge-brand"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts help -->
+    <div class="card-glass p-4 mb-4">
+      <details>
+        <summary class="cursor-pointer text-small font-semibold text-txt-muted flex items-center gap-2 list-none">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+          Keyboard Shortcuts
+          <svg class="h-4 w-4 transition-transform ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-tiny text-txt-muted">
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50">
+            <span>Convert to UPPERCASE</span>
+            <kbd class="kbd">Ctrl+U</kbd>
+          </div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50">
+            <span>Convert to lowercase</span>
+            <kbd class="kbd">Ctrl+L</kbd>
+          </div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50">
+            <span>Convert to Title Case</span>
+            <kbd class="kbd">Ctrl+T</kbd>
+          </div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50">
+            <span>Copy result</span>
+            <kbd class="kbd">Ctrl+Shift+C</kbd>
+          </div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50">
+            <span>Clear text</span>
+            <kbd class="kbd">Ctrl+Shift+K</kbd>
+          </div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-light-alt/50 px-3 py-2 dark:bg-surface-dark-alt/50">
+            <span>Focus input</span>
+            <kbd class="kbd">Ctrl+I</kbd>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <ToolSections slug="case-converter" />
+</ToolLayout>
+
+<style>
+  .cc-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cc-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-brand-gradient);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 0;
+  }
+  .cc-btn > * { position: relative; z-index: 1; }
+  .cc-btn:hover {
+    border-color: var(--color-brand);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px -4px rgba(124, 58, 237, 0.2);
+  }
+  .cc-btn:active { transform: translateY(0) scale(0.98); }
+  .cc-btn.active::before { opacity: 1; }
+  .cc-btn.active { color: #fff; border-color: transparent; }
+  .cc-btn.active .cc-btn-icon,
+  .cc-btn.active .cc-btn-label { color: #fff; }
+  .cc-btn-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-brand);
+    line-height: 1;
+  }
+  .cc-btn-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .cc-btn:hover .cc-btn-label { color: var(--color-text); }
+  .dark .cc-btn { background: var(--color-surface); }
+  .dark .cc-btn-icon { color: var(--color-brand); }
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-alt);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::marker { content: ''; }
+  @media (max-width: 358px) {
+    .cc-btn { padding: 10px 6px; min-height: 56px; }
+    .cc-btn-icon { font-size: 1rem; }
+    .cc-btn-label { font-size: 0.6875rem; }
+  }
+</style>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('cc-input');
+  var charCount = document.getElementById('cc-char-count');
+  var clearBtn = document.getElementById('cc-clear-btn');
+  var copyBtn = document.getElementById('cc-copy-btn');
+  var emptyState = document.getElementById('cc-empty');
+  var resultWrap = document.getElementById('cc-result-wrap');
+  var resultEl = document.getElementById('cc-result');
+  var resultCount = document.getElementById('cc-result-count');
+  var activeFormat = document.getElementById('cc-active-format');
+  var statusEl = document.getElementById('cc-status');
+  var buttons = document.querySelectorAll('.cc-btn');
+  var currentResult = '';
+  var activeBtn = null;
+
+  var formatLabels = {
+    upper: 'UPPERCASE', lower: 'lowercase', title: 'Title Case',
+    sentence: 'Sentence case', camel: 'camelCase', pascal: 'PascalCase',
+    snake: 'snake_case', kebab: 'kebab-case', constant: 'CONSTANT_CASE',
+    dot: 'dot.case', alternating: 'aLtErNaTiNg', inverse: 'InVeRsE'
+  };
+
+  function words(str) {
+    return str.split(/[\s_\-\.]+/).filter(function (w) { return w.length > 0; });
+  }
+
+  function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function (t) {
+      return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+    });
+  }
+
+  function toSentenceCase(str) {
+    return str.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, function (c) {
+      return c.toUpperCase();
+    });
+  }
+
+  function toCamelCase(str) {
+    var w = words(str);
+    if (w.length === 0) return '';
+    return w[0].toLowerCase() + w.slice(1).map(function (x) {
+      return x.charAt(0).toUpperCase() + x.slice(1).toLowerCase();
+    }).join('');
+  }
+
+  function toPascalCase(str) {
+    return words(str).map(function (x) {
+      return x.charAt(0).toUpperCase() + x.slice(1).toLowerCase();
+    }).join('');
+  }
+
+  function toSnakeCase(str) {
+    return words(str).map(function (x) { return x.toLowerCase(); }).join('_');
+  }
+
+  function toKebabCase(str) {
+    return words(str).map(function (x) { return x.toLowerCase(); }).join('-');
+  }
+
+  function toConstantCase(str) {
+    return words(str).map(function (x) { return x.toUpperCase(); }).join('_');
+  }
+
+  function toDotCase(str) {
+    return words(str).map(function (x) { return x.toLowerCase(); }).join('.');
+  }
+
+  function toAlternatingCase(str) {
+    var i = 0;
+    return str.split('').map(function (c) {
+      if (c === ' ') return c;
+      var r = i % 2 === 0 ? c.toLowerCase() : c.toUpperCase();
+      i++;
+      return r;
+    }).join('');
+  }
+
+  function toInverseCase(str) {
+    return str.split('').map(function (c) {
+      if (c === c.toUpperCase()) return c.toLowerCase();
+      if (c === c.toLowerCase()) return c.toUpperCase();
+      return c;
+    }).join('');
+  }
+
+  function convert(text, type) {
+    switch (type) {
+      case 'upper': return text.toUpperCase();
+      case 'lower': return text.toLowerCase();
+      case 'title': return toTitleCase(text);
+      case 'sentence': return toSentenceCase(text);
+      case 'camel': return toCamelCase(text);
+      case 'pascal': return toPascalCase(text);
+      case 'snake': return toSnakeCase(text);
+      case 'kebab': return toKebabCase(text);
+      case 'constant': return toConstantCase(text);
+      case 'dot': return toDotCase(text);
+      case 'alternating': return toAlternatingCase(text);
+      case 'inverse': return toInverseCase(text);
+      default: return text;
+    }
+  }
+
+  function updateCharCount() {
+    charCount.textContent = input.value.length + ' chars';
+  }
+
+  function showResult(text, format) {
+    currentResult = text;
+    resultEl.textContent = text;
+    emptyState.classList.add('hidden');
+    resultWrap.classList.remove('hidden');
+    resultWrap.classList.add('animate-slide-up');
+    resultCount.textContent = text.length + ' characters';
+    activeFormat.textContent = formatLabels[format] || '';
+    copyBtn.disabled = false;
+    statusEl.textContent = '✓ Converted';
+    statusEl.classList.add('text-green-600', 'dark:text-green-400');
+    setTimeout(function () {
+      resultWrap.classList.remove('animate-slide-up');
+    }, 500);
+  }
+
+  function clearResult() {
+    currentResult = '';
+    resultEl.textContent = '';
+    emptyState.classList.remove('hidden');
+    resultWrap.classList.add('hidden');
+    copyBtn.disabled = true;
+    statusEl.textContent = '';
+    activeFormat.textContent = '';
+    if (activeBtn) { activeBtn.classList.remove('active'); activeBtn = null; }
+  }
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = input.value;
+      if (!text.trim()) {
+        input.focus();
+        input.classList.add('ring-2', 'ring-brand-500/30');
+        setTimeout(function () { input.classList.remove('ring-2', 'ring-brand-500/30'); }, 600);
+        return;
+      }
+      if (activeBtn) activeBtn.classList.remove('active');
+      btn.classList.add('active');
+      activeBtn = btn;
+      var format = btn.getAttribute('data-case');
+      var result = convert(text, format);
+      showResult(result, format);
+    });
+  });
+
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    updateCharCount();
+    clearResult();
+    input.focus();
+  });
+
+  copyBtn.addEventListener('click', function () {
+    if (!currentResult) return;
+    navigator.clipboard.writeText(currentResult).then(function () {
+      var orig = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Copied!</span>';
+      copyBtn.classList.add('!bg-green-500');
+      setTimeout(function () {
+        copyBtn.innerHTML = orig;
+        copyBtn.classList.remove('!bg-green-500');
+      }, 2000);
+    });
+  });
+
+  input.addEventListener('input', function () {
+    updateCharCount();
+    if (activeBtn) {
+      var format = activeBtn.getAttribute('data-case');
+      var result = convert(input.value, format);
+      showResult(result, format);
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+      e.preventDefault();
+      if (!copyBtn.disabled) copyBtn.click();
+    } else if (e.ctrlKey && e.shiftKey && e.key === 'K') {
+      e.preventDefault();
+      clearBtn.click();
+    } else if (e.ctrlKey && e.key === 'i') {
+      e.preventDefault();
+      input.focus();
+    } else if (e.ctrlKey && !e.shiftKey) {
+      var map = { u: 'upper', l: 'lower', t: 'title' };
+      var f = map[e.key.toLowerCase()];
+      if (f && document.activeElement !== input) {
+        e.preventDefault();
+        var b = document.querySelector('.cc-btn[data-case="' + f + '"]');
+        if (b) b.click();
+      }
+    }
+  });
+
+  updateCharCount();
+})();
+</script>

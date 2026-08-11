@@ -1,0 +1,525 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="social-media-character-counter">
+  <!-- Main Tool Card -->
+  <div class="smc-card-glass relative overflow-hidden rounded-2xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-white/5 xs:p-3">
+    <div class="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full bg-accent-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl"></div>
+
+    <div class="relative z-10">
+      <!-- Platform selector tabs -->
+      <div class="mb-3 flex flex-wrap gap-1.5" id="smc-platform-tabs" role="tablist" aria-label="Social media platforms">
+        <button class="smc-tab active rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-platform="all" role="tab" aria-selected="true">All</button>
+        <button class="smc-tab rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-platform="twitter" role="tab">Twitter/X</button>
+        <button class="smc-tab rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-platform="instagram" role="tab">Instagram</button>
+        <button class="smc-tab rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-platform="facebook" role="tab">Facebook</button>
+        <button class="smc-tab rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-platform="linkedin" role="tab">LinkedIn</button>
+        <button class="smc-tab rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-platform="tiktok" role="tab">TikTok</button>
+        <button class="smc-tab rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-platform="youtube" role="tab">YouTube</button>
+      </div>
+
+      <!-- Textarea -->
+      <div class="relative">
+        <textarea
+          id="smc-input"
+          class="w-full resize-y rounded-xl border border-border-light bg-surface-light/80 px-4 py-3 text-body leading-relaxed text-txt-light transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-border-dark dark:bg-surface-dark/80 dark:text-txt-dark xs:text-small xs:px-3"
+          rows="5"
+          placeholder="Type your post, caption, or bio..."
+          aria-label="Social media text input"
+          spellcheck="true"
+        ></textarea>
+
+        <!-- Empty state -->
+        <div id="smc-empty-state" class="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div class="text-center">
+            <div class="mb-3 flex justify-center">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow opacity-50">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+              </div>
+            </div>
+            <p class="text-small text-txt-muted">Type to see platform-specific limits</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div class="mt-3 flex items-center gap-2 xs:flex-wrap">
+        <button id="smc-copy" class="btn-secondary px-3 py-2 text-small xs:flex-1" title="Copy text (Ctrl+Enter)" aria-label="Copy text">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy</span>
+        </button>
+        <button id="smc-clear" class="btn-ghost px-3 py-2 text-small xs:flex-1" title="Clear (Ctrl+Backspace)" aria-label="Clear text">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Clear</span>
+        </button>
+        <button id="smc-template" class="btn-ghost px-3 py-2 text-small xs:flex-1" title="Load template" aria-label="Load template">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          <span>Template</span>
+        </button>
+        <div class="ml-auto flex items-center gap-2 text-tiny text-txt-muted">
+          <kbd class="rounded-md border border-border-light bg-surface-light-alt px-1.5 py-0.5 text-tiny dark:border-border-dark dark:bg-surface-dark-alt">Ctrl+Enter</kbd>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Row -->
+  <div class="mt-4 grid grid-cols-3 gap-3 xs:grid-cols-3">
+    <div class="rounded-xl border border-white/20 bg-white/60 p-3 text-center shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <div class="text-tiny text-txt-muted">Characters</div>
+      <div id="smc-chars" class="text-h4 font-bold text-txt-light dark:text-txt-dark">0</div>
+    </div>
+    <div class="rounded-xl border border-white/20 bg-white/60 p-3 text-center shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <div class="text-tiny text-txt-muted">Hashtags</div>
+      <div id="smc-hashtags" class="text-h4 font-bold text-txt-light dark:text-txt-dark">0</div>
+    </div>
+    <div class="rounded-xl border border-white/20 bg-white/60 p-3 text-center shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <div class="text-tiny text-txt-muted">Mentions</div>
+      <div id="smc-mentions" class="text-h4 font-bold text-txt-light dark:text-txt-dark">0</div>
+    </div>
+  </div>
+
+  <!-- Platform Cards Grid -->
+  <div id="smc-platforms" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+  <!-- Character Density + Emoji Cost + Link Cost -->
+  <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
+    <!-- Character Density -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        Character Density
+      </h3>
+      <div id="smc-density" class="space-y-2">
+        <p class="text-tiny text-txt-muted">Start typing to see breakdown.</p>
+      </div>
+    </div>
+
+    <!-- Emoji Cost -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>
+        Emoji Cost
+      </h3>
+      <div id="smc-emoji-cost" class="space-y-2">
+        <p class="text-tiny text-txt-muted">Emojis can cost 2 chars on some platforms.</p>
+      </div>
+    </div>
+
+    <!-- Link Cost -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Link Cost Estimator
+      </h3>
+      <div id="smc-link-cost" class="space-y-2">
+        <p class="text-tiny text-txt-muted">URLs are auto-shortened on most platforms.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optimization Tips -->
+  <div id="smc-tips" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50/80 p-4 shadow-soft backdrop-blur-xl dark:border-amber-800/50 dark:bg-amber-900/20">
+    <h3 class="mb-2 flex items-center gap-2 text-small font-semibold text-amber-700 dark:text-amber-300">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg>
+      Optimization Tips
+    </h3>
+    <ul id="smc-tips-list" class="space-y-1 text-tiny text-amber-700 dark:text-amber-300"></ul>
+  </div>
+
+  <!-- Template Modal -->
+  <div id="smc-template-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="mx-4 w-full max-w-md rounded-2xl border border-white/20 bg-surface-light p-5 shadow-large dark:border-white/10 dark:bg-surface-dark">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-body font-bold text-txt-light dark:text-txt-dark">Choose a Template</h3>
+        <button id="smc-template-close" class="rounded-lg p-1 text-txt-muted hover:bg-surface-light-alt dark:hover:bg-surface-dark-alt" aria-label="Close">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="space-y-2" id="smc-template-list"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="smc-toast" class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 translate-y-20 rounded-xl bg-brand-gradient px-5 py-3 text-small font-semibold text-white shadow-large opacity-0 transition-all duration-300">
+    <span id="smc-toast-text">Copied!</span>
+  </div>
+
+  <ToolSections slug="social-media-character-counter" />
+</ToolLayout>
+
+<style>
+  .smc-tab {
+    background: rgba(255,255,255,0.5);
+    color: #6b7280;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .dark .smc-tab {
+    background: rgba(255,255,255,0.05);
+    color: #9ca3af;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .smc-tab.active {
+    background: linear-gradient(135deg, #7c3aed 0%, #6366f1 35%, #06b6d4 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 16px rgba(124,58,237,0.3);
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var input = document.getElementById('smc-input');
+    if (!input) return;
+    var emptyState = document.getElementById('smc-empty-state');
+    var copyBtn = document.getElementById('smc-copy');
+    var clearBtn = document.getElementById('smc-clear');
+    var templateBtn = document.getElementById('smc-template');
+    var templateModal = document.getElementById('smc-template-modal');
+    var templateClose = document.getElementById('smc-template-close');
+    var templateList = document.getElementById('smc-template-list');
+    var platformsContainer = document.getElementById('smc-platforms');
+    var densityEl = document.getElementById('smc-density');
+    var emojiCostEl = document.getElementById('smc-emoji-cost');
+    var linkCostEl = document.getElementById('smc-link-cost');
+    var tipsEl = document.getElementById('smc-tips');
+    var tipsList = document.getElementById('smc-tips-list');
+    var charsEl = document.getElementById('smc-chars');
+    var hashtagsEl = document.getElementById('smc-hashtags');
+    var mentionsEl = document.getElementById('smc-mentions');
+    var toast = document.getElementById('smc-toast');
+    var toastText = document.getElementById('smc-toast-text');
+    var activePlatform = 'all';
+
+    var platforms = [
+      { id: 'twitter', name: 'Twitter/X', limit: 280, color: '#1d9bf0', emojiCost: 2, linkLen: 23 },
+      { id: 'instagram-caption', name: 'Instagram Caption', limit: 2200, color: '#ec4899', emojiCost: 1, linkLen: 30 },
+      { id: 'instagram-bio', name: 'Instagram Bio', limit: 150, color: '#f472b6', emojiCost: 1, linkLen: 30 },
+      { id: 'facebook', name: 'Facebook Post', limit: 63206, color: '#1877f2', emojiCost: 1, linkLen: 23 },
+      { id: 'linkedin', name: 'LinkedIn Post', limit: 3000, color: '#0a66c2', emojiCost: 1, linkLen: 23 },
+      { id: 'tiktok', name: 'TikTok Caption', limit: 2200, color: '#000000', emojiCost: 1, linkLen: 23 },
+      { id: 'youtube-title', name: 'YouTube Title', limit: 100, color: '#ff0000', emojiCost: 1, linkLen: 23 },
+      { id: 'youtube-desc', name: 'YouTube Description', limit: 5000, color: '#cc0000', emojiCost: 1, linkLen: 23 },
+      { id: 'meta-desc', name: 'Meta Description', limit: 160, color: '#7c3aed', emojiCost: 1, linkLen: 23 },
+      { id: 'sms', name: 'SMS', limit: 160, color: '#10b981', emojiCost: 2, linkLen: 0 },
+      { id: 'reddit', name: 'Reddit Title', limit: 300, color: '#ff4500', emojiCost: 1, linkLen: 23 },
+      { id: 'google-title', name: 'Google Title', limit: 60, color: '#06b6d4', emojiCost: 1, linkLen: 23 },
+    ];
+
+    var templates = [
+      { name: 'Tweet (Short)', text: 'Just shipped a new feature! 🚀 So excited to share this with you all. What do you think? #buildinpublic #product', platform: 'twitter' },
+      { name: 'Instagram Caption', text: 'Living my best life ✨ Sometimes you just need to stop and take it all in. What are you grateful for today? 🙏\n\n#gratitude #mindfulness #blessed #goodvibes #positivity', platform: 'instagram-caption' },
+      { name: 'LinkedIn Professional', text: 'I am thrilled to announce that I have joined an amazing team! Looking forward to the challenges and opportunities ahead. Grateful for the support of my network.', platform: 'linkedin' },
+      { name: 'YouTube Title', text: 'How I Built a $10K/Month Side Project in 90 Days', platform: 'youtube-title' },
+      { name: 'Meta Description', text: 'Learn how to build modern web apps with our step-by-step guide. Free tutorials, code examples, and best practices for developers.', platform: 'meta-desc' },
+      { name: 'TikTok Caption', text: 'POV: when the code finally works 😂 #coding #developer #tech #fyp', platform: 'tiktok' },
+    ];
+
+    function showToast(msg) {
+      toastText.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(function () {
+        toast.classList.add('opacity-0', 'translate-y-20');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2000);
+    }
+
+    function countEmojis(text) {
+      var count = 0;
+      for (var i = 0; i < text.length; i++) {
+        var code = text.charCodeAt(i);
+        if ((code >= 0x1F600 && code <= 0x1F64F) || (code >= 0x1F300 && code <= 0x1F5FF) || (code >= 0x2600 && code <= 0x26FF) || (code >= 0x2700 && code <= 0x27BF) || (code >= 0x1F900 && code <= 0x1F9FF)) count++;
+      }
+      return count;
+    }
+
+    function findLinks(text) {
+      var urlRegex = /https?:\/\/[^\s]+/g;
+      return text.match(urlRegex) || [];
+    }
+
+    function calcEffectiveChars(text, platform) {
+      var baseChars = text.length;
+      var emojiCount = countEmojis(text);
+      var links = findLinks(text);
+      var linkOriginalLen = links.reduce(function (sum, l) { return sum + l.length; }, 0);
+      var linkShortenedLen = links.length * platform.linkLen;
+      var emojiExtra = emojiCount * (platform.emojiCost - 1);
+      return baseChars - linkOriginalLen + linkShortenedLen + emojiExtra;
+    }
+
+    function getDensity(text) {
+      if (!text) return [];
+      var total = text.length;
+      var counts = { letters: 0, numbers: 0, spaces: 0, punctuation: 0, symbols: 0, emojis: 0 };
+      for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        var code = ch.charCodeAt(0);
+        if (/\s/.test(ch)) counts.spaces++;
+        else if (/[a-zA-Z]/.test(ch)) counts.letters++;
+        else if (/[0-9]/.test(ch)) counts.numbers++;
+        else if (/[.,!?;:'"\-—–(){}[\]…]/.test(ch)) counts.punctuation++;
+        else if (code >= 0x1F600 && code <= 0x1F64F || code >= 0x1F300 && code <= 0x1F5FF || code >= 0x2600 && code <= 0x26FF || code >= 0x2700 && code <= 0x27BF) counts.emojis++;
+        else counts.symbols++;
+      }
+      return Object.keys(counts).map(function (k) {
+        return { type: k, count: counts[k], percent: total > 0 ? Math.round((counts[k] / total) * 100) : 0 };
+      }).filter(function (c) { return c.count > 0; }).sort(function (a, b) { return b.count - a.count; });
+    }
+
+    function getOptimizationTips(text) {
+      var tips = [];
+      if (!text.trim()) return tips;
+      var multiSpaces = (text.match(/  +/g) || []).length;
+      if (multiSpaces > 0) tips.push('Remove ' + multiSpaces + ' instance(s) of multiple consecutive spaces to save ' + multiSpaces + ' character(s).');
+      var trailingSpaces = (text.match(/ +$/gm) || []).length;
+      if (trailingSpaces > 0) tips.push('Remove ' + trailingSpaces + ' trailing space(s) on lines.');
+      var links = findLinks(text);
+      if (links.length > 0) tips.push('You have ' + links.length + ' link(s). Consider using a link shortener to save characters.');
+      var emojiCount = countEmojis(text);
+      if (emojiCount > 5) tips.push('You have ' + emojiCount + ' emojis. Some platforms count emojis as 2 chars each.');
+      var longWords = (text.match(/\b\w{15,}\b/g) || []).length;
+      if (longWords > 0) tips.push('Found ' + longWords + ' very long word(s) (15+ chars). Consider shortening them.');
+      if (text.split(/\n/).length > 10) tips.push('Many line breaks detected. Removing empty lines can save characters.');
+      return tips;
+    }
+
+    function renderPlatforms(text) {
+      var html = '';
+      platforms.forEach(function (p) {
+        if (activePlatform !== 'all' && !p.id.startsWith(activePlatform)) return;
+        var effectiveChars = calcEffectiveChars(text, p);
+        var pct = Math.min(100, (effectiveChars / p.limit) * 100);
+        var remaining = p.limit - effectiveChars;
+        var isOver = effectiveChars > p.limit;
+        var isNear = pct > 80 && !isOver;
+        var barColor = isOver ? '#ef4444' : isNear ? '#f59e0b' : p.color;
+        var statusBg = isOver ? 'bg-red-50 dark:bg-red-900/20' : isNear ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-green-50 dark:bg-green-900/20';
+        var statusText = isOver ? 'text-red-600 dark:text-red-400' : isNear ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400';
+        var ringColor = isOver ? '#ef4444' : isNear ? '#f59e0b' : p.color;
+        var circumference = 2 * Math.PI * 26;
+        var dashOffset = circumference - (circumference * pct / 100);
+
+        html += '<div class="smc-platform-card relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5">';
+        html += '<div class="flex items-start justify-between gap-3">';
+        html += '<div class="flex items-center gap-2">';
+        html += '<div class="relative flex h-14 w-14 shrink-0 items-center justify-center">';
+        html += '<svg class="h-14 w-14 -rotate-90" viewBox="0 0 64 64">';
+        html += '<circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="3" class="text-border-light dark:text-border-dark" />';
+        html += '<circle cx="32" cy="32" r="26" fill="none" stroke="' + ringColor + '" stroke-width="3" stroke-linecap="round" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + dashOffset + '" class="transition-all duration-500" />';
+        html += '</svg>';
+        html += '<span class="absolute text-tiny font-bold" style="color:' + ringColor + '">' + Math.round(pct) + '%</span>';
+        html += '</div>';
+        html += '<div>';
+        html += '<div class="text-small font-semibold text-txt-light dark:text-txt-dark">' + p.name + '</div>';
+        html += '<div class="text-tiny text-txt-muted">Limit: ' + p.limit.toLocaleString() + '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div class="text-right">';
+        html += '<div class="text-body font-bold ' + statusText + '">' + (isOver ? '-' : '') + Math.abs(remaining).toLocaleString() + '</div>';
+        html += '<div class="text-tiny ' + statusText + '">' + (isOver ? 'over' : 'left') + '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div class="mt-3 h-2 overflow-hidden rounded-full bg-surface-light-alt dark:bg-surface-dark-alt">';
+        html += '<div class="h-full rounded-full transition-all duration-500" style="width:' + pct + '%;background:' + barColor + '"></div>';
+        html += '</div>';
+        html += '<div class="mt-1 flex items-center justify-between text-tiny text-txt-muted">';
+        html += '<span>' + effectiveChars.toLocaleString() + ' / ' + p.limit.toLocaleString() + '</span>';
+        html += '<span class="' + statusText + ' font-semibold">' + (isOver ? '⚠ Over limit' : isNear ? '● Near limit' : '✓ Fits') + '</span>';
+        html += '</div>';
+        if (isOver) {
+          html += '<div class="mt-2 rounded-lg ' + statusBg + ' px-3 py-1.5 text-tiny ' + statusText + '">⚠ Exceeds limit by ' + Math.abs(remaining) + ' characters. Shorten your text to fit.</div>';
+        }
+        html += '</div>';
+      });
+      platformsContainer.innerHTML = html;
+    }
+
+    function updateDensity(text) {
+      var density = getDensity(text);
+      if (density.length === 0) {
+        densityEl.innerHTML = '<p class="text-tiny text-txt-muted">Start typing to see breakdown.</p>';
+        return;
+      }
+      var colors = { letters: '#7c3aed', spaces: '#06b6d4', numbers: '#10b981', punctuation: '#f59e0b', symbols: '#ec4899', emojis: '#f97316' };
+      var html = '';
+      density.forEach(function (d) {
+        html += '<div>';
+        html += '<div class="mb-0.5 flex items-center justify-between text-tiny">';
+        html += '<span class="font-medium capitalize text-txt-light dark:text-txt-dark">' + d.type + '</span>';
+        html += '<span class="text-txt-muted">' + d.count + ' (' + d.percent + '%)</span>';
+        html += '</div>';
+        html += '<div class="h-2 overflow-hidden rounded-full bg-surface-light-alt dark:bg-surface-dark-alt">';
+        html += '<div class="h-full rounded-full transition-all duration-500" style="width:' + d.percent + '%;background:' + (colors[d.type] || '#7c3aed') + '"></div>';
+        html += '</div>';
+        html += '</div>';
+      });
+      densityEl.innerHTML = html;
+    }
+
+    function updateEmojiCost(text) {
+      var emojiCount = countEmojis(text);
+      if (emojiCount === 0) {
+        emojiCostEl.innerHTML = '<p class="text-tiny text-txt-muted">No emojis detected. Add some to see cost.</p>';
+        return;
+      }
+      var html = '<div class="rounded-lg bg-surface-light-alt p-3 dark:bg-surface-dark-alt">';
+      html += '<div class="flex items-center justify-between text-tiny"><span class="text-txt-muted">Emojis found</span><span class="font-bold text-txt-light dark:text-txt-dark">' + emojiCount + '</span></div>';
+      html += '<div class="mt-2 flex items-center justify-between text-tiny"><span class="text-txt-muted">Cost on Twitter/X</span><span class="font-bold text-red-500">' + (emojiCount * 2) + ' chars</span></div>';
+      html += '<div class="mt-1 flex items-center justify-between text-tiny"><span class="text-txt-muted">Cost on Instagram</span><span class="font-bold text-green-500">' + emojiCount + ' chars</span></div>';
+      html += '<div class="mt-1 flex items-center justify-between text-tiny"><span class="text-txt-muted">Cost on Facebook</span><span class="font-bold text-green-500">' + emojiCount + ' chars</span></div>';
+      html += '</div>';
+      emojiCostEl.innerHTML = html;
+    }
+
+    function updateLinkCost(text) {
+      var links = findLinks(text);
+      if (links.length === 0) {
+        linkCostEl.innerHTML = '<p class="text-tiny text-txt-muted">No links detected. Add a URL to see cost.</p>';
+        return;
+      }
+      var html = '';
+      links.forEach(function (link, i) {
+        var original = link.length;
+        var shortened = 23;
+        html += '<div class="rounded-lg bg-surface-light-alt p-2 dark:bg-surface-dark-alt">';
+        html += '<div class="truncate text-tiny font-medium text-txt-light dark:text-txt-dark">' + link.substring(0, 40) + (link.length > 40 ? '...' : '') + '</div>';
+        html += '<div class="mt-1 flex items-center justify-between text-tiny"><span class="text-txt-muted">Original: ' + original + ' chars</span><span class="font-bold text-green-500">Shortened: ~' + shortened + ' chars</span></div>';
+        html += '<div class="mt-0.5 text-tiny text-green-500">Save ' + (original - shortened) + ' chars</div>';
+        html += '</div>';
+      });
+      linkCostEl.innerHTML = html;
+    }
+
+    function updateTips(text) {
+      var tips = getOptimizationTips(text);
+      if (tips.length === 0) {
+        tipsEl.classList.add('hidden');
+        return;
+      }
+      tipsEl.classList.remove('hidden');
+      var html = '';
+      tips.forEach(function (tip) {
+        html += '<li class="flex items-start gap-2"><span class="mt-0.5">💡</span><span>' + tip + '</span></li>';
+      });
+      tipsList.innerHTML = html;
+    }
+
+    function update() {
+      var text = input.value;
+      var chars = text.length;
+      var hashtags = (text.match(/#[\w]+/g) || []).length;
+      var mentions = (text.match(/@[\w]+/g) || []).length;
+
+      charsEl.textContent = chars.toLocaleString();
+      hashtagsEl.textContent = hashtags;
+      mentionsEl.textContent = mentions;
+
+      if (text.trim()) {
+        emptyState.style.display = 'none';
+      } else {
+        emptyState.style.display = 'flex';
+      }
+
+      renderPlatforms(text);
+      updateDensity(text);
+      updateEmojiCost(text);
+      updateLinkCost(text);
+      updateTips(text);
+    }
+
+    // Tab switching
+    document.querySelectorAll('.smc-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.smc-tab').forEach(function (t) {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        activePlatform = tab.getAttribute('data-platform');
+        update();
+      });
+    });
+
+    // Copy
+    copyBtn.addEventListener('click', function () {
+      if (!input.value.trim()) { showToast('Nothing to copy'); return; }
+      navigator.clipboard.writeText(input.value).then(function () {
+        showToast('Text copied!');
+        copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Copied!</span>';
+        setTimeout(function () {
+          copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span>';
+        }, 2000);
+      });
+    });
+
+    // Clear
+    clearBtn.addEventListener('click', function () {
+      if (!input.value) return;
+      input.value = '';
+      update();
+      input.focus();
+      showToast('Text cleared');
+    });
+
+    // Template modal
+    templateBtn.addEventListener('click', function () {
+      templateModal.classList.remove('hidden');
+      templateModal.classList.add('flex');
+      var html = '';
+      templates.forEach(function (t, i) {
+        html += '<button class="smc-template-item w-full rounded-lg border border-border-light bg-surface-light-alt p-3 text-left transition-all hover:border-brand-300 hover:shadow-soft dark:border-border-dark dark:bg-surface-dark-alt" data-template="' + i + '">';
+        html += '<div class="text-small font-semibold text-txt-light dark:text-txt-dark">' + t.name + '</div>';
+        html += '<div class="mt-1 text-tiny text-txt-muted line-clamp-2">' + t.text.substring(0, 80) + '...</div>';
+        html += '</button>';
+      });
+      templateList.innerHTML = html;
+      document.querySelectorAll('.smc-template-item').forEach(function (item) {
+        item.addEventListener('click', function () {
+          var idx = parseInt(item.getAttribute('data-template'));
+          input.value = templates[idx].text;
+          update();
+          templateModal.classList.add('hidden');
+          templateModal.classList.remove('flex');
+          showToast('Template loaded');
+        });
+      });
+    });
+
+    templateClose.addEventListener('click', function () {
+      templateModal.classList.add('hidden');
+      templateModal.classList.remove('flex');
+    });
+    templateModal.addEventListener('click', function (e) {
+      if (e.target === templateModal) {
+        templateModal.classList.add('hidden');
+        templateModal.classList.remove('flex');
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        copyBtn.click();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Backspace') {
+        e.preventDefault();
+        clearBtn.click();
+      }
+      if (e.key === 'Escape' && !templateModal.classList.contains('hidden')) {
+        templateModal.classList.add('hidden');
+        templateModal.classList.remove('flex');
+      }
+    });
+
+    input.addEventListener('input', update);
+    renderPlatforms('');
+    input.focus();
+  })();
+</script>

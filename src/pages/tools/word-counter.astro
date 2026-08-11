@@ -1,0 +1,565 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="word-counter">
+  <!-- Main Tool Card -->
+  <div class="wc-card-glass relative overflow-hidden rounded-2xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-white/5 xs:p-3">
+    <!-- Decorative gradient orbs -->
+    <div class="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full bg-brand-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl"></div>
+
+    <div class="relative z-10">
+      <!-- Textarea wrapper -->
+      <div class="relative">
+        <textarea
+          id="wc-input"
+          class="w-full resize-y rounded-xl border border-border-light bg-surface-light/80 px-4 py-3 text-body leading-relaxed text-txt-light transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-border-dark dark:bg-surface-dark/80 dark:text-txt-dark xs:text-small xs:px-3"
+          rows="6"
+          placeholder="Start typing or paste your text here..."
+          aria-label="Text input for word counting"
+          spellcheck="true"
+        ></textarea>
+
+        <!-- Empty state overlay -->
+        <div id="wc-empty-state" class="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div class="text-center">
+            <div class="mb-3 flex justify-center">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow opacity-50">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/></svg>
+              </div>
+            </div>
+            <p class="text-small text-txt-muted">Type or paste text to see live statistics</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div class="mt-3 flex items-center gap-2 xs:flex-wrap">
+        <button id="wc-copy" class="btn-secondary px-3 py-2 text-small xs:flex-1" title="Copy text (Ctrl+Enter)" aria-label="Copy text">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy</span>
+        </button>
+        <button id="wc-clear" class="btn-ghost px-3 py-2 text-small xs:flex-1" title="Clear text (Ctrl+Backspace)" aria-label="Clear text">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Clear</span>
+        </button>
+        <button id="wc-paste" class="btn-ghost px-3 py-2 text-small xs:flex-1" title="Paste from clipboard" aria-label="Paste from clipboard">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+          <span>Paste</span>
+        </button>
+        <div class="ml-auto flex items-center gap-2 text-tiny text-txt-muted">
+          <span class="hidden sm:inline">Keyboard:</span>
+          <kbd class="rounded-md border border-border-light bg-surface-light-alt px-1.5 py-0.5 text-tiny dark:border-border-dark dark:bg-surface-dark-alt">Ctrl+Enter</kbd>
+          <span class="hidden sm:inline">copy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xs:grid-cols-2">
+    <!-- Word Count -->
+    <div class="wc-stat-card group relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5" data-stat="words">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"/><path d="M9 20h6"/><path d="M12 5v15"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Words</span>
+      </div>
+      <div class="wc-stat-value text-h3 font-bold text-txt-light dark:text-txt-dark" data-target="words">0</div>
+      <div class="wc-stat-extra mt-0.5 text-tiny text-txt-muted"></div>
+    </div>
+
+    <!-- Characters -->
+    <div class="wc-stat-card group relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5" data-stat="characters">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Characters</span>
+      </div>
+      <div class="wc-stat-value text-h3 font-bold text-txt-light dark:text-txt-dark" data-target="characters">0</div>
+      <div class="wc-stat-extra mt-0.5 text-tiny text-txt-muted"></div>
+    </div>
+
+    <!-- Sentences -->
+    <div class="wc-stat-card group relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5" data-stat="sentences">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Sentences</span>
+      </div>
+      <div class="wc-stat-value text-h3 font-bold text-txt-light dark:text-txt-dark" data-target="sentences">0</div>
+      <div class="wc-stat-extra mt-0.5 text-tiny text-txt-muted"></div>
+    </div>
+
+    <!-- Paragraphs -->
+    <div class="wc-stat-card group relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5" data-stat="paragraphs">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 5v13a2 2 0 0 0 2 2h5V7a2 2 0 0 0-2-2H3z"/><path d="M21 5v13a2 2 0 0 1-2 2h-5V7a2 2 0 0 1 2-2h5z"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Paragraphs</span>
+      </div>
+      <div class="wc-stat-value text-h3 font-bold text-txt-light dark:text-txt-dark" data-target="paragraphs">0</div>
+      <div class="wc-stat-extra mt-0.5 text-tiny text-txt-muted"></div>
+    </div>
+
+    <!-- Lines -->
+    <div class="wc-stat-card group relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5" data-stat="lines">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Lines</span>
+      </div>
+      <div class="wc-stat-value text-h3 font-bold text-txt-light dark:text-txt-dark" data-target="lines">0</div>
+      <div class="wc-stat-extra mt-0.5 text-tiny text-txt-muted"></div>
+    </div>
+
+    <!-- Reading Time -->
+    <div class="wc-stat-card group relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5" data-stat="reading-time">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Reading Time</span>
+      </div>
+      <div class="wc-stat-value text-h3 font-bold text-txt-light dark:text-txt-dark" data-target="reading-time">0s</div>
+      <div class="wc-stat-extra mt-0.5 text-tiny text-txt-muted">@200 WPM</div>
+    </div>
+
+    <!-- Speaking Time -->
+    <div class="wc-stat-card group relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5" data-stat="speaking-time">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Speaking Time</span>
+      </div>
+      <div class="wc-stat-value text-h3 font-bold text-txt-light dark:text-txt-dark" data-target="speaking-time">0s</div>
+      <div class="wc-stat-extra mt-0.5 text-tiny text-txt-muted">@130 WPM</div>
+    </div>
+
+    <!-- Avg Word Length -->
+    <div class="wc-stat-card group relative overflow-hidden rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl transition-all hover:shadow-medium dark:border-white/10 dark:bg-white/5" data-stat="avg-word">
+      <div class="mb-1 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-300">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+        </div>
+        <span class="text-tiny font-semibold text-txt-muted">Avg Word</span>
+      </div>
+      <div class="wc-stat-value text-h3 font-bold text-txt-light dark:text-txt-dark" data-target="avg-word">0</div>
+      <div class="wc-stat-extra mt-0.5 text-tiny text-txt-muted">chars/word</div>
+    </div>
+  </div>
+
+  <!-- Character Variants Toggle + Word Goal -->
+  <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+    <!-- Character Variants -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/></svg>
+        Character Variants
+      </h3>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">With spaces</div>
+          <div id="wc-chars-with" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+        <div class="rounded-lg bg-surface-light-alt p-3 text-center dark:bg-surface-dark-alt">
+          <div class="text-tiny text-txt-muted">No spaces</div>
+          <div id="wc-chars-without" class="text-body font-bold text-txt-light dark:text-txt-dark">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Word Goal Tracker -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Word Goal Tracker
+      </h3>
+      <div class="flex items-center gap-3">
+        <div class="relative flex h-16 w-16 shrink-0 items-center justify-center">
+          <svg class="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="4" class="text-border-light dark:text-border-dark" />
+            <circle id="wc-goal-ring" cx="32" cy="32" r="28" fill="none" stroke="url(#wc-grad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="175.93" stroke-dashoffset="175.93" class="transition-all duration-500" />
+            <defs>
+              <linearGradient id="wc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7c3aed" />
+                <stop offset="100%" stop-color="#06b6d4" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span id="wc-goal-percent" class="absolute text-tiny font-bold text-txt-light dark:text-txt-dark">0%</span>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <input id="wc-goal-input" type="number" value="500" min="1" max="100000" class="w-20 rounded-lg border border-border-light bg-surface-light px-2 py-1 text-small text-txt-light focus:border-brand-500 focus:outline-none dark:border-border-dark dark:bg-surface-dark dark:text-txt-dark" aria-label="Word goal" />
+            <span class="text-tiny text-txt-muted">words goal</span>
+          </div>
+          <div class="mt-1 text-tiny text-txt-muted">
+            <span id="wc-goal-status">Set a target and track progress</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Social Media Limits -->
+  <div class="mt-4 rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+    <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+      <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      Social Media Character Limits
+    </h3>
+    <div id="wc-social-limits" class="space-y-2.5"></div>
+  </div>
+
+  <!-- Word Frequency + Character Density -->
+  <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+    <!-- Word Frequency -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg>
+        Word Frequency (Top 10)
+      </h3>
+      <div id="wc-word-freq" class="space-y-1.5">
+        <p class="text-tiny text-txt-muted">Start typing to see word frequency analysis.</p>
+      </div>
+    </div>
+
+    <!-- Character Density -->
+    <div class="rounded-xl border border-white/20 bg-white/60 p-4 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+      <h3 class="mb-3 flex items-center gap-2 text-small font-semibold text-txt-light dark:text-txt-dark">
+        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        Character Density
+      </h3>
+      <div id="wc-char-density" class="space-y-2">
+        <p class="text-tiny text-txt-muted">Start typing to see character density breakdown.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="wc-toast" class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 translate-y-20 rounded-xl bg-brand-gradient px-5 py-3 text-small font-semibold text-white shadow-large opacity-0 transition-all duration-300">
+    <span id="wc-toast-text">Copied!</span>
+  </div>
+
+  <ToolSections slug="word-counter" />
+</ToolLayout>
+
+<script is:inline>
+  (function () {
+    var input = document.getElementById('wc-input');
+    if (!input) return;
+    var emptyState = document.getElementById('wc-empty-state');
+    var copyBtn = document.getElementById('wc-copy');
+    var clearBtn = document.getElementById('wc-clear');
+    var pasteBtn = document.getElementById('wc-paste');
+    var goalInput = document.getElementById('wc-goal-input');
+    var goalRing = document.getElementById('wc-goal-ring');
+    var goalPercent = document.getElementById('wc-goal-percent');
+    var goalStatus = document.getElementById('wc-goal-status');
+    var socialLimits = document.getElementById('wc-social-limits');
+    var wordFreq = document.getElementById('wc-word-freq');
+    var charDensity = document.getElementById('wc-char-density');
+    var toast = document.getElementById('wc-toast');
+    var toastText = document.getElementById('wc-toast-text');
+
+    var platforms = [
+      { name: 'Twitter/X', limit: 280, color: '#1d9bf0' },
+      { name: 'Meta Description', limit: 160, color: '#7c3aed' },
+      { name: 'Google Title', limit: 60, color: '#06b6d4' },
+      { name: 'Instagram Caption', limit: 2200, color: '#ec4899' },
+      { name: 'SMS', limit: 160, color: '#10b981' },
+    ];
+
+    function showToast(msg) {
+      toastText.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(function () {
+        toast.classList.add('opacity-0', 'translate-y-20');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2000);
+    }
+
+    function countWords(text) {
+      var trimmed = text.trim();
+      if (!trimmed) return 0;
+      var words = trimmed.split(/\s+/);
+      return words.filter(function (w) { return w.length > 0; }).length;
+    }
+
+    function countSentences(text) {
+      if (!text.trim()) return 0;
+      var sentences = text.split(/[.!?]+(?=\s|$)/g).filter(function (s) { return s.trim().length > 0; });
+      return sentences.length;
+    }
+
+    function countParagraphs(text) {
+      if (!text.trim()) return 0;
+      return text.split(/\n\s*\n/).filter(function (p) { return p.trim().length > 0; }).length;
+    }
+
+    function countLines(text) {
+      if (!text) return 0;
+      return text.split(/\n/).length;
+    }
+
+    function formatTime(seconds) {
+      if (seconds < 1) return '0s';
+      if (seconds < 60) return Math.round(seconds) + 's';
+      var mins = Math.floor(seconds / 60);
+      var secs = Math.round(seconds % 60);
+      if (mins < 60) return secs > 0 ? mins + 'm ' + secs + 's' : mins + 'm';
+      var hrs = Math.floor(mins / 60);
+      var remMins = mins % 60;
+      return remMins > 0 ? hrs + 'h ' + remMins + 'm' : hrs + 'h';
+    }
+
+    function animateValue(el, newVal) {
+      var oldVal = el.textContent;
+      if (oldVal === String(newVal)) return;
+      el.textContent = newVal;
+      el.classList.remove('animate-count');
+      void el.offsetWidth;
+      el.classList.add('animate-count');
+    }
+
+    function getWordFrequency(text, topN) {
+      if (!text.trim()) return [];
+      var words = text.toLowerCase().match(/\b[\w']+\b/g) || [];
+      var stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'is', 'was', 'are', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'shall', 'can', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'as', 'if', 'so', 'not', 'no'];
+      var freq = {};
+      words.forEach(function (w) {
+        if (stopWords.indexOf(w) === -1 && w.length > 1) {
+          freq[w] = (freq[w] || 0) + 1;
+        }
+      });
+      return Object.keys(freq).map(function (k) { return { word: k, count: freq[k] }; }).sort(function (a, b) { return b.count - a.count; }).slice(0, topN);
+    }
+
+    function getCharDensity(text) {
+      if (!text) return [];
+      var total = text.length;
+      if (total === 0) return [];
+      var counts = { letters: 0, numbers: 0, spaces: 0, punctuation: 0, symbols: 0, emojis: 0 };
+      for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        var code = ch.charCodeAt(0);
+        if (/\s/.test(ch)) counts.spaces++;
+        else if (/[a-zA-Z]/.test(ch)) counts.letters++;
+        else if (/[0-9]/.test(ch)) counts.numbers++;
+        else if (/[.,!?;:'"\-—–(){}[\]…]/.test(ch)) counts.punctuation++;
+        else if (code >= 0x1F600 && code <= 0x1F64F || code >= 0x1F300 && code <= 0x1F5FF || code >= 0x2600 && code <= 0x26FF || code >= 0x2700 && code <= 0x27BF) counts.emojis++;
+        else counts.symbols++;
+      }
+      return Object.keys(counts).map(function (k) { return { type: k, count: counts[k], percent: total > 0 ? Math.round((counts[k] / total) * 100) : 0 }; }).filter(function (c) { return c.count > 0; }).sort(function (a, b) { return b.count - a.count; });
+    }
+
+    function updateSocialLimits(charCount) {
+      var html = '';
+      platforms.forEach(function (p, i) {
+        var pct = Math.min(100, (charCount / p.limit) * 100);
+        var remaining = p.limit - charCount;
+        var isOver = charCount > p.limit;
+        var barColor = isOver ? '#ef4444' : pct > 80 ? '#f59e0b' : p.color;
+        var statusColor = isOver ? 'text-red-500' : pct > 80 ? 'text-amber-500' : 'text-green-500';
+        var statusIcon = isOver ? '⚠' : pct > 80 ? '●' : '✓';
+        html += '<div class="wc-platform-item" data-platform="' + i + '">';
+        html += '<div class="mb-1 flex items-center justify-between text-tiny">';
+        html += '<span class="font-medium text-txt-light dark:text-txt-dark">' + p.name + '</span>';
+        html += '<span class="' + statusColor + ' font-semibold">' + statusIcon + ' ' + (isOver ? '-' + Math.abs(remaining) : remaining) + ' left</span>';
+        html += '</div>';
+        html += '<div class="h-2 overflow-hidden rounded-full bg-surface-light-alt dark:bg-surface-dark-alt">';
+        html += '<div class="h-full rounded-full transition-all duration-500" style="width:' + pct + '%;background:' + barColor + '"></div>';
+        html += '</div>';
+        html += '<div class="mt-0.5 text-tiny text-txt-muted">' + charCount + ' / ' + p.limit + '</div>';
+        html += '</div>';
+      });
+      socialLimits.innerHTML = html;
+    }
+
+    function updateWordFreq(text) {
+      var freq = getWordFrequency(text, 10);
+      if (freq.length === 0) {
+        wordFreq.innerHTML = '<p class="text-tiny text-txt-muted">Start typing to see word frequency analysis.</p>';
+        return;
+      }
+      var maxCount = freq[0].count;
+      var html = '';
+      freq.forEach(function (f) {
+        var pct = (f.count / maxCount) * 100;
+        html += '<div class="flex items-center gap-2">';
+        html += '<span class="w-20 truncate text-tiny font-medium text-txt-light dark:text-txt-dark">' + f.word + '</span>';
+        html += '<div class="h-4 flex-1 overflow-hidden rounded-md bg-surface-light-alt dark:bg-surface-dark-alt">';
+        html += '<div class="h-full rounded-md bg-brand-gradient transition-all duration-500" style="width:' + pct + '%"></div>';
+        html += '</div>';
+        html += '<span class="w-6 text-right text-tiny font-bold text-txt-muted">' + f.count + '</span>';
+        html += '</div>';
+      });
+      wordFreq.innerHTML = html;
+    }
+
+    function updateCharDensity(text) {
+      var density = getCharDensity(text);
+      if (density.length === 0) {
+        charDensity.innerHTML = '<p class="text-tiny text-txt-muted">Start typing to see character density breakdown.</p>';
+        return;
+      }
+      var colors = { letters: '#7c3aed', spaces: '#06b6d4', numbers: '#10b981', punctuation: '#f59e0b', symbols: '#ec4899', emojis: '#f97316' };
+      var html = '';
+      density.forEach(function (d) {
+        var color = colors[d.type] || '#7c3aed';
+        html += '<div>';
+        html += '<div class="mb-0.5 flex items-center justify-between text-tiny">';
+        html += '<span class="font-medium capitalize text-txt-light dark:text-txt-dark">' + d.type + '</span>';
+        html += '<span class="text-txt-muted">' + d.count + ' (' + d.percent + '%)</span>';
+        html += '</div>';
+        html += '<div class="h-2 overflow-hidden rounded-full bg-surface-light-alt dark:bg-surface-dark-alt">';
+        html += '<div class="h-full rounded-full transition-all duration-500" style="width:' + d.percent + '%;background:' + color + '"></div>';
+        html += '</div>';
+        html += '</div>';
+      });
+      charDensity.innerHTML = html;
+    }
+
+    function updateGoal(wordCount) {
+      var goal = parseInt(goalInput.value) || 0;
+      if (goal <= 0) {
+        goalRing.setAttribute('stroke-dashoffset', '175.93');
+        goalPercent.textContent = '0%';
+        goalStatus.textContent = 'Set a target and track progress';
+        return;
+      }
+      var pct = Math.min(100, (wordCount / goal) * 100);
+      var offset = 175.93 - (175.93 * pct / 100);
+      goalRing.setAttribute('stroke-dashoffset', offset);
+      goalPercent.textContent = Math.round(pct) + '%';
+      if (pct >= 100) {
+        goalStatus.innerHTML = '<span class="font-semibold text-green-500">Goal achieved! 🎉</span>';
+      } else if (pct >= 75) {
+        goalStatus.innerHTML = '<span class="text-amber-500">Almost there — ' + (goal - wordCount) + ' words to go</span>';
+      } else {
+        goalStatus.innerHTML = '<span class="text-txt-muted">' + (goal - wordCount) + ' words remaining</span>';
+      }
+    }
+
+    function update() {
+      var text = input.value;
+      var words = countWords(text);
+      var chars = text.length;
+      var charsNoSpaces = text.replace(/\s/g, '').length;
+      var sentences = countSentences(text);
+      var paragraphs = countParagraphs(text);
+      var lines = countLines(text);
+      var readingSecs = words / 200 * 60;
+      var speakingSecs = words / 130 * 60;
+      var avgWord = words > 0 ? (charsNoSpaces / words).toFixed(1) : '0';
+
+      // Toggle empty state
+      if (text.trim()) {
+        emptyState.style.display = 'none';
+      } else {
+        emptyState.style.display = 'flex';
+      }
+
+      // Update stat cards
+      var statEls = document.querySelectorAll('.wc-stat-value');
+      statEls.forEach(function (el) {
+        var target = el.getAttribute('data-target');
+        if (target === 'words') animateValue(el, words.toLocaleString());
+        else if (target === 'characters') animateValue(el, chars.toLocaleString());
+        else if (target === 'sentences') animateValue(el, sentences.toLocaleString());
+        else if (target === 'paragraphs') animateValue(el, paragraphs.toLocaleString());
+        else if (target === 'lines') animateValue(el, lines.toLocaleString());
+        else if (target === 'reading-time') animateValue(el, formatTime(readingSecs));
+        else if (target === 'speaking-time') animateValue(el, formatTime(speakingSecs));
+        else if (target === 'avg-word') animateValue(el, avgWord);
+      });
+
+      // Update extras
+      var wordExtra = document.querySelector('[data-stat="words"] .wc-stat-extra');
+      if (wordExtra) wordExtra.textContent = words === 1 ? '1 word' : words + ' words';
+      var charExtra = document.querySelector('[data-stat="characters"] .wc-stat-extra');
+      if (charExtra) charExtra.textContent = chars === 1 ? '1 char' : chars + ' chars';
+      var sentExtra = document.querySelector('[data-stat="sentences"] .wc-stat-extra');
+      if (sentExtra) sentExtra.textContent = sentences > 0 ? (words / sentences).toFixed(1) + ' words/sent' : '';
+      var paraExtra = document.querySelector('[data-stat="paragraphs"] .wc-stat-extra');
+      if (paraExtra) paraExtra.textContent = paragraphs > 0 ? (words / paragraphs).toFixed(0) + ' words/para' : '';
+
+      // Character variants
+      document.getElementById('wc-chars-with').textContent = chars.toLocaleString();
+      document.getElementById('wc-chars-without').textContent = charsNoSpaces.toLocaleString();
+
+      // Social limits
+      updateSocialLimits(chars);
+
+      // Word frequency
+      updateWordFreq(text);
+
+      // Character density
+      updateCharDensity(text);
+
+      // Goal tracker
+      updateGoal(words);
+    }
+
+    // Event listeners
+    input.addEventListener('input', update);
+    goalInput.addEventListener('input', update);
+
+    copyBtn.addEventListener('click', function () {
+      if (!input.value.trim()) {
+        showToast('Nothing to copy');
+        return;
+      }
+      navigator.clipboard.writeText(input.value).then(function () {
+        showToast('Text copied to clipboard!');
+        copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Copied!</span>';
+        setTimeout(function () {
+          copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span>';
+        }, 2000);
+      });
+    });
+
+    clearBtn.addEventListener('click', function () {
+      if (!input.value) return;
+      input.value = '';
+      update();
+      input.focus();
+      showToast('Text cleared');
+    });
+
+    pasteBtn.addEventListener('click', function () {
+      navigator.clipboard.readText().then(function (text) {
+        input.value = text;
+        update();
+        showToast('Pasted from clipboard');
+      }).catch(function () {
+        showToast('Unable to paste. Check permissions.');
+      });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        copyBtn.click();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Backspace') {
+        e.preventDefault();
+        clearBtn.click();
+      }
+    });
+
+    // Initial render
+    updateSocialLimits(0);
+    input.focus();
+  })();
+</script>

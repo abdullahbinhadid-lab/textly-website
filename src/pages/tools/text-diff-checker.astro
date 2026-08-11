@@ -1,0 +1,455 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ToolSections from '../../components/ToolSections.astro';
+---
+
+<ToolLayout slug="text-diff-checker">
+  <div class="tdc-tool space-y-4 sm:space-y-5">
+    <!-- Main Glass Card -->
+    <div class="card-glass relative overflow-hidden p-4 sm:p-6">
+      <div class="pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-brand-500/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl"></div>
+
+      <div class="relative z-10 space-y-4">
+        <!-- Options Bar -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+          <!-- View Mode Toggle -->
+          <div class="flex rounded-xl border border-border-light bg-white/40 p-1 backdrop-blur-sm dark:border-border-dark dark:bg-white/5">
+            <button id="tdc-view-split" class="tdc-view-btn active rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-view="split">
+              <span class="inline-flex items-center gap-1">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+                Split
+              </span>
+            </button>
+            <button id="tdc-view-unified" class="tdc-view-btn rounded-lg px-3 py-1.5 text-tiny font-semibold transition-all" data-view="unified">
+              <span class="inline-flex items-center gap-1">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+                Unified
+              </span>
+            </button>
+          </div>
+          <!-- Case Sensitivity -->
+          <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-border-light bg-white/40 px-3 py-2 text-tiny font-semibold backdrop-blur-sm dark:border-border-dark dark:bg-white/5" title="Toggle case sensitivity">
+            <input type="checkbox" id="tdc-case-sensitive" class="h-4 w-4 rounded accent-brand-500" />
+            <span class="text-txt-muted">Case sensitive</span>
+          </label>
+          <!-- Ignore Whitespace -->
+          <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-border-light bg-white/40 px-3 py-2 text-tiny font-semibold backdrop-blur-sm dark:border-border-dark dark:bg-white/5" title="Ignore whitespace-only changes">
+            <input type="checkbox" id="tdc-ignore-ws" class="h-4 w-4 rounded accent-brand-500" checked />
+            <span class="text-txt-muted">Ignore whitespace</span>
+          </label>
+          <!-- Line Numbers -->
+          <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-border-light bg-white/40 px-3 py-2 text-tiny font-semibold backdrop-blur-sm dark:border-border-dark dark:bg-white/5" title="Show line numbers">
+            <input type="checkbox" id="tdc-line-numbers" class="h-4 w-4 rounded accent-brand-500" checked />
+            <span class="text-txt-muted">Line numbers</span>
+          </label>
+          <!-- Swap Button -->
+          <button id="tdc-swap-btn" class="btn-ghost ml-auto px-3 py-2 text-tiny" title="Swap texts (Ctrl+S)" aria-label="Swap original and modified texts">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+            <span class="hidden sm:inline">Swap</span>
+          </button>
+        </div>
+
+        <!-- Input Panels -->
+        <div id="tdc-input-split" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label for="tdc-original" class="mb-2 flex items-center justify-between text-small font-semibold text-txt-light dark:text-txt-dark">
+              <span class="inline-flex items-center gap-1.5">
+                <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                Original Text
+              </span>
+              <span id="tdc-orig-count" class="text-tiny text-txt-muted">0 lines</span>
+            </label>
+            <textarea
+              id="tdc-original"
+              class="tool-textarea min-h-[200px] w-full resize-y rounded-xl border border-border-light bg-white/50 px-3 py-3 text-small leading-relaxed backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-border-dark dark:bg-white/5"
+              placeholder="Paste the original text here..."
+              aria-label="Original text"
+            ></textarea>
+          </div>
+          <div>
+            <label for="tdc-modified" class="mb-2 flex items-center justify-between text-small font-semibold text-txt-light dark:text-txt-dark">
+              <span class="inline-flex items-center gap-1.5">
+                <svg class="h-4 w-4 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Modified Text
+              </span>
+              <span id="tdc-mod-count" class="text-tiny text-txt-muted">0 lines</span>
+            </label>
+            <textarea
+              id="tdc-modified"
+              class="tool-textarea min-h-[200px] w-full resize-y rounded-xl border border-border-light bg-white/50 px-3 py-3 text-small leading-relaxed backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-border-dark dark:bg-white/5"
+              placeholder="Paste the modified text here..."
+              aria-label="Modified text"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Compare Button -->
+        <button id="tdc-compare-btn" class="btn-primary w-full px-4 py-3 text-small" aria-label="Compare texts">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+          <span>Compare Texts</span>
+          <kbd class="ml-2 rounded bg-white/20 px-1.5 py-0.5 text-tiny font-mono">Ctrl+Enter</kbd>
+        </button>
+
+        <!-- Empty State -->
+        <div id="tdc-empty-state" class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-light bg-surface-light-alt/30 py-8 text-center dark:border-border-dark dark:bg-surface-dark-alt/30">
+          <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow animate-pulse-glow">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+          </div>
+          <p class="text-small font-semibold text-txt-light dark:text-txt-dark">Enter two texts to compare</p>
+          <p class="mt-1 text-tiny text-txt-muted">Paste original and modified text above, then click Compare</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="tdc-loading" class="hidden flex-col items-center justify-center py-8">
+          <div class="h-8 w-8 animate-spin rounded-full border-2 border-brand-200 border-t-brand-500"></div>
+          <p class="mt-3 text-small text-txt-muted">Comparing texts...</p>
+        </div>
+
+        <!-- Diff Statistics Bar -->
+        <div id="tdc-stats" class="hidden flex-wrap items-center gap-3 rounded-xl border border-border-light bg-surface-light-alt/50 px-4 py-3 dark:border-border-dark dark:bg-surface-dark-alt/50">
+          <div class="flex items-center gap-2">
+            <div class="h-3 w-3 rounded bg-green-500"></div>
+            <span class="text-small font-semibold text-txt-light dark:text-txt-dark">Added:</span>
+            <span id="tdc-added-count" class="text-small font-bold text-green-600 dark:text-green-400">0</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="h-3 w-3 rounded bg-red-500"></div>
+            <span class="text-small font-semibold text-txt-light dark:text-txt-dark">Removed:</span>
+            <span id="tdc-removed-count" class="text-small font-bold text-red-600 dark:text-red-400">0</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="h-3 w-3 rounded bg-yellow-500"></div>
+            <span class="text-small font-semibold text-txt-light dark:text-txt-dark">Changed:</span>
+            <span id="tdc-changed-count" class="text-small font-bold text-yellow-600 dark:text-yellow-400">0</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="h-3 w-3 rounded bg-brand-500"></div>
+            <span class="text-small font-semibold text-txt-light dark:text-txt-dark">Unchanged:</span>
+            <span id="tdc-unchanged-count" class="text-small font-bold text-brand-600 dark:text-brand-300">0</span>
+          </div>
+          <button id="tdc-copy-diff" class="btn-ghost ml-auto px-3 py-1.5 text-tiny" aria-label="Copy diff result">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Diff</span>
+          </button>
+        </div>
+
+        <!-- Diff Output - Split View -->
+        <div id="tdc-diff-split" class="hidden grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div class="rounded-xl border border-border-light bg-surface-light/80 dark:border-border-dark dark:bg-surface-dark/80">
+            <div class="border-b border-border-light px-4 py-2 text-tiny font-semibold text-txt-muted dark:border-border-dark">Original</div>
+            <div id="tdc-diff-left" class="tdc-diff-output max-h-[400px] overflow-auto scrollbar-thin p-2 font-mono text-tiny leading-relaxed"></div>
+          </div>
+          <div class="rounded-xl border border-border-light bg-surface-light/80 dark:border-border-dark dark:bg-surface-dark/80">
+            <div class="border-b border-border-light px-4 py-2 text-tiny font-semibold text-txt-muted dark:border-border-dark">Modified</div>
+            <div id="tdc-diff-right" class="tdc-diff-output max-h-[400px] overflow-auto scrollbar-thin p-2 font-mono text-tiny leading-relaxed"></div>
+          </div>
+        </div>
+
+        <!-- Diff Output - Unified View -->
+        <div id="tdc-diff-unified" class="hidden rounded-xl border border-border-light bg-surface-light/80 dark:border-border-dark dark:bg-surface-dark/80">
+          <div class="border-b border-border-light px-4 py-2 text-tiny font-semibold text-txt-muted dark:border-border-dark">Unified Diff</div>
+          <div id="tdc-diff-unified-content" class="tdc-diff-output max-h-[400px] overflow-auto scrollbar-thin p-2 font-mono text-tiny leading-relaxed"></div>
+        </div>
+
+        <!-- Error State -->
+        <div id="tdc-error" class="hidden items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-small text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+          <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+          <span id="tdc-error-text">An error occurred.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Quick Access Cards -->
+    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-500 transition-transform group-hover:scale-110 dark:bg-brand-900/30 dark:text-brand-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Split View</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 transition-transform group-hover:scale-110 dark:bg-cyan-900/30 dark:text-cyan-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Unified</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600 transition-transform group-hover:scale-110 dark:bg-green-900/30 dark:text-green-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Word-Level</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 text-accent-500 transition-transform group-hover:scale-110 dark:bg-accent-900/30 dark:text-accent-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Swap</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-500 transition-transform group-hover:scale-110 dark:bg-brand-900/30 dark:text-brand-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Stats</p>
+      </div>
+      <div class="card-glass group p-3 text-center transition-all hover:scale-[1.02]">
+        <div class="mb-1.5 flex justify-center"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 text-accent-500 transition-transform group-hover:scale-110 dark:bg-accent-900/30 dark:text-accent-300"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div></div>
+        <p class="text-tiny font-semibold text-txt-light dark:text-txt-dark">Private</p>
+      </div>
+    </div>
+  </div>
+
+  <ToolSections slug="text-diff-checker" />
+</ToolLayout>
+
+<style>
+  .tdc-view-btn { color: var(--color-text-muted); }
+  .tdc-view-btn.active { background: var(--color-brand); color: white; }
+  .tdc-diff-line { display: flex; padding: 1px 8px; border-radius: 3px; min-height: 20px; align-items: flex-start; }
+  .tdc-diff-line-added { background: rgba(34, 197, 94, 0.12); }
+  .tdc-diff-line-removed { background: rgba(239, 68, 68, 0.12); }
+  .tdc-diff-line-changed { background: rgba(234, 179, 8, 0.12); }
+  .tdc-diff-line-unchanged { background: transparent; }
+  .tdc-diff-line-empty { background: rgba(107, 114, 128, 0.06); }
+  .tdc-diff-prefix { flex-shrink: 0; width: 16px; font-weight: bold; }
+  .tdc-diff-prefix-added { color: #22c55e; }
+  .tdc-diff-prefix-removed { color: #ef4444; }
+  .tdc-diff-prefix-changed { color: #eab308; }
+  .tdc-diff-prefix-unchanged { color: transparent; }
+  .tdc-diff-linenum { flex-shrink: 0; width: 32px; color: var(--color-text-muted); opacity: 0.6; text-align: right; padding-right: 8px; }
+  .tdc-diff-content { flex: 1; white-space: pre-wrap; word-break: break-word; }
+  .tdc-word-added { background: rgba(34, 197, 94, 0.25); border-radius: 2px; padding: 0 2px; }
+  .tdc-word-removed { background: rgba(239, 68, 68, 0.25); border-radius: 2px; padding: 0 2px; }
+  kbd { border: 1px solid var(--color-border); }
+  @media (max-width: 358px) {
+    .tdc-tool .grid-cols-2 { grid-template-columns: 1fr; gap: 0.5rem; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var originalEl = document.getElementById('tdc-original');
+    var modifiedEl = document.getElementById('tdc-modified');
+    var compareBtn = document.getElementById('tdc-compare-btn');
+    var swapBtn = document.getElementById('tdc-swap-btn');
+    var viewSplitBtn = document.getElementById('tdc-view-split');
+    var viewUnifiedBtn = document.getElementById('tdc-view-unified');
+    var caseSensitiveCheck = document.getElementById('tdc-case-sensitive');
+    var ignoreWsCheck = document.getElementById('tdc-ignore-ws');
+    var lineNumbersCheck = document.getElementById('tdc-line-numbers');
+    var emptyState = document.getElementById('tdc-empty-state');
+    var loadingEl = document.getElementById('tdc-loading');
+    var statsEl = document.getElementById('tdc-stats');
+    var diffSplit = document.getElementById('tdc-diff-split');
+    var diffUnified = document.getElementById('tdc-diff-unified');
+    var diffLeft = document.getElementById('tdc-diff-left');
+    var diffRight = document.getElementById('tdc-diff-right');
+    var diffUnifiedContent = document.getElementById('tdc-diff-unified-content');
+    var origCount = document.getElementById('tdc-orig-count');
+    var modCount = document.getElementById('tdc-mod-count');
+    var addedCount = document.getElementById('tdc-added-count');
+    var removedCount = document.getElementById('tdc-removed-count');
+    var changedCount = document.getElementById('tdc-changed-count');
+    var unchangedCount = document.getElementById('tdc-unchanged-count');
+    var copyDiffBtn = document.getElementById('tdc-copy-diff');
+    var errorEl = document.getElementById('tdc-error');
+    var errorText = document.getElementById('tdc-error-text');
+    var currentView = 'split';
+
+    function showEl(el) { el.classList.remove('hidden'); el.style.display = 'flex'; }
+    function hideEl(el) { el.classList.add('hidden'); el.style.display = 'none'; }
+    function showError(msg) { errorText.textContent = msg; showEl(errorEl); setTimeout(function() { hideEl(errorEl); }, 5000); }
+
+    function normalizeLine(line) {
+      if (ignoreWsCheck.checked) { return line.replace(/\s+/g, ' ').trim(); }
+      return caseSensitiveCheck.checked ? line : line.toLowerCase();
+    }
+
+    function computeDiff(origLines, modLines) {
+      var origNorm = origLines.map(normalizeLine);
+      var modNorm = modLines.map(normalizeLine);
+      var m = origLines.length, n = modLines.length;
+      var dp = [];
+      for (var i = 0; i <= m; i++) { dp[i] = []; dp[i][0] = i; }
+      for (var j = 0; j <= n; j++) { dp[0][j] = j; }
+      for (var i = 1; i <= m; i++) {
+        for (var j = 1; j <= n; j++) {
+          if (origNorm[i-1] === modNorm[j-1]) { dp[i][j] = dp[i-1][j-1]; }
+          else { dp[i][j] = Math.min(dp[i-1][j-1] + 1, dp[i-1][j] + 1, dp[i][j-1] + 1); }
+        }
+      }
+      var result = [];
+      var i = m, j = n;
+      while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && origNorm[i-1] === modNorm[j-1]) {
+          result.unshift({ type: 'unchanged', origLine: origLines[i-1], modLine: modLines[j-1], origIdx: i-1, modIdx: j-1 });
+          i--; j--;
+        } else if (j > 0 && (i === 0 || dp[i][j-1] <= dp[i-1][j])) {
+          result.unshift({ type: 'added', origLine: null, modLine: modLines[j-1], origIdx: null, modIdx: j-1 });
+          j--;
+        } else {
+          result.unshift({ type: 'removed', origLine: origLines[i-1], modLine: null, origIdx: i-1, modIdx: null });
+          i--;
+        }
+      }
+      return result;
+    }
+
+    function highlightWordDiff(origText, modText) {
+      var origWords = origText.split(/(\s+)/);
+      var modWords = modText.split(/(\s+)/);
+      var origHtml = '', modHtml = '';
+      var origUsed = {}, modUsed = {};
+      var origNorm = origWords.map(function(w) { return caseSensitiveCheck.checked ? w : w.toLowerCase(); });
+      var modNorm = modWords.map(function(w) { return caseSensitiveCheck.checked ? w : w.toLowerCase(); });
+
+      for (var i = 0; i < origWords.length; i++) {
+        var found = false;
+        for (var j = 0; j < modWords.length; j++) {
+          if (!modUsed[j] && origNorm[i] === modNorm[j] && /\S/.test(origWords[i])) {
+            origUsed[i] = true; modUsed[j] = true; found = true; break;
+          }
+        }
+      }
+      for (var i = 0; i < origWords.length; i++) {
+        if (origUsed[i] || !/\S/.test(origWords[i])) { origHtml += escapeHtml(origWords[i]); }
+        else { origHtml += '<span class="tdc-word-removed">' + escapeHtml(origWords[i]) + '</span>'; }
+      }
+      for (var j = 0; j < modWords.length; j++) {
+        if (modUsed[j] || !/\S/.test(modWords[j])) { modHtml += escapeHtml(modWords[j]); }
+        else { modHtml += '<span class="tdc-word-added">' + escapeHtml(modWords[j]) + '</span>'; }
+      }
+      return { origHtml: origHtml, modHtml: modHtml };
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function renderDiff(diffResult) {
+      var showLineNums = lineNumbersCheck.checked;
+      var leftHtml = '', rightHtml = '', unifiedHtml = '';
+      var added = 0, removed = 0, changed = 0, unchanged = 0;
+      var origLineNum = 0, modLineNum = 0;
+
+      diffResult.forEach(function(item) {
+        var origNum = '', modNum = '';
+        if (showLineNums) {
+          if (item.origIdx !== null) { origNum = (item.origIdx + 1); origLineNum = item.origIdx + 1; }
+          if (item.modIdx !== null) { modNum = (item.modIdx + 1); modLineNum = item.modIdx + 1; }
+        }
+
+        if (item.type === 'unchanged') {
+          unchanged++;
+          leftHtml += '<div class="tdc-diff-line tdc-diff-line-unchanged">';
+          if (showLineNums) leftHtml += '<span class="tdc-diff-linenum">' + origNum + '</span>';
+          leftHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-unchanged"> </span><span class="tdc-diff-content">' + escapeHtml(item.origLine || '') + '</span></div>';
+          rightHtml += '<div class="tdc-diff-line tdc-diff-line-unchanged">';
+          if (showLineNums) rightHtml += '<span class="tdc-diff-linenum">' + modNum + '</span>';
+          rightHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-unchanged"> </span><span class="tdc-diff-content">' + escapeHtml(item.modLine || '') + '</span></div>';
+          unifiedHtml += '<div class="tdc-diff-line tdc-diff-line-unchanged">';
+          if (showLineNums) unifiedHtml += '<span class="tdc-diff-linenum">' + origNum + '</span>';
+          unifiedHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-unchanged"> </span><span class="tdc-diff-content">' + escapeHtml(item.modLine || '') + '</span></div>';
+        } else if (item.type === 'added') {
+          added++;
+          leftHtml += '<div class="tdc-diff-line tdc-diff-line-empty">';
+          if (showLineNums) leftHtml += '<span class="tdc-diff-linenum"></span>';
+          leftHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-unchanged"> </span><span class="tdc-diff-content"></span></div>';
+          rightHtml += '<div class="tdc-diff-line tdc-diff-line-added">';
+          if (showLineNums) rightHtml += '<span class="tdc-diff-linenum">' + modNum + '</span>';
+          rightHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-added">+</span><span class="tdc-diff-content">' + escapeHtml(item.modLine || '') + '</span></div>';
+          unifiedHtml += '<div class="tdc-diff-line tdc-diff-line-added">';
+          if (showLineNums) unifiedHtml += '<span class="tdc-diff-linenum">' + modNum + '</span>';
+          unifiedHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-added">+</span><span class="tdc-diff-content">' + escapeHtml(item.modLine || '') + '</span></div>';
+        } else if (item.type === 'removed') {
+          removed++;
+          leftHtml += '<div class="tdc-diff-line tdc-diff-line-removed">';
+          if (showLineNums) leftHtml += '<span class="tdc-diff-linenum">' + origNum + '</span>';
+          leftHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-removed">-</span><span class="tdc-diff-content">' + escapeHtml(item.origLine || '') + '</span></div>';
+          rightHtml += '<div class="tdc-diff-line tdc-diff-line-empty">';
+          if (showLineNums) rightHtml += '<span class="tdc-diff-linenum"></span>';
+          rightHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-unchanged"> </span><span class="tdc-diff-content"></span></div>';
+          unifiedHtml += '<div class="tdc-diff-line tdc-diff-line-removed">';
+          if (showLineNums) unifiedHtml += '<span class="tdc-diff-linenum">' + origNum + '</span>';
+          unifiedHtml += '<span class="tdc-diff-prefix tdc-diff-prefix-removed">-</span><span class="tdc-diff-content">' + escapeHtml(item.origLine || '') + '</span></div>';
+        }
+      });
+
+      diffLeft.innerHTML = leftHtml;
+      diffRight.innerHTML = rightHtml;
+      diffUnifiedContent.innerHTML = unifiedHtml;
+      addedCount.textContent = added;
+      removedCount.textContent = removed;
+      changedCount.textContent = changed;
+      unchangedCount.textContent = unchanged;
+    }
+
+    function compare() {
+      var orig = originalEl.value;
+      var mod = modifiedEl.value;
+      if (!orig && !mod) { showError('Please enter text in both panels.'); return; }
+      showEl(loadingEl);
+      hideEl(emptyState);
+      hideEl(statsEl);
+      hideEl(diffSplit);
+      hideEl(diffUnified);
+      setTimeout(function() {
+        var origLines = orig.split('\n');
+        var modLines = mod.split('\n');
+        var diff = computeDiff(origLines, modLines);
+        renderDiff(diff);
+        hideEl(loadingEl);
+        showEl(statsEl);
+        if (currentView === 'split') { showEl(diffSplit); } else { showEl(diffUnified); }
+      }, 100);
+    }
+
+    function updateLineCounts() {
+      var oLines = originalEl.value ? originalEl.value.split('\n').length : 0;
+      var mLines = modifiedEl.value ? modifiedEl.value.split('\n').length : 0;
+      origCount.textContent = oLines + ' lines';
+      modCount.textContent = mLines + ' lines';
+    }
+
+    function switchView(view) {
+      currentView = view;
+      if (view === 'split') {
+        viewSplitBtn.classList.add('active');
+        viewUnifiedBtn.classList.remove('active');
+        if (!statsEl.classList.contains('hidden')) { showEl(diffSplit); hideEl(diffUnified); }
+      } else {
+        viewUnifiedBtn.classList.add('active');
+        viewSplitBtn.classList.remove('active');
+        if (!statsEl.classList.contains('hidden')) { showEl(diffUnified); hideEl(diffSplit); }
+      }
+    }
+
+    originalEl.addEventListener('input', updateLineCounts);
+    modifiedEl.addEventListener('input', updateLineCounts);
+    compareBtn.addEventListener('click', compare);
+    viewSplitBtn.addEventListener('click', function() { switchView('split'); });
+    viewUnifiedBtn.addEventListener('click', function() { switchView('unified'); });
+
+    swapBtn.addEventListener('click', function() {
+      var tmp = originalEl.value;
+      originalEl.value = modifiedEl.value;
+      modifiedEl.value = tmp;
+      updateLineCounts();
+      if (!statsEl.classList.contains('hidden')) { compare(); }
+    });
+
+    copyDiffBtn.addEventListener('click', function() {
+      var text = currentView === 'split' ? diffLeft.textContent + '\n---\n' + diffRight.textContent : diffUnifiedContent.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        var orig = copyDiffBtn.innerHTML;
+        copyDiffBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg><span>Copied!</span>';
+        copyDiffBtn.classList.add('text-green-600', 'dark:text-green-400');
+        setTimeout(function() { copyDiffBtn.innerHTML = orig; copyDiffBtn.classList.remove('text-green-600', 'dark:text-green-400'); }, 2000);
+      });
+    });
+
+    [caseSensitiveCheck, ignoreWsCheck, lineNumbersCheck].forEach(function(cb) {
+      cb.addEventListener('change', function() { if (!statsEl.classList.contains('hidden')) { compare(); } });
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); compare(); }
+      else if (e.ctrlKey && e.key === 's') { e.preventDefault(); swapBtn.click(); }
+      else if (e.ctrlKey && e.shiftKey && e.key === 'C') { e.preventDefault(); copyDiffBtn.click(); }
+    });
+
+    updateLineCounts();
+  })();
+</script>
